@@ -1,0 +1,41 @@
+--Basic Game Entity--
+Prerequisite
+Production time
+Location
+Tile color
+Asset?
+
+--Basic Game Unit--
+Move explored tiles
+Move speed
+
+>Worker<
+Chop wood
+Carry resource
+Upgradable
+
+>Explorer<
+Removes fog of war (3x3)
+
+>Soldier<
+
+
+>Artisan<
+Profession
+
+
+
+--Basic Structure--
+Output
+
+>Smithy<
+-->Sword
+
+>Smelter<
+-->Iron Bar
+
+>Refinery<
+-->Coal
+
+>Encamptment<
+-->Soldier

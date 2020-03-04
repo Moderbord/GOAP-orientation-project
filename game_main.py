@@ -2,11 +2,7 @@ import sys
 import pygame as pg
 
 import game_settings as settings
-import game_tiles as tiles
-import game_assets as assets
 import game_map as gamemap
-
-
 
 class Game:
 
@@ -21,7 +17,7 @@ class Game:
         # load map
         self.map.load_map_template(map_name)
         # Updates screen size to loaded map
-        self.screen = pg.display.set_mode((settings.MAP_WIDTH, settings.MAP_HEIGHT))   
+        self.screen = pg.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
 
     def run(self):
         self.running = True
@@ -32,12 +28,22 @@ class Game:
             self.draw()
 
     def update(self):
+        # send screen to map for blit
         self.map.update()
 
         # catch inputs
         keystate = pg.key.get_pressed()
         if keystate[pg.K_ESCAPE]:
             pg.event.post(pg.event.Event(pg.QUIT))
+
+        if keystate[pg.K_w]:
+            self.map.camera.move(dy=-1)
+        if keystate[pg.K_s]:
+            self.map.camera.move(dy=1)
+        if keystate[pg.K_a]:
+            self.map.camera.move(dx=-1)
+        if keystate[pg.K_d]:
+            self.map.camera.move(dx=1)
 
     def draw_grid_overlay(self):
         for x in range(0, settings.MAP_WIDTH, settings.TILE_SIZE):

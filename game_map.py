@@ -1,17 +1,20 @@
-from os import path
-from pygame import sprite
+import pygame as pg
 import random
+from os import path
 
 import game_settings as settings
 import game_assets as assets
 import game_tiles as tiles
-# import algorithms as alg
+import algorithms as alg
 
 class GameMap:
 
     def __init__(self):
-        self.sprite_group_all = sprite.Group()
+        self.sprite_group_all = pg.sprite.Group()
+        self.sprite_group_entities = pg.sprite.Group()
         self.unpassable_tiles = []
+        self.weighted_graph = None
+        self.camera = None
         self.map_width = 0
         self.map_height = 0
 
@@ -49,13 +52,35 @@ class GameMap:
         settings.MAP_WIDTH = self.map_width * settings.TILE_SIZE
         settings.MAP_HEIGHT = self.map_height * settings.TILE_SIZE
 
+        self.weighted_graph = alg.WeightedGraph(self)
+        self.camera = Camera(settings.MAP_WIDTH, settings.MAP_HEIGHT)
+
     def update(self):
         self.sprite_group_all.update()
+        self.sprite_group_entities.update()
 
     def draw(self, screen):
-        self.sprite_group_all.draw(screen)
+        for sprite in self.sprite_group_all:
+            # apply offset to camera to all sprites 
+            screen.blit(sprite.image, self.camera.apply(sprite))
 
-    # def astar_cost(self):
-    #     path, cost = alg.Astar(alg.WeightedGraph(self), self.custom_start, self.custom_goal)
-    #     return cost
+    def get_path(self, start, goal):
+        return alg.Astar(self.weighted_graph, start, goal)
+
+class Camera:
+    def __init__(self, width, height):
+        self.camera = pg.Rect(0, 0, width, height)
+        self.width = width
+        self.height = height
+        self.x = 0
+        self.y = 0
+
+    def apply(self, entity):
+        return entity.rect.move(self.camera.topleft)
+
+    def move(self, dx=0, dy=0):
+        self.x += dx * int(settings.TILE_SIZE)
+        self.y += dy * int(settings.TILE_SIZE)
+        self.camera = pg.Rect(-self.x, -self.y, self.width, self.height)
+
     

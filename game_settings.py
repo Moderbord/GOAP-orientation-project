@@ -6,7 +6,7 @@ MAP_HEIGHT = 128
 MAP_WIDTH = 128
 
 TITLE = "Barf Fortess"
-FPS = 60
+FPS = 24
 
 # Colours
 COLOR = { 

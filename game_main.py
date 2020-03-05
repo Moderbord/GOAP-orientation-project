@@ -1,8 +1,10 @@
-import sys
+from random import randint
 import pygame as pg
 
+import algorithms as alg
 import game_settings as settings
 import game_map as gamemap
+import game_tiles as tiles
 
 class Game:
 
@@ -18,6 +20,14 @@ class Game:
         self.map.load_map_template(map_name)
         # Updates screen size to loaded map
         self.screen = pg.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
+
+    def enable_explorer(self):
+        self.eplorer = tiles.TestExplorer(self.map, 2, 2)
+        self.map.clear_fog_area((1, 1), (4, 4))
+
+
+    def enable_fog(self):
+        self.map.fog = True
 
     def run(self):
         self.running = True
@@ -36,6 +46,14 @@ class Game:
         if keystate[pg.K_ESCAPE]:
             pg.event.post(pg.event.Event(pg.QUIT))
 
+        if keystate[pg.K_TAB]:
+            self.map.fog = not self.map.fog
+
+        if keystate[pg.K_SPACE]:
+            path = alg.Astar(self.map.weighted_graph, (randint(0, self.map.map_width - 1), (randint(0, self.map.map_height - 1))), self.eplorer.get_position())
+            if path:
+                self.eplorer.set_path(path)
+
         if keystate[pg.K_w]:
             self.map.camera.move(dy=-1)
         if keystate[pg.K_s]:
@@ -45,6 +63,16 @@ class Game:
         if keystate[pg.K_d]:
             self.map.camera.move(dx=1)
 
+        if (self.eplorer):
+            if keystate[pg.K_UP]:
+                self.eplorer.move(dy=-1)
+            if keystate[pg.K_DOWN]:
+                self.eplorer.move(dy=1)
+            if keystate[pg.K_LEFT]:
+                self.eplorer.move(dx=-1)
+            if keystate[pg.K_RIGHT]:
+                self.eplorer.move(dx=1)
+
     def draw_grid_overlay(self):
         for x in range(0, settings.MAP_WIDTH, settings.TILE_SIZE):
             pg.draw.line(self.screen, settings.COLOR["LIGHTGRAY"], (x, 0), (x, settings.MAP_HEIGHT))
@@ -53,7 +81,7 @@ class Game:
 
     def draw(self):
         # Background
-        self.screen.fill(settings.COLOR["WHITE"])
+        self.screen.fill(settings.COLOR["BLACK"])
         # Tiles
         self.map.draw(self.screen)
         # Overlay
@@ -66,3 +94,4 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
+                

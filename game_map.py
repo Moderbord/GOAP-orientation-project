@@ -11,12 +11,16 @@ class GameMap:
 
     def __init__(self):
         self.sprite_group_all = pg.sprite.Group()
+        self.sprite_group_fog = pg.sprite.Group()
         self.sprite_group_entities = pg.sprite.Group()
         self.unpassable_tiles = []
+        self.cleared_fog = []
         self.weighted_graph = None
         self.camera = None
         self.map_width = 0
         self.map_height = 0
+
+        self.fog = False
 
     def load_map_template(self, template_name):
         # Open map template
@@ -24,6 +28,7 @@ class GameMap:
 
             # Construct tiles from map file
             for y, row in enumerate(f):
+                row = row.strip("\n")
                 # count map height
                 self.map_height += 1
                 self.map_width = 0
@@ -31,6 +36,9 @@ class GameMap:
                 for x, tile in enumerate(row):
                     # count map width (lazy mf)
                     self.map_width += 1
+
+                    # fog is everywhere
+                    tiles.Fog(self, x, y)
                     
                     if tile == "T": # Forest
                         tiles.Forest(self, x, y)
@@ -57,12 +65,39 @@ class GameMap:
 
     def update(self):
         self.sprite_group_all.update()
+        self.sprite_group_fog.update()
         self.sprite_group_entities.update()
 
     def draw(self, screen):
         for sprite in self.sprite_group_all:
             # apply offset to camera to all sprites 
             screen.blit(sprite.image, self.camera.apply(sprite))
+
+        if self.fog:
+            for sprite in self.sprite_group_fog:
+                screen.blit(sprite.image, self.camera.apply(sprite))
+
+    def get_tile(self, cords):
+        for tile in self.sprite_group_all:
+            if cords == (tile.x, tile.y):
+                return tile
+    
+    def get_fog_tile(self, cords):
+        for tile in self.sprite_group_fog:
+            if cords == (tile.x, tile.y):
+                return tile
+
+    def remove_tile(self, tile):
+        pg.sprite.Sprite.remove(tile, tile.groups)
+    
+    def clear_fog_area(self, start, stop):
+        (x1, y1), (x2, y2) = start, stop
+        for x in range(x1, x2):
+            for y in range(y1, y2):
+                self.cleared_fog.append((x, y))
+                tile = self.get_fog_tile((x, y))
+                self.remove_tile(tile)
+
 
     def get_path(self, start, goal):
         return alg.Astar(self.weighted_graph, start, goal)

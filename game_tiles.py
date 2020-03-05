@@ -10,6 +10,7 @@ class BasicTile(sprite.Sprite):
         self.gamemap = gamemap
         # Grid coordinates
         self.location = location
+        self.movement_factor = 1
 
         #self.image = assets.LoadSprite("unicorn.jpg")
         self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
@@ -30,6 +31,7 @@ class Forest(BasicTile):
         self.groups = gamemap.sprite_group_background
         self.tile_color = "FOREST"
         BasicTile.__init__(self, gamemap, location)
+        self.movement_factor = 0.8
 
 class Ground(BasicTile):
     def __init__(self, gamemap, location):
@@ -48,6 +50,7 @@ class Bog(BasicTile):
         self.groups = gamemap.sprite_group_background
         self.tile_color = "BOG"
         BasicTile.__init__(self, gamemap, location)
+        self.movement_factor = 0.5
 
 class Mountain(BasicTile):
     def __init__(self, gamemap, location):

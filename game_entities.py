@@ -38,16 +38,15 @@ class BasicGameUnit(BasicGameEntity):
         self.location = new_pos
 
     def update(self):
-        # TODO take tile type into account
         # movement
         if self.current_path:
-            (x1, y1) = self.location
-            (x2, y2) = self.next_tile
-            dx = x2 - x1
-            dy = y2 - y1
+            (x1, y1), (x2, y2) = self.location, self.next_tile
+            dx, dy = x2 - x1, y2 - y1
 
-            self.move_progress += self.move_speed
-            if self.move_progress >= 12:
+            current_tile = self.gamemap.get_background_tile(self.location)
+
+            self.move_progress += self.move_speed * current_tile.movement_factor
+            if self.move_progress >= 100:
                 # reset progress
                 self.move_progress = 0
                 # move
@@ -66,11 +65,8 @@ class TestExplorer(BasicGameUnit):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_entities
         self.tile_color = "RED"
-
         BasicGameUnit.__init__(self, gamemap, location)
-
         self.move_speed = 10
-
 
     def move(self, dx=0, dy=0):
         new_pos = self.location[0] + dx, self.location[1] + dy

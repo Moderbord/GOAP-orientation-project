@@ -4,96 +4,53 @@ from pygame import Surface
 import game_settings as settings
 import game_assets as assets
 
-class Fog(sprite.Sprite):
-    def __init__(self, gamemap, x, y):
+class BasicTile(sprite.Sprite):
+    def __init__(self, gamemap, location):
+        sprite.Sprite.__init__(self, self.groups) # Add self to group
+        self.gamemap = gamemap
+        # Grid coordinates
+        self.location = location
+
+        #self.image = assets.LoadSprite("unicorn.jpg")
+        self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
+        self.image.fill(settings.COLOR[self.tile_color])
+
+        self.rect = self.image.get_rect()
+        self.rect.x = location[0] * settings.TILE_SIZE
+        self.rect.y = location[1] * settings.TILE_SIZE
+
+class Fog(BasicTile):
+    def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_fog
-        sprite.Sprite.__init__(self, self.groups) # Add self to group
-        self.gamemap = gamemap
-        # Grid coordinates
-        self.x = x 
-        self.y = y
+        self.tile_color = "LIGHTGRAY"
+        BasicTile.__init__(self, gamemap, location)
 
-        #self.image = assets.LoadSprite("unicorn.jpg")
-        self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
-        self.image.fill(settings.COLOR["LIGHTGRAY"])
-
-        self.rect = self.image.get_rect()
-        self.rect.x = x * settings.TILE_SIZE
-        self.rect.y = y * settings.TILE_SIZE
-
-class Forest(sprite.Sprite):
-    def __init__(self, gamemap, x, y):
+class Forest(BasicTile):
+    def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
-        sprite.Sprite.__init__(self, self.groups) # Add self to group
-        self.gamemap = gamemap
-        # Grid coordinates
-        self.x = x 
-        self.y = y
+        self.tile_color = "FOREST"
+        BasicTile.__init__(self, gamemap, location)
 
-        #self.image = assets.LoadSprite("unicorn.jpg")
-        self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
-        self.image.fill(settings.COLOR["FOREST"])
-
-        self.rect = self.image.get_rect()
-        self.rect.x = x * settings.TILE_SIZE
-        self.rect.y = y * settings.TILE_SIZE
-
-class Ground(sprite.Sprite):
-    def __init__(self, gamemap, x, y):
+class Ground(BasicTile):
+    def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
-        sprite.Sprite.__init__(self, self.groups) # Add self to group
-        self.gamemap = gamemap
-        self.x = x
-        self.y = y
+        self.tile_color = "GROUND"
+        BasicTile.__init__(self, gamemap, location)
 
-        self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
-        self.image.fill(settings.COLOR["GROUND"])
-
-        self.rect = self.image.get_rect()
-        self.rect.x = x * settings.TILE_SIZE
-        self.rect.y = y * settings.TILE_SIZE
-
-class Water(sprite.Sprite):
-    def __init__(self, gamemap, x, y):
+class Water(BasicTile):
+    def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
-        sprite.Sprite.__init__(self, self.groups) # Add self to group
-        self.gamemap = gamemap
-        self.y = y
-        self.x = x
+        self.tile_color = "WATER"
+        BasicTile.__init__(self, gamemap, location)
 
-        self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
-        self.image.fill(settings.COLOR["WATER"])
-
-        self.rect = self.image.get_rect()
-        self.rect.x = x * settings.TILE_SIZE
-        self.rect.y = y * settings.TILE_SIZE
-
-class Bog(sprite.Sprite):
-    def __init__(self, gamemap, x, y):
+class Bog(BasicTile):
+    def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
-        sprite.Sprite.__init__(self, self.groups) # Add self to group
-        self.gamemap = gamemap
-        self.x = x
-        self.y = y
+        self.tile_color = "BOG"
+        BasicTile.__init__(self, gamemap, location)
 
-        self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
-        self.image.fill(settings.COLOR["BOG"])
-
-        self.rect = self.image.get_rect()
-        self.rect.x = x * settings.TILE_SIZE
-        self.rect.y = y * settings.TILE_SIZE
-
-class Mountain(sprite.Sprite):
-    def __init__(self, gamemap, x, y):
+class Mountain(BasicTile):
+    def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
-        sprite.Sprite.__init__(self, self.groups)
-        self.gamemap = gamemap
-        self.x = x
-        self.y = y
-
-        self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
-        self.image.fill(settings.COLOR["MOUNTAIN"])
-
-        self.rect = self.image.get_rect()
-        self.rect.x = x * settings.TILE_SIZE
-        self.rect.y = y * settings.TILE_SIZE
+        self.tile_color = "MOUNTAIN"
+        BasicTile.__init__(self, gamemap, location)

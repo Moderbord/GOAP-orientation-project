@@ -38,24 +38,24 @@ class GameMap:
                     self.map_width += 1
 
                     # fog is everywhere
-                    tiles.Fog(self, x, y)
+                    tiles.Fog(self, (x, y))
                     
                     if tile == "T": # Forest
-                        tiles.Forest(self, x, y)
+                        tiles.Forest(self, (x, y))
                     
                     elif tile == "V": # Water
-                        tiles.Water(self, x, y)
+                        tiles.Water(self, (x, y))
                         self.unpassable_tiles.append((x, y))
                         
                     elif tile == "G": # Bog
-                        tiles.Bog(self, x, y)
+                        tiles.Bog(self, (x, y))
                        
                     elif tile == "B": # Mountain
-                        tiles.Mountain(self, x, y)
+                        tiles.Mountain(self, (x, y))
                         self.unpassable_tiles.append((x, y))
                     
                     elif tile == "M": # Ground
-                        tiles.Ground(self, x, y)
+                        tiles.Ground(self, (x, y))
 
         settings.MAP_WIDTH = self.map_width * settings.TILE_SIZE
         settings.MAP_HEIGHT = self.map_height * settings.TILE_SIZE
@@ -82,12 +82,12 @@ class GameMap:
 
     def get_background_tile(self, cords):
         for tile in self.sprite_group_background:
-            if cords == (tile.x, tile.y):
+            if cords == (tile.location[0], tile.location[1]):
                 return tile
     
     def get_fog_tile(self, cords):
         for tile in self.sprite_group_fog:
-            if cords == (tile.x, tile.y):
+            if cords == (tile.location[0], tile.location[1]):
                 return tile
 
     def remove_tile(self, tile):

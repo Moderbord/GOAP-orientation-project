@@ -5,6 +5,7 @@ import algorithms as alg
 import game_settings as settings
 import game_map as gamemap
 import game_tiles as tiles
+import game_entities as entities
 
 class Game:
 
@@ -22,7 +23,7 @@ class Game:
         self.screen = pg.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
 
     def enable_explorer(self):
-        self.explorer = tiles.TestExplorer(self.map, 2, 2)
+        self.explorer = entities.TestExplorer(self.map, (2, 2))
         self.map.clear_fog_area((1, 1), (3, 3))
 
 
@@ -50,7 +51,7 @@ class Game:
             self.map.draw_fog = not self.map.draw_fog
 
         if keystate[pg.K_SPACE]:
-            path = self.map.get_path(self.explorer.get_position(), (randint(0, self.map.map_width - 1), (randint(0, self.map.map_height - 1))))
+            path = self.map.get_path(self.explorer.location, (randint(0, self.map.map_width - 1), (randint(0, self.map.map_height - 1))))
             if path:
                 self.explorer.set_path(path)
 

@@ -97,7 +97,7 @@ def HeuristicManhattar(from_node, to_node):
 
 def Astar(graph, start, goal):
 
-    if start in graph.unpassable_tiles or goal in graph.unpassable_tiles:
+    if start == goal or start in graph.gamemap.unpassable_tiles or goal in graph.gamemap.unpassable_tiles:
         return False
 
     front = PriorityQueue()

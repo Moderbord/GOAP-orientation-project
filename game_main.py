@@ -1,10 +1,8 @@
 from random import randint
 import pygame as pg
 
-import algorithms as alg
 import game_settings as settings
 import game_map as gamemap
-import game_tiles as tiles
 import game_entities as entities
 
 class Game:

@@ -2,12 +2,14 @@ from pygame import sprite
 from pygame import Surface
 
 import game_settings as settings
+import state_machine as fsm
 
 #----------------------------BASE--------------------------------------#
 class BasicGameEntity(sprite.Sprite):
 
     def __init__(self, gamemap, location):
         sprite.Sprite.__init__(self, self.groups)
+        self.fsm = fsm.StateMachine(self)
         # reference to map
         self.gamemap = gamemap
         # list of requirements for production
@@ -16,9 +18,14 @@ class BasicGameEntity(sprite.Sprite):
         self.production_time = 0
         self.location = location
 
+        #sprite/asset
         self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
         self.image.fill(settings.COLOR[self.tile_color])
         self.rect = self.image.get_rect()
+
+    def update(self):
+        # state machine
+        self.fsm.Update()
 
 #----------------------------UNITS--------------------------------------#
 class BasicGameUnit(BasicGameEntity):
@@ -41,6 +48,8 @@ class BasicGameUnit(BasicGameEntity):
         self.location = new_pos
 
     def update(self):
+        super().update()
+
         # movement
         if self.current_path:
             (x1, y1), (x2, y2) = self.location, self.next_tile
@@ -86,9 +95,13 @@ class UnitExplorer(BasicGameUnit):
             self.gamemap.clear_fog_area(start, stop)
 
 class UnitWorker(BasicGameUnit):
+    #chop wood
+    #carry resource
+    #upgradable
     pass
 
 class UnitArtisan(BasicGameUnit):
+    #profession
     pass
 
 class UnitSoldier(BasicGameUnit):
@@ -100,16 +113,23 @@ class BasicGameStructure(BasicGameEntity):
         BasicGameEntity.__init__(self, gamemap, location)
         self.output = {}
 
+    def update(self):
+        super().update()
+
 class StructureSmithy(BasicGameStructure):
+    #swords
     pass
 
 class StructureSmelter(BasicGameStructure):
+    #iron bars
     pass
 
 class StructureRefinery(BasicGameStructure):
+    #coal
     pass
 
 class StructureEncampment(BasicGameStructure):
+    #soldiers
     pass
 
 

@@ -1,5 +1,4 @@
 import pygame as pg
-import random
 from os import path
 
 import game_settings as settings

@@ -20,7 +20,7 @@ class GameMap:
         self.map_width = 0
         self.map_height = 0
 
-        self.fog = False
+        self.draw_fog = False
 
     def load_map_template(self, template_name):
         # Open map template
@@ -73,7 +73,7 @@ class GameMap:
             # apply offset to camera to all sprites 
             screen.blit(sprite.image, self.camera.apply(sprite))
 
-        if self.fog:
+        if self.draw_fog:
             for sprite in self.sprite_group_fog:
                 screen.blit(sprite.image, self.camera.apply(sprite))
 
@@ -92,11 +92,15 @@ class GameMap:
     
     def clear_fog_area(self, start, stop):
         (x1, y1), (x2, y2) = start, stop
-        for x in range(x1, x2):
-            for y in range(y1, y2):
-                self.cleared_fog.append((x, y))
+        for x in range(x1, x2 + 1):
+            for y in range(y1, y2 + 1):
+                # get fog tile if it exists
                 tile = self.get_fog_tile((x, y))
-                self.remove_tile(tile)
+                if tile:
+                    self.cleared_fog.append((x, y))
+                    self.remove_tile(tile)
+
+
 
 
     def get_path(self, start, goal):

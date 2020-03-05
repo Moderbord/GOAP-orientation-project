@@ -40,31 +40,16 @@ class TestExplorer(sprite.Sprite):
         self.x += dx
         self.y += dy
 
-        # TODO clear 3x3 fog around entity on every move. prob is much cheaper
-
-        x, y = self.x, self.y
-        # remove fog dirty
-        neighbors = [
-            (x - 1, y - 1),
-            (x + 0, y - 1),
-            (x + 1, y - 1),
-
-            (x - 1, y + 0),
-            (x + 1, y + 0),
-
-            (x - 1, y + 1),
-            (x + 0, y + 1),
-            (x + 1, y + 1),
-        ]
-
-        for neighbor in neighbors:
-            if neighbor not in self.gamemap.cleared_fog:
-                # add tile to explored list
-                self.gamemap.cleared_fog.append(neighbor)
-                # get fog tile
-                tile = self.gamemap.get_fog_tile(neighbor)
-                # remove
-                sprite.Sprite.remove(tile, tile.groups)
+        pos = (self.x, self.y)
+        
+        if dx: # horizontal movement
+            start = (pos[0] + dx, pos[1] - 1)
+            stop = (pos[0] + dx, pos[1] + 1)
+            self.gamemap.clear_fog_area(start, stop)
+        if dy: # vertical movement
+            start = (pos[0] - 1, pos[1] + dy)
+            stop = (pos[0] + 1, pos[1] + dy)
+            self.gamemap.clear_fog_area(start, stop)
 
     def update(self):
         

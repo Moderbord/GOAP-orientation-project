@@ -22,12 +22,12 @@ class Game:
         self.screen = pg.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
 
     def enable_explorer(self):
-        self.eplorer = tiles.TestExplorer(self.map, 2, 2)
-        self.map.clear_fog_area((1, 1), (4, 4))
+        self.explorer = tiles.TestExplorer(self.map, 2, 2)
+        self.map.clear_fog_area((1, 1), (3, 3))
 
 
     def enable_fog(self):
-        self.map.fog = True
+        self.map.draw_fog = True
 
     def run(self):
         self.running = True
@@ -47,12 +47,12 @@ class Game:
             pg.event.post(pg.event.Event(pg.QUIT))
 
         if keystate[pg.K_TAB]:
-            self.map.fog = not self.map.fog
+            self.map.draw_fog = not self.map.draw_fog
 
         if keystate[pg.K_SPACE]:
-            path = alg.Astar(self.map.weighted_graph, (randint(0, self.map.map_width - 1), (randint(0, self.map.map_height - 1))), self.eplorer.get_position())
+            path = alg.Astar(self.map.weighted_graph, (randint(0, self.map.map_width - 1), (randint(0, self.map.map_height - 1))), self.explorer.get_position())
             if path:
-                self.eplorer.set_path(path)
+                self.explorer.set_path(path)
 
         if keystate[pg.K_w]:
             self.map.camera.move(dy=-1)
@@ -63,15 +63,15 @@ class Game:
         if keystate[pg.K_d]:
             self.map.camera.move(dx=1)
 
-        if (self.eplorer):
+        if (self.explorer):
             if keystate[pg.K_UP]:
-                self.eplorer.move(dy=-1)
+                self.explorer.move(dy=-1)
             if keystate[pg.K_DOWN]:
-                self.eplorer.move(dy=1)
+                self.explorer.move(dy=1)
             if keystate[pg.K_LEFT]:
-                self.eplorer.move(dx=-1)
+                self.explorer.move(dx=-1)
             if keystate[pg.K_RIGHT]:
-                self.eplorer.move(dx=1)
+                self.explorer.move(dx=1)
 
     def draw_grid_overlay(self):
         for x in range(0, settings.MAP_WIDTH, settings.TILE_SIZE):

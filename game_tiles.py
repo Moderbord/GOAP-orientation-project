@@ -7,7 +7,7 @@ import game_assets as assets
 
 class TestExplorer(sprite.Sprite):
     def __init__(self, gamemap, x, y):
-        self.groups = gamemap.sprite_group_all, gamemap.sprite_group_entities
+        self.groups = gamemap.sprite_group_entities
         sprite.Sprite.__init__(self, self.groups) # Add self to group
         self.gamemap = gamemap
         # Grid coordinates
@@ -18,7 +18,7 @@ class TestExplorer(sprite.Sprite):
         self.image.fill(settings.COLOR["RED"])
         self.rect = self.image.get_rect()
 
-        self.move_speed = 3
+        self.move_speed = 10
         self.move_progress = 0
 
         self.current_path = None
@@ -97,7 +97,7 @@ class Fog(sprite.Sprite):
 
 class Forest(sprite.Sprite):
     def __init__(self, gamemap, x, y):
-        self.groups = gamemap.sprite_group_all
+        self.groups = gamemap.sprite_group_background
         sprite.Sprite.__init__(self, self.groups) # Add self to group
         self.gamemap = gamemap
         # Grid coordinates
@@ -114,7 +114,7 @@ class Forest(sprite.Sprite):
 
 class Ground(sprite.Sprite):
     def __init__(self, gamemap, x, y):
-        self.groups = gamemap.sprite_group_all
+        self.groups = gamemap.sprite_group_background
         sprite.Sprite.__init__(self, self.groups) # Add self to group
         self.gamemap = gamemap
         self.x = x
@@ -129,7 +129,7 @@ class Ground(sprite.Sprite):
 
 class Water(sprite.Sprite):
     def __init__(self, gamemap, x, y):
-        self.groups = gamemap.sprite_group_all
+        self.groups = gamemap.sprite_group_background
         sprite.Sprite.__init__(self, self.groups) # Add self to group
         self.gamemap = gamemap
         self.y = y
@@ -144,7 +144,7 @@ class Water(sprite.Sprite):
 
 class Bog(sprite.Sprite):
     def __init__(self, gamemap, x, y):
-        self.groups = gamemap.sprite_group_all
+        self.groups = gamemap.sprite_group_background
         sprite.Sprite.__init__(self, self.groups) # Add self to group
         self.gamemap = gamemap
         self.x = x
@@ -159,7 +159,7 @@ class Bog(sprite.Sprite):
 
 class Mountain(sprite.Sprite):
     def __init__(self, gamemap, x, y):
-        self.groups = gamemap.sprite_group_all
+        self.groups = gamemap.sprite_group_background
         sprite.Sprite.__init__(self, self.groups)
         self.gamemap = gamemap
         self.x = x

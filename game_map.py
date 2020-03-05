@@ -10,7 +10,7 @@ import algorithms as alg
 class GameMap:
 
     def __init__(self):
-        self.sprite_group_all = pg.sprite.Group()
+        self.sprite_group_background = pg.sprite.Group()
         self.sprite_group_fog = pg.sprite.Group()
         self.sprite_group_entities = pg.sprite.Group()
         self.unpassable_tiles = []
@@ -64,21 +64,24 @@ class GameMap:
         self.camera = Camera(settings.MAP_WIDTH, settings.MAP_HEIGHT)
 
     def update(self):
-        self.sprite_group_all.update()
-        self.sprite_group_fog.update()
+        self.sprite_group_background.update()
         self.sprite_group_entities.update()
+        self.sprite_group_fog.update()
 
     def draw(self, screen):
-        for sprite in self.sprite_group_all:
+        for sprite in self.sprite_group_background:
             # apply offset to camera to all sprites 
+            screen.blit(sprite.image, self.camera.apply(sprite))
+
+        for sprite in self.sprite_group_entities:
             screen.blit(sprite.image, self.camera.apply(sprite))
 
         if self.draw_fog:
             for sprite in self.sprite_group_fog:
                 screen.blit(sprite.image, self.camera.apply(sprite))
 
-    def get_tile(self, cords):
-        for tile in self.sprite_group_all:
+    def get_background_tile(self, cords):
+        for tile in self.sprite_group_background:
             if cords == (tile.x, tile.y):
                 return tile
     
@@ -100,11 +103,8 @@ class GameMap:
                     self.cleared_fog.append((x, y))
                     self.remove_tile(tile)
 
-
-
-
     def get_path(self, start, goal):
-        return alg.Astar(self.weighted_graph, start, goal)
+        return alg.Astar(self.weighted_graph, goal, start)
 
 class Camera:
     def __init__(self, width, height):

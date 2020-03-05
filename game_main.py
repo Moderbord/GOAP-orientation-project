@@ -50,7 +50,7 @@ class Game:
             self.map.draw_fog = not self.map.draw_fog
 
         if keystate[pg.K_SPACE]:
-            path = alg.Astar(self.map.weighted_graph, (randint(0, self.map.map_width - 1), (randint(0, self.map.map_height - 1))), self.explorer.get_position())
+            path = self.map.get_path(self.explorer.get_position(), (randint(0, self.map.map_width - 1), (randint(0, self.map.map_height - 1))))
             if path:
                 self.explorer.set_path(path)
 

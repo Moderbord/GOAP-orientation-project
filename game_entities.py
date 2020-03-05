@@ -3,6 +3,7 @@ from pygame import Surface
 
 import game_settings as settings
 
+#----------------------------BASE--------------------------------------#
 class BasicGameEntity(sprite.Sprite):
 
     def __init__(self, gamemap, location):
@@ -10,7 +11,8 @@ class BasicGameEntity(sprite.Sprite):
         # reference to map
         self.gamemap = gamemap
         # list of requirements for production
-        self.prerequisite = []
+        self.structure_requirements = []
+        self.material_requirements = {}
         self.production_time = 0
         self.location = location
 
@@ -18,11 +20,12 @@ class BasicGameEntity(sprite.Sprite):
         self.image.fill(settings.COLOR[self.tile_color])
         self.rect = self.image.get_rect()
 
+#----------------------------UNITS--------------------------------------#
 class BasicGameUnit(BasicGameEntity):
 
     def __init__(self, gamemap, location):
         BasicGameEntity.__init__(self, gamemap, location)
-        self.move_speed = 0
+        self.move_speed = 10
         self.move_progress = 0
 
         # pathfinding
@@ -42,9 +45,9 @@ class BasicGameUnit(BasicGameEntity):
         if self.current_path:
             (x1, y1), (x2, y2) = self.location, self.next_tile
             dx, dy = x2 - x1, y2 - y1
-
+            # get current tile
             current_tile = self.gamemap.get_background_tile(self.location)
-
+            # take movement factor into account
             self.move_progress += self.move_speed * current_tile.movement_factor
             if self.move_progress >= 100:
                 # reset progress
@@ -61,12 +64,11 @@ class BasicGameUnit(BasicGameEntity):
         self.rect.x = self.location[0] * settings.TILE_SIZE
         self.rect.y = self.location[1] * settings.TILE_SIZE
 
-class TestExplorer(BasicGameUnit):
+class UnitExplorer(BasicGameUnit):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_entities
         self.tile_color = "RED"
         BasicGameUnit.__init__(self, gamemap, location)
-        self.move_speed = 10
 
     def move(self, dx=0, dy=0):
         new_pos = self.location[0] + dx, self.location[1] + dy
@@ -82,3 +84,33 @@ class TestExplorer(BasicGameUnit):
             start = (new_pos[0] - 1, new_pos[1] + dy)
             stop = (new_pos[0] + 1, new_pos[1] + dy)
             self.gamemap.clear_fog_area(start, stop)
+
+class UnitWorker(BasicGameUnit):
+    pass
+
+class UnitArtisan(BasicGameUnit):
+    pass
+
+class UnitSoldier(BasicGameUnit):
+    pass
+
+#----------------------------STRUCTURES--------------------------------------#
+class BasicGameStructure(BasicGameEntity):
+    def __init__(self, gamemap, location):
+        BasicGameEntity.__init__(self, gamemap, location)
+        self.output = {}
+
+class StructureSmithy(BasicGameStructure):
+    pass
+
+class StructureSmelter(BasicGameStructure):
+    pass
+
+class StructureRefinery(BasicGameStructure):
+    pass
+
+class StructureEncampment(BasicGameStructure):
+    pass
+
+
+#----------------------------RESOURCES??--------------------------------------#

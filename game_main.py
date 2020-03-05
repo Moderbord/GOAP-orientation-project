@@ -23,7 +23,7 @@ class Game:
         self.screen = pg.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
 
     def enable_explorer(self):
-        self.explorer = entities.TestExplorer(self.map, (2, 2))
+        self.explorer = entities.UnitExplorer(self.map, (2, 2))
         self.map.clear_fog_area((1, 1), (3, 3))
 
 

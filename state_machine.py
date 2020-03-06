@@ -37,11 +37,11 @@ class StateMachine:
     def IsInState(self, state):
         return self.currentState == state
 
-    def HandleMessage(self, telegram):
-        if(self.currentState and self.currentState.OnMessage(self.owner, telegram)):
+    def HandleMessage(self, message):
+        if(self.currentState and self.currentState.OnMessage(self.owner, message)):
             return True
         
-        if(self.globalState and self.globalState.OnMessage(self.owner, telegram)):
+        if(self.globalState and self.globalState.OnMessage(self.owner, message)):
             return True
         
         return False

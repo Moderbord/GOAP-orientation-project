@@ -1,4 +1,5 @@
 from random import randint
+import message_dispatcher as dispatcher
 
 class State:
 
@@ -11,7 +12,7 @@ class State:
     def Exit(self, entity):
         pass
 
-    def OnMessage(self, entity, telegram):
+    def OnMessage(self, entity, message):
         pass
         # log("At loop " + str(entity.gm.GetLoop()) + ", " + entity.name +
         #     " recieved message from " + str(entity.gm.GetEntityName(telegram.senderID)) +
@@ -28,7 +29,7 @@ class StateIdle(State):
     def Exit(self, entity):
         entity.is_idle = False
 
-    def OnMessage(self, entity, telegram):
+    def OnMessage(self, entity, message):
         pass
 
 class StateExplore(State):
@@ -46,5 +47,7 @@ class StateExplore(State):
     def Exit(self, entity):
         entity.is_exploring = False
 
-    def OnMessage(self, entity, telegram):
-        pass
+    def OnMessage(self, entity, message):
+        if message.msg == dispatcher.MSG.ArrivedAtGoal:
+            print("goal")
+            entity.is_exploring = False

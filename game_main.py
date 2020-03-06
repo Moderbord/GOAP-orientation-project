@@ -3,8 +3,9 @@ import pygame as pg
 
 import game_settings as settings
 import game_map as gamemap
+import player_ai as ai
 import game_entities as entities
-import entity_state as states
+import ai_state as states
 
 class Game:
 
@@ -22,12 +23,16 @@ class Game:
         self.screen = pg.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
 
     def enable_explorer(self):
-        self.explorer = entities.UnitExplorer(self.map, (2, 2))
-        self.explorer1 = entities.UnitExplorer(self.map, (3, 3))
-        self.explorer2 = entities.UnitExplorer(self.map, (4, 4))
-        self.explorer3 = entities.UnitExplorer(self.map, (5, 5))
+        #self.explorer = entities.UnitExplorer(self.map, (2, 2))
         self.map.clear_fog_area((1, 1), (3, 3))
 
+    def enable_ai(self):
+        self.ai_player = ai.AI(self.map, (2, 2))
+        self.ai_player.Add_Entity(entities.UnitExplorer)
+        self.ai_player.Add_Entity(entities.UnitExplorer)
+        self.ai_player.Add_Entity(entities.UnitExplorer)
+        self.ai_player.Add_Entity(entities.UnitExplorer)
+        self.map.clear_fog_area((1, 1), (3, 3))
 
     def enable_fog(self):
         self.map.draw_fog = True
@@ -44,6 +49,9 @@ class Game:
         # send screen to map for blit
         self.map.update()
 
+        # AI
+        self.ai_player.fsm.Update()
+
         # catch inputs
         keystate = pg.key.get_pressed()
         if keystate[pg.K_ESCAPE]:
@@ -53,10 +61,7 @@ class Game:
             self.map.draw_fog = not self.map.draw_fog
 
         if keystate[pg.K_SPACE]:
-            self.explorer.fsm.ChangeState(states.StateExplore())
-            self.explorer1.fsm.ChangeState(states.StateExplore())
-            self.explorer2.fsm.ChangeState(states.StateExplore())
-            self.explorer3.fsm.ChangeState(states.StateExplore())
+            self.ai_player.fsm.ChangeState(states.AIStateExplore())
 
         if keystate[pg.K_w]:
             self.map.camera.move(dy=-1)
@@ -67,15 +72,15 @@ class Game:
         if keystate[pg.K_d]:
             self.map.camera.move(dx=1)
 
-        if (self.explorer):
-            if keystate[pg.K_UP]:
-                self.explorer.move(dy=-1)
-            if keystate[pg.K_DOWN]:
-                self.explorer.move(dy=1)
-            if keystate[pg.K_LEFT]:
-                self.explorer.move(dx=-1)
-            if keystate[pg.K_RIGHT]:
-                self.explorer.move(dx=1)
+        # if (self.explorer):
+        #     if keystate[pg.K_UP]:
+        #         self.explorer.move(dy=-1)
+        #     if keystate[pg.K_DOWN]:
+        #         self.explorer.move(dy=1)
+        #     if keystate[pg.K_LEFT]:
+        #         self.explorer.move(dx=-1)
+        #     if keystate[pg.K_RIGHT]:
+        #         self.explorer.move(dx=1)
 
     def draw_grid_overlay(self):
         for x in range(0, settings.MAP_WIDTH, settings.TILE_SIZE):

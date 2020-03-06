@@ -4,21 +4,23 @@ from pygame import Surface
 import game_settings as settings
 import entity_state as states
 import state_machine as fsm
+import message_dispatcher as dispatcher
 
 #----------------------------BASE--------------------------------------#
 class BasicGameEntity(sprite.Sprite):
 
-    def __init__(self, gamemap, location):
+    def __init__(self, owner):
         sprite.Sprite.__init__(self, self.groups)
+        self.owner = owner
         self.fsm = fsm.StateMachine(self)
-        self.fsm.currentState =states.StateIdle()
+        self.fsm.currentState = states.StateIdle()
         # reference to map
-        self.gamemap = gamemap
+        self.gamemap = owner.gamemap
         # list of requirements for production
         self.structure_requirements = []
         self.material_requirements = {}
         self.production_time = 0
-        self.location = location
+        self.location = owner.start_position
         self.is_idle = True
 
         #sprite/asset
@@ -33,8 +35,8 @@ class BasicGameEntity(sprite.Sprite):
 #----------------------------UNITS--------------------------------------#
 class BasicGameUnit(BasicGameEntity):
 
-    def __init__(self, gamemap, location):
-        BasicGameEntity.__init__(self, gamemap, location)
+    def __init__(self, owner):
+        BasicGameEntity.__init__(self, owner)
         self.move_speed = 10
         self.move_progress = 0
 
@@ -75,18 +77,21 @@ class BasicGameUnit(BasicGameEntity):
             
             if self.next_tile is None:
                 self.current_path = None
-                #send message that entity has arrived
+                # message telling the entity that is has arrived
+                message = dispatcher.Message(self, dispatcher.MSG.ArrivedAtGoal)
+                self.fsm.HandleMessage(message)
 
         # drawing
         self.rect.x = self.location[0] * settings.TILE_SIZE
         self.rect.y = self.location[1] * settings.TILE_SIZE
 
 class UnitExplorer(BasicGameUnit):
-    def __init__(self, gamemap, location):
-        self.groups = gamemap.sprite_group_entities
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = "RED"
-        BasicGameUnit.__init__(self, gamemap, location)
+        BasicGameUnit.__init__(self, owner)
         self.is_exploring = False
+        self.move_speed = 50
 
     def move(self, dx=0, dy=0):
         #super().move(dx, dy)                                   # uncomment
@@ -119,8 +124,8 @@ class UnitSoldier(BasicGameUnit):
 
 #----------------------------STRUCTURES--------------------------------------#
 class BasicGameStructure(BasicGameEntity):
-    def __init__(self, gamemap, location):
-        BasicGameEntity.__init__(self, gamemap, location)
+    def __init__(self, owner):
+        BasicGameEntity.__init__(self, owner)
         self.output = {}
 
     def update(self):

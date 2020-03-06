@@ -2,6 +2,7 @@ from pygame import sprite
 from pygame import Surface
 
 import game_settings as settings
+import entity_state as states
 import state_machine as fsm
 
 #----------------------------BASE--------------------------------------#
@@ -10,6 +11,7 @@ class BasicGameEntity(sprite.Sprite):
     def __init__(self, gamemap, location):
         sprite.Sprite.__init__(self, self.groups)
         self.fsm = fsm.StateMachine(self)
+        self.fsm.currentState =states.StateIdle()
         # reference to map
         self.gamemap = gamemap
         # list of requirements for production
@@ -17,6 +19,7 @@ class BasicGameEntity(sprite.Sprite):
         self.material_requirements = {}
         self.production_time = 0
         self.location = location
+        self.is_idle = True
 
         #sprite/asset
         self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
@@ -43,6 +46,10 @@ class BasicGameUnit(BasicGameEntity):
         self.current_path = path
         self.next_tile = path[self.location]
 
+    def stop_pathing(self):
+        self.current_path = None
+        self.next_tile = None
+
     def move(self, dx=0, dy=0):
         new_pos = self.location[0] + dx, self.location[1] + dy
         self.location = new_pos
@@ -68,6 +75,7 @@ class BasicGameUnit(BasicGameEntity):
             
             if self.next_tile is None:
                 self.current_path = None
+                #send message that entity has arrived
 
         # drawing
         self.rect.x = self.location[0] * settings.TILE_SIZE
@@ -78,12 +86,14 @@ class UnitExplorer(BasicGameUnit):
         self.groups = gamemap.sprite_group_entities
         self.tile_color = "RED"
         BasicGameUnit.__init__(self, gamemap, location)
+        self.is_exploring = False
 
     def move(self, dx=0, dy=0):
-        new_pos = self.location[0] + dx, self.location[1] + dy
-        if new_pos in self.gamemap.unpassable_tiles:
-            return
-        self.location = new_pos
+        #super().move(dx, dy)                                   # uncomment
+        new_pos = self.location[0] + dx, self.location[1] + dy  # remove
+        if new_pos in self.gamemap.unpassable_tiles:            # remove
+            return                                              # remove
+        self.location = new_pos                                 # remove
         
         if dx: # horizontal movement
             start = (new_pos[0] + dx, new_pos[1] - 1)

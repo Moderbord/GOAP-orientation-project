@@ -4,6 +4,7 @@ import pygame as pg
 import game_settings as settings
 import game_map as gamemap
 import game_entities as entities
+import entity_state as states
 
 class Game:
 
@@ -22,6 +23,9 @@ class Game:
 
     def enable_explorer(self):
         self.explorer = entities.UnitExplorer(self.map, (2, 2))
+        self.explorer1 = entities.UnitExplorer(self.map, (3, 3))
+        self.explorer2 = entities.UnitExplorer(self.map, (4, 4))
+        self.explorer3 = entities.UnitExplorer(self.map, (5, 5))
         self.map.clear_fog_area((1, 1), (3, 3))
 
 
@@ -49,9 +53,10 @@ class Game:
             self.map.draw_fog = not self.map.draw_fog
 
         if keystate[pg.K_SPACE]:
-            path = self.map.get_path(self.explorer.location, (randint(0, self.map.map_width - 1), (randint(0, self.map.map_height - 1))))
-            if path:
-                self.explorer.set_path(path)
+            self.explorer.fsm.ChangeState(states.StateExplore())
+            self.explorer1.fsm.ChangeState(states.StateExplore())
+            self.explorer2.fsm.ChangeState(states.StateExplore())
+            self.explorer3.fsm.ChangeState(states.StateExplore())
 
         if keystate[pg.K_w]:
             self.map.camera.move(dy=-1)

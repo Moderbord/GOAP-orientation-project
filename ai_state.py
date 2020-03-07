@@ -1,4 +1,5 @@
 import game_entities as entities
+import message_dispatcher as dispatcher
 import entity_state
 
 class AIGlobalState(entity_state.State):
@@ -45,5 +46,6 @@ class AIStateExplore(entity_state.State):
         pass
 
     def OnMessage(self, player, message):
-        pass
+        if message.msg == dispatcher.MSG.NewExplorerUnit:
+            self.explorers.append(message.sender)
         # add new explorer to explorer list when approriate message is recieved

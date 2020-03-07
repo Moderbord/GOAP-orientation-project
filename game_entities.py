@@ -85,6 +85,12 @@ class BasicGameUnit(BasicGameEntity):
         self.rect.x = self.location[0] * settings.TILE_SIZE
         self.rect.y = self.location[1] * settings.TILE_SIZE
 
+class UnitWorker(BasicGameUnit):
+    #chop wood
+    #carry resource
+    #upgradable
+    pass
+
 class UnitExplorer(BasicGameUnit):
     def __init__(self, owner):
         self.groups = owner.gamemap.sprite_group_entities
@@ -92,13 +98,14 @@ class UnitExplorer(BasicGameUnit):
         BasicGameUnit.__init__(self, owner)
         self.is_exploring = False
         self.move_speed = 50
+        
+        # notify owner
+        message = dispatcher.Message(self, dispatcher.MSG.NewExplorerUnit)
+        owner.fsm.HandleMessage(message)
 
     def move(self, dx=0, dy=0):
-        #super().move(dx, dy)                                   # uncomment
-        new_pos = self.location[0] + dx, self.location[1] + dy  # remove
-        if new_pos in self.gamemap.unpassable_tiles:            # remove
-            return                                              # remove
-        self.location = new_pos                                 # remove
+        new_pos = self.location[0] + dx, self.location[1] + dy
+        self.location = new_pos                               
         
         if dx: # horizontal movement
             start = (new_pos[0] + dx, new_pos[1] - 1)
@@ -108,12 +115,6 @@ class UnitExplorer(BasicGameUnit):
             start = (new_pos[0] - 1, new_pos[1] + dy)
             stop = (new_pos[0] + 1, new_pos[1] + dy)
             self.gamemap.clear_fog_area(start, stop)
-
-class UnitWorker(BasicGameUnit):
-    #chop wood
-    #carry resource
-    #upgradable
-    pass
 
 class UnitArtisan(BasicGameUnit):
     #profession

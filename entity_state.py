@@ -38,7 +38,7 @@ class StateExplore(State):
 
     def Execute(self, entity):
         if not entity.is_exploring:
-            # random location
+            # random location (can be laggy)
             path = entity.gamemap.get_path(entity.location, (randint(0, entity.gamemap.map_width - 1), (randint(0, entity.gamemap.map_height - 1))))
             if path:
                 entity.set_path(path)
@@ -49,5 +49,4 @@ class StateExplore(State):
 
     def OnMessage(self, entity, message):
         if message.msg == dispatcher.MSG.ArrivedAtGoal:
-            print("goal")
             entity.is_exploring = False

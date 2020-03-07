@@ -1,13 +1,18 @@
 from enum import Enum, auto
 
 class MSG(Enum):
+    NewWorkerUnit = auto()
+    NewExplorerUnit = auto()
+    NewArtisanUnit = auto()
+    NewSoldierUnit = auto()
+
     ArrivedAtGoal = auto()
 
 class Message:
-    def __init__(self, sender, msg, extraInfo=None):
+    def __init__(self, sender, msg, extra_info=None):
         self.sender = sender
         self.msg = msg
-        self.extraInfo = extraInfo
+        self.extra_info = extra_info
 
 
 class MessageDispatcher:
@@ -16,9 +21,9 @@ class MessageDispatcher:
 
     def __Discharge(self, receiver, msg):
         receiver.fsm.HandleMessage(msg)
-        
-    def Dispatch(self, sender, receiver, msg, extraInfo):
-        message = Message(sender, msg, extraInfo)
+
+    def Dispatch(self, sender, receiver, msg, extra_info):
+        message = Message(sender, msg, extra_info)
         self.__Discharge(receiver, message)
         
         # if(delay <= 0):

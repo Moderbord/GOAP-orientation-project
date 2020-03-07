@@ -28,10 +28,6 @@ class Game:
 
     def enable_ai(self):
         self.ai_player = ai.AI(self.map, (2, 2))
-        self.ai_player.Add_Entity(entities.UnitExplorer)
-        self.ai_player.Add_Entity(entities.UnitExplorer)
-        self.ai_player.Add_Entity(entities.UnitExplorer)
-        self.ai_player.Add_Entity(entities.UnitExplorer)
         self.map.clear_fog_area((1, 1), (3, 3))
 
     def enable_fog(self):
@@ -62,6 +58,8 @@ class Game:
 
         if keystate[pg.K_SPACE]:
             self.ai_player.fsm.ChangeState(states.AIStateExplore())
+        if keystate[pg.K_q]:
+            self.ai_player.Add_Entity(entities.UnitExplorer)
 
         if keystate[pg.K_w]:
             self.map.camera.move(dy=-1)

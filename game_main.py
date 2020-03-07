@@ -1,17 +1,17 @@
 from random import randint
 import pygame as pg
 
-import game_settings as settings
 import game_map as gamemap
 import player_ai as ai
 import game_entities as entities
 import ai_state as states
+from game_settings import g_vars
 
 class Game:
 
     def __init__(self):
         pg.init()
-        pg.display.set_caption(settings.TITLE)
+        pg.display.set_caption(g_vars["Game"]["Title"])
         self.clock = pg.time.Clock()
         self.map = gamemap.GameMap()
 
@@ -20,7 +20,7 @@ class Game:
         # load map
         self.map.load_map_template(map_name)
         # Updates screen size to loaded map
-        self.screen = pg.display.set_mode((settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT))
+        self.screen = pg.display.set_mode((g_vars["Game"]["ScreenWidth"], g_vars["Game"]["ScreenHeight"]))
 
     def enable_explorer(self):
         #self.explorer = entities.UnitExplorer(self.map, (2, 2))
@@ -36,7 +36,7 @@ class Game:
     def run(self):
         self.running = True
         while (self.running):
-            self.dt = self.clock.tick(settings.FPS) / 1000
+            self.dt = self.clock.tick(g_vars["Game"]["FPS"]) / 1000
             self.events()
             self.update()
             self.draw()
@@ -81,14 +81,14 @@ class Game:
         #         self.explorer.move(dx=1)
 
     def draw_grid_overlay(self):
-        for x in range(0, settings.MAP_WIDTH, settings.TILE_SIZE):
-            pg.draw.line(self.screen, settings.COLOR["LIGHTGRAY"], (x, 0), (x, settings.MAP_HEIGHT))
-        for y in range(0, settings.MAP_HEIGHT, settings.TILE_SIZE):
-            pg.draw.line(self.screen, settings.COLOR["LIGHTGRAY"], (0, y), (settings.MAP_WIDTH, y))
+        for x in range(0, self.map.width, g_vars["Game"]["TileSize"]):
+            pg.draw.line(self.screen, g_vars["Game"]["Colors"]["LightGray"], (x, 0), (x, self.map.height))
+        for y in range(0, self.map.height, g_vars["Game"]["TileSize"]):
+            pg.draw.line(self.screen, g_vars["Game"]["Colors"]["LightGray"], (0, y), (self.map.width, y))
 
     def draw(self):
         # Background
-        self.screen.fill(settings.COLOR["BLACK"])
+        self.screen.fill(g_vars["Game"]["Colors"]["Black"])
         # Tiles
         self.map.draw(self.screen)
         # Overlay

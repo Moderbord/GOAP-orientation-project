@@ -42,7 +42,7 @@ class StateExplore(State):
 
             entity.is_finding_path = True
             loc = entity.location
-            goal = (randint(0, entity.gamemap.map_width - 1), (randint(0, entity.gamemap.map_height - 1)))
+            goal = (randint(0, entity.gamemap.tile_width - 1), (randint(0, entity.gamemap.tile_height - 1)))
             
             thread = c_thread.BaseThread(
                 target=entity.gamemap.get_path,

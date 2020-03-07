@@ -53,7 +53,7 @@ class WeightedGraph:
 
     def in_bounds(self, neighbor):
         (x, y) = neighbor
-        return 0 <= x < self.gamemap.map_width and 0 <= y < self.gamemap.map_width
+        return 0 <= x < self.gamemap.tile_width and 0 <= y < self.gamemap.tile_height
 
     def passable(self, neighbor):
         return neighbor not in self.gamemap.unpassable_tiles

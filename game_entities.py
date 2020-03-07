@@ -1,10 +1,10 @@
 from pygame import sprite
 from pygame import Surface
 
-import game_settings as settings
 import entity_state as states
 import state_machine as fsm
 import message_dispatcher as dispatcher
+from game_settings import g_vars
 
 #----------------------------BASE--------------------------------------#
 class BasicGameEntity(sprite.Sprite):
@@ -24,8 +24,8 @@ class BasicGameEntity(sprite.Sprite):
         self.is_idle = True
 
         #sprite/asset
-        self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
-        self.image.fill(settings.COLOR[self.tile_color])
+        self.image = Surface((g_vars["Game"]["TileSize"], g_vars["Game"]["TileSize"]))
+        self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
         self.rect = self.image.get_rect()
 
     def update(self):
@@ -37,7 +37,7 @@ class BasicGameUnit(BasicGameEntity):
 
     def __init__(self, owner):
         BasicGameEntity.__init__(self, owner)
-        self.move_speed = 10
+        self.move_speed = g_vars["Units"]["Basic"]["MoveSpeed"]
         self.move_progress = 0
 
         # pathfinding
@@ -84,8 +84,8 @@ class BasicGameUnit(BasicGameEntity):
                 self.fsm.HandleMessage(message)
 
         # drawing
-        self.rect.x = self.location[0] * settings.TILE_SIZE
-        self.rect.y = self.location[1] * settings.TILE_SIZE
+        self.rect.x = self.location[0] * g_vars["Game"]["TileSize"]
+        self.rect.y = self.location[1] * g_vars["Game"]["TileSize"]
 
 class UnitWorker(BasicGameUnit):
     #chop wood
@@ -96,9 +96,9 @@ class UnitWorker(BasicGameUnit):
 class UnitExplorer(BasicGameUnit):
     def __init__(self, owner):
         self.groups = owner.gamemap.sprite_group_entities
-        self.tile_color = "RED"
+        self.tile_color = g_vars["Units"]["Explorer"]["TileColor"]
         BasicGameUnit.__init__(self, owner)
-        self.move_speed = 50
+        self.move_speed = g_vars["Units"]["Explorer"]["MoveSpeed"]
         
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewExplorerUnit)

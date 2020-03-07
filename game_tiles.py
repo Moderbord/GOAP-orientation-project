@@ -1,8 +1,8 @@
 from pygame import sprite
 from pygame import Surface
 
-import game_settings as settings
 import game_assets as assets
+from game_settings import g_vars
 
 class BasicTile(sprite.Sprite):
     def __init__(self, gamemap, location):
@@ -13,47 +13,47 @@ class BasicTile(sprite.Sprite):
         self.movement_factor = 1
 
         #self.image = assets.LoadSprite("unicorn.jpg")
-        self.image = Surface((settings.TILE_SIZE, settings.TILE_SIZE))
-        self.image.fill(settings.COLOR[self.tile_color])
+        self.image = Surface((g_vars["Game"]["TileSize"], g_vars["Game"]["TileSize"]))
+        self.image.fill(g_vars["Game"]["TileColors"][self.tile_color])
 
         self.rect = self.image.get_rect()
-        self.rect.x = location[0] * settings.TILE_SIZE
-        self.rect.y = location[1] * settings.TILE_SIZE
+        self.rect.x = location[0] * g_vars["Game"]["TileSize"]
+        self.rect.y = location[1] * g_vars["Game"]["TileSize"]
 
 class Fog(BasicTile):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_fog
-        self.tile_color = "LIGHTGRAY"
+        self.tile_color = "Fog"
         BasicTile.__init__(self, gamemap, location)
 
 class Forest(BasicTile):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
-        self.tile_color = "FOREST"
+        self.tile_color = "Forest"
         BasicTile.__init__(self, gamemap, location)
         self.movement_factor = 0.8
 
 class Ground(BasicTile):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
-        self.tile_color = "GROUND"
+        self.tile_color = "Ground"
         BasicTile.__init__(self, gamemap, location)
 
 class Water(BasicTile):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
-        self.tile_color = "WATER"
+        self.tile_color = "Water"
         BasicTile.__init__(self, gamemap, location)
 
 class Bog(BasicTile):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
-        self.tile_color = "BOG"
+        self.tile_color = "Bog"
         BasicTile.__init__(self, gamemap, location)
         self.movement_factor = 0.5
 
 class Mountain(BasicTile):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
-        self.tile_color = "MOUNTAIN"
+        self.tile_color = "Mountain"
         BasicTile.__init__(self, gamemap, location)

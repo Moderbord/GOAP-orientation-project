@@ -1,10 +1,10 @@
 import pygame as pg
 from os import path
 
-import game_settings as settings
 import game_assets as assets
 import game_tiles as tiles
 import algorithms as alg
+from game_settings import g_vars
 
 class GameMap:
 
@@ -16,8 +16,10 @@ class GameMap:
         self.cleared_fog = []
         self.weighted_graph = None
         self.camera = None
-        self.map_width = 0
-        self.map_height = 0
+        self.width = 0
+        self.height = 0
+        self.tile_width = 0
+        self.tile_height = 0
 
         self.draw_fog = False
 
@@ -29,12 +31,12 @@ class GameMap:
             for y, row in enumerate(f):
                 row = row.strip("\n")
                 # count map height
-                self.map_height += 1
-                self.map_width = 0
+                self.tile_height += 1
+                self.tile_width = 0
 
                 for x, tile in enumerate(row):
                     # count map width (lazy mf)
-                    self.map_width += 1
+                    self.tile_width += 1
 
                     # fog is everywhere
                     tiles.Fog(self, (x, y))
@@ -56,11 +58,11 @@ class GameMap:
                     elif tile == "M": # Ground
                         tiles.Ground(self, (x, y))
 
-        settings.MAP_WIDTH = self.map_width * settings.TILE_SIZE
-        settings.MAP_HEIGHT = self.map_height * settings.TILE_SIZE
+        self.width = self.tile_width * g_vars["Game"]["TileSize"]
+        self.height = self.tile_height * g_vars["Game"]["TileSize"]
 
         self.weighted_graph = alg.WeightedGraph(self)
-        self.camera = Camera(settings.MAP_WIDTH, settings.MAP_HEIGHT)
+        self.camera = Camera(self.width, self.height)
 
     def update(self):
         self.sprite_group_background.update()
@@ -117,8 +119,8 @@ class Camera:
         return entity.rect.move(self.camera.topleft)
 
     def move(self, dx=0, dy=0):
-        self.x += dx * int(settings.TILE_SIZE)
-        self.y += dy * int(settings.TILE_SIZE)
+        self.x += dx * int(g_vars["Game"]["TileSize"])
+        self.y += dy * int(g_vars["Game"]["TileSize"])
         self.camera = pg.Rect(-self.x, -self.y, self.width, self.height)
 
     

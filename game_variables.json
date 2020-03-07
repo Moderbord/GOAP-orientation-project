@@ -1,0 +1,46 @@
+{ 
+
+"Game": {
+	"Title": "Barf Fortress",
+	"ScreenWidth": 1080,
+	"ScreenHeight": 720,
+	"FPS": 24,
+	"TileSize": 13,
+	"Colors": {
+		"Black": [0, 0, 0],
+		"White": [255, 255, 255],
+		"LightGray": [100, 100, 100],
+		"Red": [255, 0, 0],
+		"Green": [0, 255, 0],
+		"Blue": [0, 0, 255]
+	},
+	"TileColors": {
+		"Mountain": [70, 70, 70],
+		"Bog": [140, 115, 40],
+		"Ground": [40, 185, 0],
+		"Forest": [15, 100, 15],
+		"Water": [45, 20, 225],
+		"Fog": [100, 100, 100]
+	}
+},
+
+"Units": {
+	"Basic": {
+		"TileColor": "LightGray",
+		"MoveSpeed": 10
+	},
+	"Worker": {
+	},
+	"Explorer": {
+		"TileColor": "Red",
+		"MoveSpeed": 50
+	},
+	"Artisan": {
+	
+	},
+	"Soldier": {
+	
+	}
+}
+
+}

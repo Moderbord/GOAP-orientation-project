@@ -1,5 +1,6 @@
 from random import randint
 import message_dispatcher as dispatcher
+import custom_thread as c_thread
 
 class State:
 
@@ -37,16 +38,29 @@ class StateExplore(State):
         pass
 
     def Execute(self, entity):
-        if not entity.is_exploring:
-            # random location (can be laggy)
-            path = entity.gamemap.get_path(entity.location, (randint(0, entity.gamemap.map_width - 1), (randint(0, entity.gamemap.map_height - 1))))
-            if path:
-                entity.set_path(path)
-                entity.is_exploring = True
+        if not entity.is_traversing and not entity.is_finding_path:
+
+            entity.is_finding_path = True
+            loc = entity.location
+            goal = (randint(0, entity.gamemap.map_width - 1), (randint(0, entity.gamemap.map_height - 1)))
+            
+            thread = c_thread.BaseThread(
+                target=entity.gamemap.get_path,
+                target_args=(loc, goal),
+                callback=self.__get_path_callback,
+                callback_args=[entity]
+            )
+            thread.start()
 
     def Exit(self, entity):
-        entity.is_exploring = False
+        entity.is_traversing = False
 
     def OnMessage(self, entity, message):
         if message.msg == dispatcher.MSG.ArrivedAtGoal:
-            entity.is_exploring = False
+            entity.is_traversing = False
+
+    def __get_path_callback(self, entity, result):
+        entity.is_finding_path = False
+        if result:
+            entity.set_path(result)
+            entity.is_traversing = True

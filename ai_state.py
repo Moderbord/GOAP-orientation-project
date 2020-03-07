@@ -39,7 +39,7 @@ class AIStateExplore(entity_state.State):
 
     def Execute(self, player):
         for explorer in self.explorers:
-            if not explorer.is_exploring:
+            if not explorer.is_traversing:
                 explorer.fsm.ChangeState(entity_state.StateExplore())
 
     def Exit(self, player):

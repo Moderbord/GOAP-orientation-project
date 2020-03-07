@@ -41,6 +41,8 @@ class BasicGameUnit(BasicGameEntity):
         self.move_progress = 0
 
         # pathfinding
+        self.is_finding_path = False
+        self.is_traversing = False
         self.current_path = None
         self.next_tile = None
 
@@ -96,7 +98,6 @@ class UnitExplorer(BasicGameUnit):
         self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = "RED"
         BasicGameUnit.__init__(self, owner)
-        self.is_exploring = False
         self.move_speed = 50
         
         # notify owner

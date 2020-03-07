@@ -132,7 +132,9 @@ def Astar(graph, start, goal):
     current = goal
     trace = {}
     while current != start:
-        trace[current] = path[current]
+        trace[current] = path.get(current, False)
+        if not trace[current]:
+            return False
         current = path[current]
     trace[start] = None
     return trace

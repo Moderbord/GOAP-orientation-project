@@ -4,6 +4,7 @@ from pygame import Surface
 import entity_state as states
 import state_machine as fsm
 import message_dispatcher as dispatcher
+import game_time as time
 from game_settings import g_vars
 
 #----------------------------BASE--------------------------------------#
@@ -34,7 +35,7 @@ class BasicGameUnit(BasicGameEntity):
 
     def __init__(self, owner):
         BasicGameEntity.__init__(self, owner)
-        self.move_speed = g_vars["Unit"]["Basic"]["MoveSpeed"]
+        self.move_factor = g_vars["Unit"]["Basic"]["MoveFactor"]
         self.move_progress = 0
 
         # pathfinding
@@ -64,9 +65,12 @@ class BasicGameUnit(BasicGameEntity):
             dx, dy = x2 - x1, y2 - y1
             # get current tile
             current_tile = self.gamemap.get_background_tile(self.location)
+            # get required movement threshold
+            threshold = current_tile.movement_straight if (dx * dy == 0) else current_tile.movement_diagonal
+
             # take movement factor into account
-            self.move_progress += self.move_speed * current_tile.movement_factor
-            if self.move_progress >= 100:
+            self.move_progress += time.delta_time * self.move_factor
+            if self.move_progress >= threshold:
                 # reset progress
                 self.move_progress = 0
                 # move
@@ -89,7 +93,7 @@ class UnitWorker(BasicGameUnit):
         self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Unit"]["Worker"]["TileColor"]
         BasicGameUnit.__init__(self, owner)
-        self.move_speed = g_vars["Unit"]["Worker"]["MoveSpeed"]
+        self.move_factor = g_vars["Unit"]["Worker"]["MoveFactor"]
         
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewWorkerUnit)
@@ -100,7 +104,7 @@ class UnitExplorer(BasicGameUnit):
         self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Unit"]["Explorer"]["TileColor"]
         BasicGameUnit.__init__(self, owner)
-        self.move_speed = g_vars["Unit"]["Explorer"]["MoveSpeed"]
+        self.move_factor = g_vars["Unit"]["Explorer"]["MoveFactor"]
         self.production_time = g_vars["Unit"]["Explorer"]["ProductionTime"]
         
         # notify owner

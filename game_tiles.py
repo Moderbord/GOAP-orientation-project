@@ -10,7 +10,8 @@ class BasicTile(sprite.Sprite):
         self.gamemap = gamemap
         # Grid coordinates
         self.location = location
-        self.movement_factor = 1
+        self.movement_straight = 10
+        self.movement_diagonal = 14
 
         #self.image = assets.LoadSprite("unicorn.jpg")
         self.image = Surface((g_vars["Game"]["TileSize"], g_vars["Game"]["TileSize"]))
@@ -31,13 +32,16 @@ class Forest(BasicTile):
         self.groups = gamemap.sprite_group_background
         self.tile_color = "Forest"
         BasicTile.__init__(self, gamemap, location)
-        self.movement_factor = 0.8
+        self.movement_straight = g_vars["Tile"]["Forest"]["MovementStraight"]
+        self.movement_diagonal = g_vars["Tile"]["Forest"]["MovementDiagonal"]
 
 class Ground(BasicTile):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
         self.tile_color = "Ground"
         BasicTile.__init__(self, gamemap, location)
+        self.movement_straight = g_vars["Tile"]["Ground"]["MovementStraight"]
+        self.movement_diagonal = g_vars["Tile"]["Ground"]["MovementDiagonal"]
 
 class Water(BasicTile):
     def __init__(self, gamemap, location):
@@ -50,7 +54,8 @@ class Bog(BasicTile):
         self.groups = gamemap.sprite_group_background
         self.tile_color = "Bog"
         BasicTile.__init__(self, gamemap, location)
-        self.movement_factor = 0.5
+        self.movement_straight = g_vars["Tile"]["Bog"]["MovementStraight"]
+        self.movement_diagonal = g_vars["Tile"]["Bog"]["MovementDiagonal"]
 
 class Mountain(BasicTile):
     def __init__(self, gamemap, location):

@@ -31,18 +31,18 @@
 
 	"Basic": {
 		"TileColor": "LightGray",
-		"MoveSpeed": 10
+		"MoveFactor": 1
 	},
 	
 	"Worker": {
 		"TileColor": "Blue",
-		"MoveSpeed": 10,
+		"MoveFactor": 1,
 		"Production": []
 	},
 	
 	"Explorer": {
 		"TileColor": "Red",
-		"MoveSpeed": 50,
+		"MoveFactor": 20,
 		"Production": [
 			["Unit", "Worker", 1]
 		],
@@ -56,6 +56,48 @@
 	"Soldier": {
 	
 	}
+},
+
+"Exploration": {
+	
+	"Forest": {
+		"Production": [
+			["Unit", "Explorer", 1]
+		]
+	}
+
+},
+
+"Resource": {
+	
+	"Tree": {
+		"Production": [
+			["Exploration", "Forest", 1]
+		]
+	}
+
+},
+
+"Tile": {
+	
+	"Ground":{
+		"MovementStraight": 10,
+		"MovementDiagonal": 14
+	},
+	
+	"Forest":{
+		"MovementStraight": 14,
+		"MovementDiagonal": 18
+	},
+	
+	"Bog":{
+		"MovementStraight": 20,
+		"MovementDiagonal": 28
+	}
 }
+
+
+
+
 
 }

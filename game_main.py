@@ -5,6 +5,7 @@ import game_map as gamemap
 import player_ai as ai
 import game_entities as entities
 import ai_state as states
+import game_time as time
 from game_settings import g_vars
 
 class Game:
@@ -12,7 +13,6 @@ class Game:
     def __init__(self):
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
-        self.clock = pg.time.Clock()
         self.map = gamemap.GameMap()
 
     # Specify a gamemap to use
@@ -38,7 +38,7 @@ class Game:
     def run(self):
         self.running = True
         while (self.running):
-            self.dt = self.clock.tick(g_vars["Game"]["FPS"]) / 1000
+            time.delta_time = time.clock.tick(g_vars["Game"]["FPS"]) / 1000
             self.events()
             self.update()
             self.draw()

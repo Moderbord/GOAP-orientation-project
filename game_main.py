@@ -29,8 +29,8 @@ class Game:
     def enable_ai(self):
         self.ai_player = ai.AI(self.map, (2, 2))
         self.map.clear_fog_area((1, 1), (3, 3))
-        self.ai_player.current_goal = ("Unit", "Explorer", 5)
-        self.ai_player.Update_Task_List()
+        self.ai_player.current_goal = ("Unit", "Explorer", 1)
+        self.ai_player.update_task_list()
 
     def enable_fog(self):
         self.map.draw_fog = True
@@ -48,7 +48,7 @@ class Game:
         self.map.update()
 
         # AI
-        self.ai_player.Update()
+        self.ai_player.update()
 
         # catch inputs
         keystate = pg.key.get_pressed()
@@ -59,9 +59,9 @@ class Game:
             self.map.draw_fog = not self.map.draw_fog
 
         if keystate[pg.K_SPACE]:
-            self.ai_player.fsm.ChangeState(states.AIStateExplore())
+            self.ai_player.fsm.change_state(states.AIStateExplore())
         if keystate[pg.K_q]:
-            self.ai_player.Add_Unit(entities.UnitWorker)
+            self.ai_player.add_unit(entities.UnitWorker)
 
         if keystate[pg.K_w]:
             self.map.camera.move(dy=-1)

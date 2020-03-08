@@ -22,7 +22,7 @@
 		"Bog": [140, 115, 40],
 		"Ground": [40, 185, 0],
 		"Forest": [15, 100, 15],
-		"Water": [45, 20, 225],
+		"Water": [45, 20, 175],
 		"Fog": [100, 100, 100]
 	}
 },
@@ -37,7 +37,8 @@
 	"Worker": {
 		"TileColor": "Blue",
 		"MoveFactor": 1,
-		"Production": []
+		"Production": [],
+		"ProductionTime": 3 
 	},
 	
 	"Explorer": {
@@ -46,7 +47,7 @@
 		"Production": [
 			["Unit", "Worker", 1]
 		],
-		"ProductionTime": 60 
+		"ProductionTime": 5 
 	},
 	
 	"Artisan": {
@@ -79,20 +80,37 @@
 },
 
 "Tile": {
+
+	"Basic": {
+		"Passable" : 1,
+		"MovementStraight": 5,
+		"MovementDiagonal": 6
+	},
 	
-	"Ground":{
+	"Ground": {
+		"Passable" : 1,
 		"MovementStraight": 10,
 		"MovementDiagonal": 14
 	},
 	
-	"Forest":{
+	"Forest": {
+		"Passable" : 1,
 		"MovementStraight": 14,
 		"MovementDiagonal": 18
 	},
 	
-	"Bog":{
+	"Bog": {
+		"Passable" : 1,
 		"MovementStraight": 20,
 		"MovementDiagonal": 28
+	},
+	
+	"Mountain": {
+		"Passable" : 0
+	},
+	
+	"Water": {
+		"Passable" : 0
 	}
 }
 

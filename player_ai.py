@@ -23,45 +23,46 @@ class AI:
         self.current_task = None
         self.task_list = algorithms.Queue()
 
-    def Update(self):
-        self.fsm.Update()
+    def update(self):
+        self.fsm.update()
 
         if self.current_task is None and not self.task_list.empty():
             self.current_task = self.task_list.get()
 
-        self.Check_Current_Task() # TODO move elsewhere
+        self.check_current_task() # TODO move elsewhere
 
-    def Check_Current_Task(self):
+    def check_current_task(self):
         if not self.current_task:
             return
 
         entity_group = self.current_task[0]
         entity_type = self.current_task[1]
         target_amount = self.current_task[2]
-        entity_class = entities.To_Class(entity_type)
+        entity_class = entities.to_class(entity_type)
 
         if entity_group == "Resource":
-            if self.Has_Resource(entity_class, target_amount):
+            if self.has_resource(entity_class, target_amount):
                 self.current_task = None
         elif entity_group == "Structure":
-            if self.Has_Structure(entity_class):
+            if self.has_structure(entity_class):
                 self.current_task = None
         elif entity_group == "Unit":
-            if self.Has_Unit(entity_class, target_amount):
+            if self.has_unit(entity_class, target_amount):
                 self.current_task = None
-            elif self.Can_Create_Entity(entity_group, entity_type):
-                self.Add_Unit(entity_class)
+            elif self.can_create_entity(entity_group, entity_type):
+                new_unit = entity_class(self)
+                new_unit.begin_production()
+                self.add_unit(new_unit)
 
-
-    def Update_Task_List(self):
+    def update_task_list(self):
         if not self.current_goal:
             return
         self.task_list = algorithms.Queue()
         (product_group, product_class, product_amount) = self.current_goal
-        self.Queue_Requirements(g_vars[product_group][product_class], product_amount)
+        self.queue_requirements(g_vars[product_group][product_class], product_amount)
         self.task_list.put([product_group, product_class, product_amount])
 
-    def Queue_Requirements(self, target, amount=1):
+    def queue_requirements(self, target, amount=1):
         if not target["Production"]:
             return
 
@@ -70,55 +71,67 @@ class AI:
             entity_group = product[0]           # Unit, Structure
             entity_type = product[1]            # Worker, Explorer, Smithy, etc.
             target_amount = product[2]          # How many is needed/ordered
-            self.Queue_Requirements(g_vars[entity_group][entity_type], target_amount)
+            self.queue_requirements(g_vars[entity_group][entity_type], target_amount)
             self.task_list.put([entity_group, entity_type, target_amount])
 
-    def Can_Create_Entity(self, entity_group, entity_type):
+    def can_create_entity(self, entity_group, entity_type):
         requirement_list = g_vars[entity_group][entity_type]["Production"]
         for requirement in requirement_list:
-            required_class = entities.To_Class(requirement[1])  # type of entity
+            required_class = entities.to_class(requirement[1])  # type of entity
             required_amount = requirement[2]                    # resource needed
             if requirement[0] == "Resource":
-                if not self.Has_Resource(required_class, required_amount):
+                if not self.has_resource(required_class, required_amount):
                     return False
             elif requirement[0] == "Structure":
-                if not self.Has_Structure(required_class):
+                if not self.has_structure(required_class):
                     return False
             elif requirement[0] == "Unit":
-                if not self.Has_Unit(required_class, required_amount):
+                if not self.has_unit(required_class, required_amount):
                     return False
         return True
 
-    def Has_Structure(self, target):
+    def has_structure(self, target):
         for structure in self.structure_list:
             if isinstance(structure, target):
                 return True
         return False
 
-    def Has_Resource(self, target, count=1):
+    def has_resource(self, target, count=1):
         for resource in self.resource_list:
             if isinstance(resource, target):
                 if resource[1] >= count:
                     return True
         return False
 
-    def Has_Unit(self, target, count=1):
+    def has_unit(self, target, count=1):
         for unit in self.unit_list:
             if isinstance(unit, target):
                 count -= 1
-            if count is 0:
+            if count <= 0:
                 return True
         return False
 
-    def Add_Resource(self, resource):
+    def add_resource(self, resource):
         for owned_resource in self.resource_list:
             if owned_resource[0] is resource[0]: # already has resource
                 owned_resource[1] += resource[1] # increment owned resource
                 return
         self.resource_list.append(resource)      # else add it to list
 
-    def Add_Unit(self, unit):
-        self.unit_list.append(unit(self))
+    def add_unit(self, unit):
+        self.unit_list.append(unit)
 
-    def Add_Resource_Tile(self, tile):
+    def add_resource_tile(self, tile):
         self.resource_tiles.append(tile)
+
+    def get_unit(self, target):
+        for unit in self.unit_list:
+            if isinstance(unit, target):
+                return unit
+
+    def remove_unit(self, target):
+        for unit in self.unit_list:
+            if unit is target:
+                self.unit_list.remove(unit)
+                unit.delete()
+                return

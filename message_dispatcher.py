@@ -6,6 +6,8 @@ class MSG(Enum):
     NewArtisanUnit = auto()
     NewSoldierUnit = auto()
 
+    DoneProduced = auto()
+
     ArrivedAtGoal = auto()
 
 class Message:
@@ -20,7 +22,7 @@ class MessageDispatcher:
         pass
 
     def __Discharge(self, receiver, msg):
-        receiver.fsm.HandleMessage(msg)
+        receiver.fsm.handle_message(msg)
 
     def Dispatch(self, sender, receiver, msg, extra_info):
         message = Message(sender, msg, extra_info)

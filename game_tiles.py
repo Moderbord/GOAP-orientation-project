@@ -10,8 +10,9 @@ class BasicTile(sprite.Sprite):
         self.gamemap = gamemap
         # Grid coordinates
         self.location = location
-        self.movement_straight = 10
-        self.movement_diagonal = 14
+        self.passable = g_vars["Tile"]["Basic"]["Passable"] == 1
+        self.movement_straight = g_vars["Tile"]["Basic"]["MovementStraight"]
+        self.movement_diagonal = g_vars["Tile"]["Basic"]["MovementDiagonal"]
 
         #self.image = assets.LoadSprite("unicorn.jpg")
         self.image = Surface((g_vars["Game"]["TileSize"], g_vars["Game"]["TileSize"]))
@@ -26,12 +27,14 @@ class Fog(BasicTile):
         self.groups = gamemap.sprite_group_fog
         self.tile_color = "Fog"
         BasicTile.__init__(self, gamemap, location)
+        #self.passable = g_vars["Tile"]["Fog"]["Passable"] == "1"
 
 class Forest(BasicTile):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
         self.tile_color = "Forest"
         BasicTile.__init__(self, gamemap, location)
+        self.passable = g_vars["Tile"]["Forest"]["Passable"] == 1
         self.movement_straight = g_vars["Tile"]["Forest"]["MovementStraight"]
         self.movement_diagonal = g_vars["Tile"]["Forest"]["MovementDiagonal"]
 
@@ -40,6 +43,7 @@ class Ground(BasicTile):
         self.groups = gamemap.sprite_group_background
         self.tile_color = "Ground"
         BasicTile.__init__(self, gamemap, location)
+        self.passable = g_vars["Tile"]["Ground"]["Passable"] == 1
         self.movement_straight = g_vars["Tile"]["Ground"]["MovementStraight"]
         self.movement_diagonal = g_vars["Tile"]["Ground"]["MovementDiagonal"]
 
@@ -48,12 +52,14 @@ class Water(BasicTile):
         self.groups = gamemap.sprite_group_background
         self.tile_color = "Water"
         BasicTile.__init__(self, gamemap, location)
+        self.passable = g_vars["Tile"]["Water"]["Passable"] == 1
 
 class Bog(BasicTile):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_background
         self.tile_color = "Bog"
         BasicTile.__init__(self, gamemap, location)
+        self.passable = g_vars["Tile"]["Bog"]["Passable"] == 1
         self.movement_straight = g_vars["Tile"]["Bog"]["MovementStraight"]
         self.movement_diagonal = g_vars["Tile"]["Bog"]["MovementDiagonal"]
 
@@ -62,3 +68,4 @@ class Mountain(BasicTile):
         self.groups = gamemap.sprite_group_background
         self.tile_color = "Mountain"
         BasicTile.__init__(self, gamemap, location)
+        self.passable = g_vars["Tile"]["Mountain"]["Passable"] == 1

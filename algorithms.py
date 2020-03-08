@@ -56,7 +56,7 @@ class WeightedGraph:
         return 0 <= x < self.gamemap.tile_width and 0 <= y < self.gamemap.tile_height
 
     def passable(self, neighbor):
-        return neighbor not in self.gamemap.unpassable_tiles
+        return self.gamemap.get_background_tile(neighbor).passable
 
     def cutting_corner(self, current, neighbor):
         (x, y) = neighbor
@@ -87,9 +87,9 @@ class WeightedGraph:
         dx = to_node[0] - from_node[0]
         dy = to_node[1] - from_node[1]
 
-        #tile = self.gamemap.get_background_tile(to_node)
+        tile = self.gamemap.get_background_tile(to_node)
         # If movement delta is 0 => movement is not diagonal
-        return 1 if (dx * dy == 0) else 1.4
+        return tile.movement_straight if (dx * dy == 0) else tile.movement_diagonal
 
 # Manhattan distance heuristic
 def HeuristicManhattar(from_node, to_node):

@@ -12,6 +12,7 @@ class GameMap:
         self.sprite_group_background = pg.sprite.Group()
         self.sprite_group_fog = pg.sprite.Group()
         self.sprite_group_entities = pg.sprite.Group()
+        self.tile_data = {}
         self.unpassable_tiles = []
         self.cleared_fog = []
         self.weighted_graph = None
@@ -40,23 +41,26 @@ class GameMap:
 
                     # fog is everywhere
                     tiles.Fog(self, (x, y))
-                    
+                    new_tile = None
+
                     if tile == "T": # Forest
-                        tiles.Forest(self, (x, y))
+                        new_tile = tiles.Forest(self, (x, y))
                     
                     elif tile == "V": # Water
-                        tiles.Water(self, (x, y))
+                        new_tile = tiles.Water(self, (x, y))
                         self.unpassable_tiles.append((x, y))
                         
                     elif tile == "G": # Bog
-                        tiles.Bog(self, (x, y))
+                        new_tile = tiles.Bog(self, (x, y))
                        
                     elif tile == "B": # Mountain
-                        tiles.Mountain(self, (x, y))
+                        new_tile = tiles.Mountain(self, (x, y))
                         self.unpassable_tiles.append((x, y))
                     
                     elif tile == "M": # Ground
-                        tiles.Ground(self, (x, y))
+                        new_tile = tiles.Ground(self, (x, y))
+                    
+                    self.tile_data[(x, y)] = new_tile
 
         self.width = self.tile_width * g_vars["Game"]["TileSize"]
         self.height = self.tile_height * g_vars["Game"]["TileSize"]
@@ -75,16 +79,18 @@ class GameMap:
             screen.blit(sprite.image, self.camera.apply(sprite))
 
         for sprite in self.sprite_group_entities:
-            screen.blit(sprite.image, self.camera.apply(sprite))
+            if sprite.is_visible:
+                screen.blit(sprite.image, self.camera.apply(sprite))
 
         if self.draw_fog:
             for sprite in self.sprite_group_fog:
                 screen.blit(sprite.image, self.camera.apply(sprite))
 
     def get_background_tile(self, cords):
-        for tile in self.sprite_group_background:
-            if cords == (tile.location[0], tile.location[1]):
-                return tile
+        return self.tile_data[cords]
+        # for tile in self.sprite_group_background:
+        #     if cords == (tile.location[0], tile.location[1]):
+        #         return tile
     
     def get_fog_tile(self, cords):
         for tile in self.sprite_group_fog:

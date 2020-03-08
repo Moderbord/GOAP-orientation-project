@@ -69,7 +69,7 @@ class WeightedGraph:
         # possible blocking walls
         posible_walls = [(x-dx, y), (x, y-dy)]
         # If any of the neighbors is a wall return false
-        return posible_walls[0] not in self.gamemap.unpassable_tiles and posible_walls[1] not in self.gamemap.unpassable_tiles
+        return self.passable(posible_walls[0]) and self.passable(posible_walls[1])
 
     def neighbors(self, current):
         (x, y) = current
@@ -86,6 +86,8 @@ class WeightedGraph:
         # movement from current to neighbor
         dx = to_node[0] - from_node[0]
         dy = to_node[1] - from_node[1]
+
+        #tile = self.gamemap.get_background_tile(to_node)
         # If movement delta is 0 => movement is not diagonal
         return 1 if (dx * dy == 0) else 1.4
 
@@ -97,7 +99,7 @@ def HeuristicManhattar(from_node, to_node):
 
 def Astar(graph, start, goal):
 
-    if start == goal or start in graph.gamemap.unpassable_tiles or goal in graph.gamemap.unpassable_tiles:
+    if start == goal or not graph.passable(start) or not graph.passable(goal):
         return False
 
     front = PriorityQueue()

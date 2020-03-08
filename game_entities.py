@@ -16,9 +16,6 @@ class BasicGameEntity(sprite.Sprite):
         self.fsm.currentState = states.StateIdle()
         # reference to map
         self.gamemap = owner.gamemap
-        # list of requirements for production
-        self.structure_requirements = []
-        self.material_requirements = {}
         self.production_time = 0
         self.location = owner.start_position
         self.is_idle = True
@@ -37,7 +34,7 @@ class BasicGameUnit(BasicGameEntity):
 
     def __init__(self, owner):
         BasicGameEntity.__init__(self, owner)
-        self.move_speed = g_vars["Units"]["Basic"]["MoveSpeed"]
+        self.move_speed = g_vars["Unit"]["Basic"]["MoveSpeed"]
         self.move_progress = 0
 
         # pathfinding
@@ -88,17 +85,23 @@ class BasicGameUnit(BasicGameEntity):
         self.rect.y = self.location[1] * g_vars["Game"]["TileSize"]
 
 class UnitWorker(BasicGameUnit):
-    #chop wood
-    #carry resource
-    #upgradable
-    pass
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
+        self.tile_color = g_vars["Unit"]["Worker"]["TileColor"]
+        BasicGameUnit.__init__(self, owner)
+        self.move_speed = g_vars["Unit"]["Worker"]["MoveSpeed"]
+        
+        # notify owner
+        message = dispatcher.Message(self, dispatcher.MSG.NewWorkerUnit)
+        owner.fsm.HandleMessage(message)
 
 class UnitExplorer(BasicGameUnit):
     def __init__(self, owner):
         self.groups = owner.gamemap.sprite_group_entities
-        self.tile_color = g_vars["Units"]["Explorer"]["TileColor"]
+        self.tile_color = g_vars["Unit"]["Explorer"]["TileColor"]
         BasicGameUnit.__init__(self, owner)
-        self.move_speed = g_vars["Units"]["Explorer"]["MoveSpeed"]
+        self.move_speed = g_vars["Unit"]["Explorer"]["MoveSpeed"]
+        self.production_time = g_vars["Unit"]["Explorer"]["ProductionTime"]
         
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewExplorerUnit)
@@ -151,3 +154,29 @@ class StructureEncampment(BasicGameStructure):
 
 
 #----------------------------RESOURCES??--------------------------------------#
+class BasicResource(BasicGameEntity):
+    def __init__(self, owner):
+        BasicGameEntity.__init__(self, owner)
+
+class Tree(BasicResource):
+    pass
+
+class Coal(BasicResource):
+    pass
+
+class IronOre(BasicResource):
+    pass
+
+class IronBar(BasicResource):
+    pass
+
+class Sword(BasicResource):
+    pass
+
+
+#----------------------------JSON to python class----------------------------------#
+def To_Class(entity_type):
+    if entity_type == "Worker":
+        return UnitWorker
+    if entity_type == "Explorer":
+        return UnitExplorer

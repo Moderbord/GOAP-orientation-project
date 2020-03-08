@@ -31,11 +31,10 @@ class AIStateIdle(entity_state.State):
 
 class AIStateExplore(entity_state.State):
     def Enter(self, player):
-        print("asds")
         self.explorers = []
-        for entity in player.entity_list:
-            if isinstance(entity, entities.UnitExplorer):
-                self.explorers.append(entity)
+        for unit in player.unit_list:
+            if isinstance(unit, entities.UnitExplorer):
+                self.explorers.append(unit)
 
     def Execute(self, player):
         for explorer in self.explorers:

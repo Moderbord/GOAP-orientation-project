@@ -1,11 +1,13 @@
 { 
 
 "Game": {
+
 	"Title": "Barf Fortress",
 	"ScreenWidth": 1080,
 	"ScreenHeight": 720,
 	"FPS": 24,
 	"TileSize": 13,
+	
 	"Colors": {
 		"Black": [0, 0, 0],
 		"White": [255, 255, 255],
@@ -14,6 +16,7 @@
 		"Green": [0, 255, 0],
 		"Blue": [0, 0, 255]
 	},
+	
 	"TileColors": {
 		"Mountain": [70, 70, 70],
 		"Bog": [140, 115, 40],
@@ -24,20 +27,32 @@
 	}
 },
 
-"Units": {
+"Unit": {
+
 	"Basic": {
 		"TileColor": "LightGray",
 		"MoveSpeed": 10
 	},
+	
 	"Worker": {
+		"TileColor": "Blue",
+		"MoveSpeed": 10,
+		"Production": []
 	},
+	
 	"Explorer": {
 		"TileColor": "Red",
-		"MoveSpeed": 50
+		"MoveSpeed": 50,
+		"Production": [
+			["Unit", "Worker", 1]
+		],
+		"ProductionTime": 60 
 	},
+	
 	"Artisan": {
 	
 	},
+	
 	"Soldier": {
 	
 	}

@@ -69,7 +69,7 @@ class AI:
         for product in production_list:
             entity_group = product[0]           # Unit, Structure
             entity_type = product[1]            # Worker, Explorer, Smithy, etc.
-            target_amount = product[2] * amount # How many is needed/ordered
+            target_amount = product[2]          # How many is needed/ordered
             self.Queue_Requirements(g_vars[entity_group][entity_type], target_amount)
             self.task_list.put([entity_group, entity_type, target_amount])
 

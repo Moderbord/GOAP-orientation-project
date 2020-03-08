@@ -125,7 +125,7 @@ def Astar(graph, start, goal):
             if neighbor not in travel_costs or new_cost < travel_costs[neighbor]:
                 travel_costs[neighbor] = new_cost
 
-                priority = new_cost + HeuristicManhattar(neighbor, goal) # Manhattan
+                priority = new_cost + 10 * HeuristicManhattar(neighbor, goal) # Manhattan
 
                 front.put(neighbor, priority)
                 path[neighbor] = current

@@ -31,6 +31,7 @@ class AI:
 
         self.check_current_task() # TODO move elsewhere
 
+    # Method that checks if progress can be made on current task
     def check_current_task(self):
         if not self.current_task:
             return
@@ -59,9 +60,12 @@ class AI:
             return
         self.task_list = algorithms.Queue()
         (product_group, product_class, product_amount) = self.current_goal
+        # queue all requirements
         self.queue_requirements(g_vars[product_group][product_class], product_amount)
+        # given task need to be put as last task
         self.task_list.put([product_group, product_class, product_amount])
 
+    # Method that will queue requirements recursively and put them in the task list
     def queue_requirements(self, target, amount=1):
         if not target["Production"]:
             return
@@ -94,24 +98,10 @@ class AI:
                     return False
         return True
 
-    def has_structure(self, target):
-        for structure in self.structure_list:
-            if isinstance(structure, target):
-                return True
-        return False
-        
-    def has_available_structure(self, target):
-        for structure in self.structure_list:
-            if isinstance(structure, target) and structure.fsm.is_in_state(entity_state.StateIdle):
-                return True
-        return False
+#--------------------------UNITS--------------------------#
 
-    def has_resource(self, target, count=1):
-        for resource in self.resource_list:
-            if isinstance(resource, target):
-                if resource[1] >= count:
-                    return True
-        return False
+    def add_unit(self, unit):
+        self.unit_list.append(unit)
 
     def has_unit(self, target, count=1):
         for unit in self.unit_list:
@@ -120,7 +110,7 @@ class AI:
             if count <= 0:
                 return True
         return False
-
+        
     def has_available_unit(self, target, count=1):
         for unit in self.unit_list:
             if isinstance(unit, target) and unit.fsm.is_in_state(entity_state.StateIdle):
@@ -129,6 +119,42 @@ class AI:
                 return True
         return False
 
+    def get_available_unit(self, target):
+        for unit in self.unit_list:
+            if isinstance(unit, target) and unit.fsm.is_in_state(entity_state.StateIdle):
+                return unit  
+
+    def remove_unit(self, target):
+        for unit in self.unit_list:
+            if unit is target:
+                self.unit_list.remove(unit)
+                unit.delete()
+                return                
+
+#--------------------------STRUCTURES--------------------------#
+
+    def add_structure(self, structure):
+        self.structure_list.append(structure)
+
+    def has_structure(self, target):
+        for structure in self.structure_list:
+            if isinstance(structure, target):
+                return True
+        return False
+
+    def has_available_structure(self, target):
+        for structure in self.structure_list:
+            if isinstance(structure, target) and structure.fsm.is_in_state(entity_state.StateIdle):
+                return True
+        return False
+
+    def get_available_structure(self, target):
+        for structure in self.structure_list:
+            if isinstance(structure, target) and structure.fsm.is_in_state(entity_state.StateIdle):
+                return structure       
+
+#--------------------------RESOURCES--------------------------#
+
     def add_resource(self, resource):
         for owned_resource in self.resource_list:
             if owned_resource[0] is resource[0]: # already has resource
@@ -136,28 +162,12 @@ class AI:
                 return
         self.resource_list.append(resource)      # else add it to list
 
-    def add_unit(self, unit):
-        self.unit_list.append(unit)
-
-    def add_structure(self, structure):
-        self.structure_list.append(structure)
-
     def add_resource_tile(self, tile):
         self.resource_tiles.append(tile)
 
-    def get_available_unit(self, target):
-        for unit in self.unit_list:
-            if isinstance(unit, target) and unit.fsm.is_in_state(entity_state.StateIdle):
-                return unit
-
-    def get_available_structure(self, target):
-        for structure in self.structure_list:
-            if isinstance(structure, target) and structure.fsm.is_in_state(entity_state.StateIdle):
-                return structure
-
-    def remove_unit(self, target):
-        for unit in self.unit_list:
-            if unit is target:
-                self.unit_list.remove(unit)
-                unit.delete()
-                return
+    def has_resource(self, target, count=1):
+        for resource in self.resource_list:
+            if isinstance(resource, target):
+                if resource[1] >= count:
+                    return True
+        return False

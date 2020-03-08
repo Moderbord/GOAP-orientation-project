@@ -84,9 +84,11 @@ class AI:
                     return False
             elif requirement[0] == "Structure":
                 if not self.has_structure(required_class):
+                    # structure should not be occupied
                     return False
             elif requirement[0] == "Unit":
-                if not self.has_unit(required_class, required_amount):
+                if not self.has_available_unit(required_class, required_amount):
+                    # unit should not be locked or similiar
                     return False
         return True
 
@@ -111,6 +113,14 @@ class AI:
                 return True
         return False
 
+    def has_available_unit(self, target, count=1):
+        for unit in self.unit_list:
+            if isinstance(unit, target) and unit.fsm.is_in_state(entity_state.StateIdle):
+                count -= 1
+            if count <= 0:
+                return True
+        return False
+
     def add_resource(self, resource):
         for owned_resource in self.resource_list:
             if owned_resource[0] is resource[0]: # already has resource
@@ -124,9 +134,9 @@ class AI:
     def add_resource_tile(self, tile):
         self.resource_tiles.append(tile)
 
-    def get_unit(self, target):
+    def get_available_unit(self, target):
         for unit in self.unit_list:
-            if isinstance(unit, target):
+            if isinstance(unit, target) and unit.fsm.is_in_state(entity_state.StateIdle):
                 return unit
 
     def remove_unit(self, target):

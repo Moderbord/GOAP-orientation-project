@@ -35,7 +35,7 @@ class StateMachine:
             self.currentState = self.previousState
 
     def is_in_state(self, state):
-        return self.currentState == state
+        return isinstance(self.currentState, state)
 
     def handle_message(self, message):
         if(self.currentState and self.currentState.on_message(self.owner, message)):

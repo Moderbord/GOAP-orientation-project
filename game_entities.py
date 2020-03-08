@@ -94,7 +94,7 @@ class BasicGameUnit(BasicGameEntity):
                 # message telling the entity that is has arrived
                 message = dispatcher.Message(self, dispatcher.MSG.ArrivedAtGoal)
                 self.fsm.handle_message(message)
-                
+
         super().update()
 
 
@@ -112,6 +112,7 @@ class UnitWorker(BasicGameUnit):
 
     def spawn(self):
         super().spawn()
+        self.fsm.change_state(states.StateIdle())
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewWorkerUnit)
         self.owner.fsm.handle_message(message)
@@ -126,7 +127,7 @@ class UnitExplorer(BasicGameUnit):
 
     def begin_production(self):
         # find free worker
-        self.worker_unit = self.owner.get_unit(UnitWorker)
+        self.worker_unit = self.owner.get_available_unit(UnitWorker)
         # pause worker for production time
         self.worker_unit.fsm.change_state(states.StateLocked())
         # change to production state
@@ -134,6 +135,7 @@ class UnitExplorer(BasicGameUnit):
 
     def spawn(self):
         super().spawn()
+        self.fsm.change_state(states.StateIdle())
         # put explorer where worker stood
         self.location = self.worker_unit.location
         # remove worker

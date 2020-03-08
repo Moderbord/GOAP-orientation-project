@@ -7,20 +7,36 @@ from game_settings import g_vars
 class BasicTile(sprite.Sprite):
     def __init__(self, gamemap, location):
         sprite.Sprite.__init__(self, self.groups) # Add self to group
+        # map
         self.gamemap = gamemap
-        # Grid coordinates
         self.location = location
+        # pathing
         self.passable = g_vars["Tile"]["Basic"]["Passable"] == 1
         self.movement_straight = g_vars["Tile"]["Basic"]["MovementStraight"]
         self.movement_diagonal = g_vars["Tile"]["Basic"]["MovementDiagonal"]
-
+        # graphic
         #self.image = assets.LoadSprite("unicorn.jpg")
         self.image = Surface((g_vars["Game"]["TileSize"], g_vars["Game"]["TileSize"]))
         self.image.fill(g_vars["Game"]["TileColors"][self.tile_color])
-
         self.rect = self.image.get_rect()
         self.rect.x = location[0] * g_vars["Game"]["TileSize"]
         self.rect.y = location[1] * g_vars["Game"]["TileSize"]
+
+        # Resource
+        self.resource_list = []
+
+    def add_resource(self, resource, amount=1):
+        for x in range(amount):
+            y1 = self.location[1]
+            x1 = self.location[0]
+            new_resource = resource(self.gamemap, (x1, y1))
+            self.resource_list.append(new_resource)
+
+    def has_resources_remaining(self):
+        return len(self.resource_list) > 0
+
+    def deduct_resource(self):
+        pass
 
 class Fog(BasicTile):
     def __init__(self, gamemap, location):

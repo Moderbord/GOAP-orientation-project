@@ -3,6 +3,7 @@ from os import path
 
 import game_assets as assets
 import game_tiles as tiles
+import game_entities as entities
 import algorithms as alg
 from game_settings import g_vars
 
@@ -12,6 +13,7 @@ class GameMap:
         self.sprite_group_background = pg.sprite.Group()
         self.sprite_group_fog = pg.sprite.Group()
         self.sprite_group_entities = pg.sprite.Group()
+        self.sprite_group_resources = pg.sprite.Group()
         self.tile_data = {}
         self.unpassable_tiles = []
         self.cleared_fog = []
@@ -45,7 +47,8 @@ class GameMap:
 
                     if tile == "T": # Forest
                         new_tile = tiles.Forest(self, (x, y))
-                    
+                        new_tile.add_resource(entities.WildTree, 5)
+
                     elif tile == "V": # Water
                         new_tile = tiles.Water(self, (x, y))
                         self.unpassable_tiles.append((x, y))
@@ -70,12 +73,16 @@ class GameMap:
 
     def update(self):
         self.sprite_group_background.update()
+        self.sprite_group_resources.update()
         self.sprite_group_entities.update()
         self.sprite_group_fog.update()
 
     def draw(self, screen):
         for sprite in self.sprite_group_background:
             # apply offset to camera to all sprites 
+            screen.blit(sprite.image, self.camera.apply(sprite))
+        
+        for sprite in self.sprite_group_resources:
             screen.blit(sprite.image, self.camera.apply(sprite))
 
         for sprite in self.sprite_group_entities:

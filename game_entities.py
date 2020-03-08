@@ -1,5 +1,6 @@
 from pygame import sprite
 from pygame import Surface
+from random import randint
 
 import entity_state as states
 import state_machine as fsm
@@ -246,9 +247,20 @@ class StructureEncampment(BasicGameStructure):
 
 
 #----------------------------RESOURCES??--------------------------------------#
-class BasicResource(BasicGameEntity):
-    def __init__(self, owner):
-        BasicGameEntity.__init__(self, owner)
+class BasicResource(sprite.Sprite):
+    def __init__(self, location):
+        sprite.Sprite.__init__(self, self.groups)
+        self.image = Surface((g_vars["Game"]["ResourceSize"], g_vars["Game"]["ResourceSize"]))
+        self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
+        self.rect = self.image.get_rect()
+        self.rect.x = location[0] * g_vars["Game"]["TileSize"] + randint(0, g_vars["Game"]["TileSize"])
+        self.rect.y = location[1] * g_vars["Game"]["TileSize"] + randint(0, g_vars["Game"]["TileSize"])
+
+class WildTree(BasicResource):
+    def __init__(self, gamemap, location):
+        self.groups = gamemap.sprite_group_resources
+        self.tile_color = "Yellow"
+        super().__init__(location)
 
 class Tree(BasicResource):
     pass
@@ -268,9 +280,16 @@ class Sword(BasicResource):
 
 #----------------------------JSON to python class----------------------------------#
 def to_class(entity_type):
+    #-----------UNITS-----------#
     if entity_type == "Worker":
         return UnitWorker
     if entity_type == "Explorer":
         return UnitExplorer
+    #---------STRUCTURES--------#
     if entity_type == "Camp":
         return StructureCamp
+    #----------RESOURCES--------#
+    if entity_type == "WildTree":
+        return WildTree
+    if entity_type == "Tree":
+        return Tree

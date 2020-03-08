@@ -7,6 +7,7 @@
 	"ScreenHeight": 720,
 	"FPS": 24,
 	"TileSize": 13,
+	"UnitSize": 6,
 	
 	"Colors": {
 		"Black": [0, 0, 0],
@@ -37,7 +38,9 @@
 	"Worker": {
 		"TileColor": "Blue",
 		"MoveFactor": 1,
-		"Production": [],
+		"Production": [
+			["Structure", "Camp", 1]
+		],
 		"ProductionTime": 3 
 	},
 	
@@ -57,6 +60,18 @@
 	"Soldier": {
 	
 	}
+},
+
+"Structure": {
+	
+	"Camp": {
+		"TileColor": "Green",
+		"Production": [],
+		"Output": [
+			["Unit", "Worker", 1]
+		]
+	}
+
 },
 
 "Exploration": {

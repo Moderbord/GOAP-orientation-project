@@ -23,13 +23,14 @@ class State:
 
 class StateProduced(State):
     def enter(self, entity):
+        print("Beginning production of " +str(entity))
         self.accumulated_production = 0
 
     def execute(self, entity):
         self.accumulated_production += time.delta_time
         if self.accumulated_production >= entity.production_time:
+            print("Completed production of " +str(entity))
             entity.spawn()
-            entity.fsm.change_state(StateIdle())
 
     def exit(self, entity):
         pass

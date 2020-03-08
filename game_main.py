@@ -29,8 +29,28 @@ class Game:
     def enable_ai(self):
         self.ai_player = ai.AI(self.map, (2, 2))
         self.map.clear_fog_area((1, 1), (3, 3))
-        self.ai_player.current_goal = ("Unit", "Explorer", 1)
+        self.ai_player.current_goal = ("Unit", "Explorer", 3)
         self.ai_player.update_task_list()
+
+        camp = entities.StructureCamp(self.ai_player)
+        camp.spawn()
+        self.ai_player.add_structure(camp)
+
+        worker = entities.UnitWorker(self.ai_player)
+        worker1 = entities.UnitWorker(self.ai_player)
+        worker2 = entities.UnitWorker(self.ai_player)
+        worker.structure = camp
+        worker1.structure = camp
+        worker2.structure = camp
+        worker.spawn()
+        worker1.spawn()
+        worker2.spawn()
+        worker.location = (3, 2)
+        worker1.location = (3, 3)
+        worker2.location = (1, 3)
+        self.ai_player.add_unit(worker)
+        self.ai_player.add_unit(worker1)
+        self.ai_player.add_unit(worker2)
 
     def enable_fog(self):
         self.map.draw_fog = True

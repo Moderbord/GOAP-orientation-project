@@ -20,7 +20,7 @@ class BasicGameEntity(sprite.Sprite):
         self.production_time = 0
         self.location = owner.start_position
         self.is_visible = False
-        self.is_idle = True
+        self.is_idle = False
 
     def begin_production(self):
         pass
@@ -107,15 +107,26 @@ class UnitWorker(BasicGameUnit):
         self.production_time = g_vars["Unit"]["Worker"]["ProductionTime"]
 
     def begin_production(self):
+        # get structure
+        self.structure = self.owner.get_available_structure(StructureCamp)
+        print("Got free Camp")
+        # occupy structure
+        self.structure.fsm.change_state(states.StateLocked())
+        print("Locked Camp")
         # change to production state
         self.fsm.change_state(states.StateProduced())
 
     def spawn(self):
         super().spawn()
+        print("Spawning")
+        # change state
         self.fsm.change_state(states.StateIdle())
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewWorkerUnit)
         self.owner.fsm.handle_message(message)
+        # free structure
+        self.structure.fsm.change_state(states.StateIdle())
+        print("Released Camp")
 
 class UnitExplorer(BasicGameUnit):
     def __init__(self, owner):
@@ -128,18 +139,22 @@ class UnitExplorer(BasicGameUnit):
     def begin_production(self):
         # find free worker
         self.worker_unit = self.owner.get_available_unit(UnitWorker)
+        print("Got free Worker")
         # pause worker for production time
         self.worker_unit.fsm.change_state(states.StateLocked())
+        print("Locked Worker")
         # change to production state
         self.fsm.change_state(states.StateProduced())
 
     def spawn(self):
         super().spawn()
+        print("Re-Spawning")
         self.fsm.change_state(states.StateIdle())
         # put explorer where worker stood
         self.location = self.worker_unit.location
         # remove worker
         self.owner.remove_unit(self.worker_unit)
+        print("Removed Worker")
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewExplorerUnit)
         self.owner.fsm.handle_message(message)
@@ -172,6 +187,17 @@ class BasicGameStructure(BasicGameEntity):
 
     def update(self):
         super().update()
+
+class StructureCamp(BasicGameStructure):
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
+        self.tile_color = g_vars["Structure"]["Camp"]["TileColor"]
+        BasicGameStructure.__init__(self, owner)
+        self.output = g_vars["Structure"]["Camp"]["Output"]
+
+    def spawn(self):
+        super().spawn()
+        self.fsm.change_state(states.StateIdle())
 
 class StructureSmithy(BasicGameStructure):
     #swords
@@ -217,3 +243,5 @@ def to_class(entity_type):
         return UnitWorker
     if entity_type == "Explorer":
         return UnitExplorer
+    if entity_type == "Camp":
+        return StructureCamp

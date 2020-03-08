@@ -71,6 +71,8 @@ class AI:
             entity_group = product[0]           # Unit, Structure
             entity_type = product[1]            # Worker, Explorer, Smithy, etc.
             target_amount = product[2]          # How many is needed/ordered
+            if not entity_group == "Structure":
+                target_amount *= amount
             self.queue_requirements(g_vars[entity_group][entity_type], target_amount)
             self.task_list.put([entity_group, entity_type, target_amount])
 
@@ -83,7 +85,7 @@ class AI:
                 if not self.has_resource(required_class, required_amount):
                     return False
             elif requirement[0] == "Structure":
-                if not self.has_structure(required_class):
+                if not self.has_available_structure(required_class):
                     # structure should not be occupied
                     return False
             elif requirement[0] == "Unit":
@@ -95,6 +97,12 @@ class AI:
     def has_structure(self, target):
         for structure in self.structure_list:
             if isinstance(structure, target):
+                return True
+        return False
+        
+    def has_available_structure(self, target):
+        for structure in self.structure_list:
+            if isinstance(structure, target) and structure.fsm.is_in_state(entity_state.StateIdle):
                 return True
         return False
 
@@ -131,6 +139,9 @@ class AI:
     def add_unit(self, unit):
         self.unit_list.append(unit)
 
+    def add_structure(self, structure):
+        self.structure_list.append(structure)
+
     def add_resource_tile(self, tile):
         self.resource_tiles.append(tile)
 
@@ -138,6 +149,11 @@ class AI:
         for unit in self.unit_list:
             if isinstance(unit, target) and unit.fsm.is_in_state(entity_state.StateIdle):
                 return unit
+
+    def get_available_structure(self, target):
+        for structure in self.structure_list:
+            if isinstance(structure, target) and structure.fsm.is_in_state(entity_state.StateIdle):
+                return structure
 
     def remove_unit(self, target):
         for unit in self.unit_list:

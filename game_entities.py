@@ -108,10 +108,10 @@ class UnitWorker(BasicGameUnit):
 
     def begin_production(self):
         # get structure
-        self.structure = self.owner.get_available_structure(StructureCamp)
+        self.origin_structure = self.owner.get_available_structure(StructureCamp)
         print("Got free Camp")
         # occupy structure
-        self.structure.fsm.change_state(states.StateLocked())
+        self.origin_structure.fsm.change_state(states.StateLocked())
         print("Locked Camp")
         # change to production state
         self.fsm.change_state(states.StateProduced())
@@ -119,13 +119,15 @@ class UnitWorker(BasicGameUnit):
     def spawn(self):
         super().spawn()
         print("Spawning")
+        # position to building
+        self.location = self.origin_structure.location
         # change state
         self.fsm.change_state(states.StateIdle())
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewWorkerUnit)
         self.owner.fsm.handle_message(message)
         # free structure
-        self.structure.fsm.change_state(states.StateIdle())
+        self.origin_structure.fsm.change_state(states.StateIdle())
         print("Released Camp")
 
 class UnitExplorer(BasicGameUnit):
@@ -185,21 +187,46 @@ class UnitSoldier(BasicGameUnit):
 class BasicGameStructure(BasicGameEntity):
     def __init__(self, owner):
         BasicGameEntity.__init__(self, owner)
-        self.output = {}
+        self.production_time = g_vars["Structure"]["Base"]["ProductionTime"]
+        self.output = g_vars["Structure"]["Base"]["Output"]
+    
+    def begin_production(self):
+        # find free building tile
+        tile = self.owner.get_buildable_tile()
+        print("Got free building tile")
+        # spawn structure base
+        self.structure_base = StructureBase(self.owner)
+        self.structure_base.location = tile.location
+        self.structure_base.spawn()
+        print("Structure base placed")
+        # change to production state
+        self.fsm.change_state(states.StateProduced())
 
     def update(self):
         super().update()
+
+class StructureBase(BasicGameStructure):
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
+        self.tile_color = g_vars["Structure"]["Base"]["TileColor"]
+        BasicGameStructure.__init__(self, owner)
 
 class StructureCamp(BasicGameStructure):
     def __init__(self, owner):
         self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Structure"]["Camp"]["TileColor"]
         BasicGameStructure.__init__(self, owner)
+        self.production_time = g_vars["Structure"]["Camp"]["ProductionTime"]
         self.output = g_vars["Structure"]["Camp"]["Output"]
 
     def spawn(self):
         super().spawn()
+        # state
         self.fsm.change_state(states.StateIdle())
+        # set position to base
+        self.location = self.structure_base.location
+        # remove base
+        self.structure_base.delete()
 
 class StructureSmithy(BasicGameStructure):
     #swords

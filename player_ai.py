@@ -1,3 +1,5 @@
+from random import randint
+
 import state_machine as fsm
 import message_dispatcher as dispatch
 import game_entities as entities
@@ -47,6 +49,10 @@ class AI:
         elif entity_group == "Structure":
             if self.has_structure(entity_class):
                 self.current_task = None
+            elif self.can_create_entity(entity_group, entity_type):
+                new_structure = entity_class(self)
+                new_structure.begin_production()
+                self.add_structure(new_structure)
         elif entity_group == "Unit":
             if self.has_unit(entity_class, target_amount):
                 self.current_task = None
@@ -151,7 +157,19 @@ class AI:
     def get_available_structure(self, target):
         for structure in self.structure_list:
             if isinstance(structure, target) and structure.fsm.is_in_state(entity_state.StateIdle):
-                return structure       
+                return structure   
+
+    def remove_structure(self, target):
+        for structure in self.structure_list:
+            if structure is target:
+                self.unit_list.remove(structure)
+                structure.delete()
+                return         
+
+    def get_buildable_tile(self): # change to list which is filled when creating the ai
+        buildable_tiles = self.gamemap.get_buildable_area(self.start_position, 1)
+        index = randint(0, len(buildable_tiles) - 1)
+        return buildable_tiles[index]
 
 #--------------------------RESOURCES--------------------------#
 

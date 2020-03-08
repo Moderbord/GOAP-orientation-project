@@ -110,6 +110,16 @@ class GameMap:
                     self.cleared_fog.append((x, y))
                     self.remove_tile(tile)
 
+    def get_buildable_area(self, center, radius):
+        buildable_tiles = []
+        (x1, y1) = center
+        for x in range(x1 - radius, x1 + radius + 1):
+            for y in range(y1 - radius, y1 + radius + 1):
+                tile = self.get_background_tile((x, y))
+                if isinstance(tile, tiles.Ground):
+                    buildable_tiles.append(tile)
+        return buildable_tiles
+
     def get_path(self, start, goal):
         return alg.Astar(self.weighted_graph, goal, start)
 

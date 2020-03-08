@@ -152,6 +152,8 @@ class UnitExplorer(BasicGameUnit):
         self.fsm.change_state(states.StateIdle())
         # put explorer where worker stood
         self.location = self.worker_unit.location
+        # clear any fog
+        self.gamemap.clear_fog_area((self.location[0] - 1, self.location[1] - 1), (self.location[0] + 1, self.location[1] + 1))
         # remove worker
         self.owner.remove_unit(self.worker_unit)
         print("Removed Worker")

@@ -143,6 +143,8 @@ class StateGather(State):
     def __get_delivery_path_callback(self, entity, result):
         self.finding_path = False
         if result:
+            self.gather_progress = 0
+            self.gather_completion = False
             # deduct one resource from tile and carry it
             tile = entity.gamemap.get_background_tile(entity.location)
             entity.carried_resource = tile.deduct_resource(entity.owner.target_resource[2])

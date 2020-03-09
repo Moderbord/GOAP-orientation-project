@@ -78,19 +78,28 @@ class GameMap:
         self.sprite_group_fog.update()
 
     def draw(self, screen):
-        for sprite in self.sprite_group_background:
-            # apply offset to camera to all sprites 
-            screen.blit(sprite.image, self.camera.apply(sprite))
-        
-        for sprite in self.sprite_group_resources:
-            screen.blit(sprite.image, self.camera.apply(sprite))
+        # loop through all tiles
+        for x in range(0, self.tile_width):
+            for y in range(0, self.tile_height):
 
+                # check if fog
+                if self.draw_fog:
+                    tile = self.get_fog_tile((x, y))
+                    # draw fog if it exists
+                    if tile:
+                        screen.blit(tile.image, self.camera.apply(tile))
+                        continue
+                
+                # draw background
+                tile = self.get_background_tile((x, y))
+                screen.blit(tile.image, self.camera.apply(tile))
+                # draw resource if any
+                if tile.has_resources_remaining():
+                    for resource in tile.resource_list:
+                        screen.blit(resource.image, self.camera.apply(resource))
+        # draw units
         for sprite in self.sprite_group_entities:
             if sprite.is_visible:
-                screen.blit(sprite.image, self.camera.apply(sprite))
-
-        if self.draw_fog:
-            for sprite in self.sprite_group_fog:
                 screen.blit(sprite.image, self.camera.apply(sprite))
 
     def get_background_tile(self, cords):
@@ -98,7 +107,7 @@ class GameMap:
 
     def get_fog_tile(self, cords):
         return self.fog_data.get(cords, False)
-
+        
     def remove_tile(self, tile):
         pg.sprite.Sprite.remove(tile, tile.groups)
     

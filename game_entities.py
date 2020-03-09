@@ -189,8 +189,31 @@ class UnitExplorer(BasicGameUnit):
 
 
 class UnitArtisan(BasicGameUnit):
-    #profession
-    pass
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
+        self.tile_color = g_vars["Unit"]["Artisan"]["TileColor"]
+        BasicGameUnit.__init__(self, owner)
+        self.move_factor = g_vars["Unit"]["Artisan"]["MoveFactor"]
+        self.production_time = g_vars["Unit"]["Artisan"]["ProductionTime"]
+
+    def begin_production(self):
+        # find free worker
+        self.worker_unit = self.owner.get_available_unit(UnitWorker)
+        # pause worker for production time
+        self.worker_unit.fsm.change_state(states.StateLocked())
+        # change to production state
+        self.fsm.change_state(states.StateProduced())
+
+    def spawn(self):
+        # put explorer where worker stood
+        self.location = self.worker_unit.location
+        super().spawn()
+        self.fsm.change_state(states.StateIdle())
+        # remove worker
+        self.owner.remove_unit(self.worker_unit)
+        # notify owner
+        message = dispatcher.Message(self, dispatcher.MSG.NewArtisanUnit)
+        self.owner.fsm.handle_message(message)
 
 class UnitSoldier(BasicGameUnit):
     pass
@@ -238,21 +261,72 @@ class StructureCamp(BasicGameStructure):
         self.structure_base.delete()
 
 class StructureSmithy(BasicGameStructure):
-    #swords
-    pass
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
+        self.tile_color = g_vars["Structure"]["Smithy"]["TileColor"]
+        BasicGameStructure.__init__(self, owner)
+        self.production_time = g_vars["Structure"]["Smithy"]["ProductionTime"]
+        self.output = g_vars["Structure"]["Smithy"]["Output"]
+    
+    def spawn(self):
+        # set position to base
+        self.location = self.structure_base.location
+        super().spawn()
+        # state
+        self.fsm.change_state(states.StateIdle())
+        # remove base
+        self.structure_base.delete()
 
 class StructureSmelter(BasicGameStructure):
-    #iron bars
-    pass
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
+        self.tile_color = g_vars["Structure"]["Smelter"]["TileColor"]
+        BasicGameStructure.__init__(self, owner)
+        self.production_time = g_vars["Structure"]["Smelter"]["ProductionTime"]
+        self.output = g_vars["Structure"]["Smelter"]["Output"]
+
+        def spawn(self):
+            # set position to base
+            self.location = self.structure_base.location
+            super().spawn()
+            # state
+            self.fsm.change_state(states.StateIdle())
+            # remove base
+            self.structure_base.delete()
 
 class StructureRefinery(BasicGameStructure):
-    #coal
-    pass
-
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
+        self.tile_color = g_vars["Structure"]["Refinery"]["TileColor"]
+        BasicGameStructure.__init__(self, owner)
+        self.production_time = g_vars["Structure"]["Refinery"]["ProductionTime"]
+        self.output = g_vars["Structure"]["Refinery"]["Output"]
+    
+    def spawn(self):
+        # set position to base
+        self.location = self.structure_base.location
+        super().spawn()
+        # state
+        self.fsm.change_state(states.StateIdle())
+        # remove base
+        self.structure_base.delete()
+        
 class StructureEncampment(BasicGameStructure):
-    #soldiers
-    pass
-
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
+        self.tile_color = g_vars["Structure"]["Encampment"]["TileColor"]
+        BasicGameStructure.__init__(self, owner)
+        self.production_time = g_vars["Structure"]["Encampment"]["ProductionTime"]
+        self.output = g_vars["Structure"]["Encampment"]["Output"]
+    
+    def spawn(self):
+        # set position to base
+        self.location = self.structure_base.location
+        super().spawn()
+        # state
+        self.fsm.change_state(states.StateIdle())
+        # remove base
+        self.structure_base.delete()
 
 #----------------------------RESOURCES??--------------------------------------#
 class BasicResource(sprite.Sprite):
@@ -279,7 +353,11 @@ class Coal(BasicResource):
     pass
 
 class IronOre(BasicResource):
-    pass
+    def __init__(self, gamemap, location):
+        self.groups = gamemap.sprite_group_resources
+        self.tile_color = "Yellow"
+        super().__init__(location)
+        self.gathered_type = g_vars["Exploration"]["IronOre"]["GatheredType"]
 
 class IronBar(BasicResource):
     pass
@@ -295,11 +373,31 @@ def to_class(entity_type):
         return UnitWorker
     if entity_type == "Explorer":
         return UnitExplorer
+    if entity_type == "Artisan":
+        return UnitArtisan
+    if entity_type == "Soldier":
+        return UnitSoldier
     #---------STRUCTURES--------#
     if entity_type == "Camp":
         return StructureCamp
+    if entity_type == "Refinery":
+        return StructureRefinery
+    if entity_type == "Smelter":
+        return StructureSmelter
+    if entity_type == "Smithy":
+        return StructureSmithy
+    if entity_type == "Encampment":
+        return StructureEncampment
     #----------RESOURCES--------#
     if entity_type == "WildTree":
         return WildTree
     if entity_type == "Tree":
         return Tree
+    if entity_type == "Coal":
+        return Coal
+    if entity_type == "IronOre":
+        return IronOre
+    if entity_type == "IronBar":
+        return IronBar
+    if entity_type == "Sword":
+        return Sword

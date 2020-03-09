@@ -32,7 +32,7 @@ class Game:
     def enable_ai(self):
         self.ai_player = ai.AI(self.map, (2, 2))
         self.map.discover_fog_area((1, 1), (3, 3))
-        self.ai_player.append_goal(("Resource", "Tree", 3))
+        self.ai_player.append_goal(("Resource", "Coal", 1))
 
     def enable_fog(self):
         self.map.draw_fog = True

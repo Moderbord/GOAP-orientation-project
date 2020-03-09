@@ -1,5 +1,6 @@
 import pygame as pg
 from os import path
+from random import randint
 
 import game_assets as assets
 import game_tiles as tiles
@@ -65,6 +66,12 @@ class GameMap:
                     
                     self.tile_data[(x, y)] = new_tile
 
+        for i in range(0, 60):
+            tile = self.get_random_background_tile()
+            while not tile.passable:
+                tile = self.get_random_background_tile()
+            tile.add_resource(entities.IronOre, 1)
+
         self.width = self.tile_width * g_vars["Game"]["TileSize"]
         self.height = self.tile_height * g_vars["Game"]["TileSize"]
 
@@ -105,9 +112,13 @@ class GameMap:
     def get_background_tile(self, cords):
         return self.tile_data[cords]
 
+    def get_random_background_tile(self):
+        x, y = randint(0, self.tile_width - 1), randint(0, self.tile_height - 1)
+        return self.tile_data[(x, y)]
+
     def get_fog_tile(self, cords):
         return self.fog_data.get(cords, False)
-        
+
     def remove_tile(self, tile):
         pg.sprite.Sprite.remove(tile, tile.groups)
     

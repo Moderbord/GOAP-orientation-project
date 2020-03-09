@@ -57,11 +57,23 @@
 	},
 	
 	"Artisan": {
-	
+		"TileColor": "Yellow",
+		"MoveFactor": 10,
+		"Production": [
+			["Unit", "Worker", 1]
+		],
+		"ProductionTime": 5 
 	},
 	
 	"Soldier": {
-	
+		"TileColor": "White",
+		"MoveFactor": 15,
+		"Production": [
+			["Structure", "Encampment", 1],
+			["Resource", "Sword", 1],
+			["Unit", "Worker", 1]
+		],
+		"ProductionTime": 5 
 	}
 },
 
@@ -93,6 +105,43 @@
 			["Resource", "Coal", 1]
 		],
 		"ProductionTime": 5 
+	},
+	
+	"Smithy": {
+		"TileColor": "Green",
+		"Production": [
+			["Unit", "Worker", 1],
+			["Resource", "Tree", 10],
+			["Resource", "IronBar", 3]
+		],
+		"Output": [
+			["Resource", "Sword", 1]
+		],
+		"ProductionTime": 5 
+	},
+	
+	"Smelter": {
+		"TileColor": "Green",
+		"Production": [
+			["Unit", "Worker", 1],
+			["Resource", "Tree", 10]
+		],
+		"Output": [
+			["Resource", "IronBar", 1]
+		],
+		"ProductionTime": 5 
+	},
+	
+	"Encampment": {
+		"TileColor": "Green",
+		"Production": [
+			["Unit", "Worker", 1],
+			["Resource", "Tree", 10]
+		],
+		"Output": [
+			["Unit", "Soldier", 1]
+		],
+		"ProductionTime": 5 
 	}
 
 },
@@ -103,6 +152,12 @@
 		"Production": [],
 		"GatheredType": ["Resource", "Tree", 1], 
 		"GatherTime": 3
+	},
+	
+	"IronOre": {
+		"Production": [],
+		"GatheredType": ["Resource", "IronOre", 1], 
+		"GatherTime": 5
 	}
 
 },
@@ -120,8 +175,33 @@
 			["Structure", "Refinery", 1],
 			["Resource", "Tree", 2]
 		],
-		"ProductionTime": 30 
+		"ProductionTime": 3 
+	},
+	
+	"IronOre": {
+		"Production": [
+			["Exploration", "IronOre", 1]
+		]
+	},
+	
+	"IronBar": {
+		"Production": [
+			["Structure", "Smelter", 1],
+			["Resource", "IronOre", 2],
+			["Resource", "Coal", 3]
+		],
+		"ProductionTime": 3
+	},
+	
+	"Sword": {
+		"Production": [
+			["Structure", "Smithy", 1],
+			["Resource", "IronBar", 1],
+			["Resource", "Coal", 2]
+		],
+		"ProductionTime": 3
 	}
+	
 },
 
 "Tile": {

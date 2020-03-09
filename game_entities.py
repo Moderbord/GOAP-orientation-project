@@ -109,14 +109,15 @@ class UnitWorker(BasicGameUnit):
         BasicGameUnit.__init__(self, owner)
         self.move_factor = g_vars["Unit"]["Worker"]["MoveFactor"]
         self.production_time = g_vars["Unit"]["Worker"]["ProductionTime"]
+        self.carried_resource = None
 
     def begin_production(self):
         # get structure
         self.origin_structure = self.owner.get_available_structure(StructureCamp)
-        print("Got free Camp")
+        #print("Got free Camp")
         # occupy structure
         self.origin_structure.fsm.change_state(states.StateLocked())
-        print("Locked Camp")
+        #print("Locked Camp")
         # change to production state
         self.fsm.change_state(states.StateProduced())
 
@@ -125,7 +126,7 @@ class UnitWorker(BasicGameUnit):
         self.location = self.origin_structure.location
         # spawn
         super().spawn()
-        print("Spawning")
+        #print("Spawning")
         # change state
         self.fsm.change_state(states.StateIdle())
         # notify owner
@@ -133,7 +134,7 @@ class UnitWorker(BasicGameUnit):
         self.owner.fsm.handle_message(message)
         # free structure
         self.origin_structure.fsm.change_state(states.StateIdle())
-        print("Released Camp")
+        #print("Released Camp")
 
 class UnitExplorer(BasicGameUnit):
     def __init__(self, owner):
@@ -146,10 +147,10 @@ class UnitExplorer(BasicGameUnit):
     def begin_production(self):
         # find free worker
         self.worker_unit = self.owner.get_available_unit(UnitWorker)
-        print("Got free Worker")
+        #print("Got free Worker")
         # pause worker for production time
         self.worker_unit.fsm.change_state(states.StateLocked())
-        print("Locked Worker")
+        #print("Locked Worker")
         # change to production state
         self.fsm.change_state(states.StateProduced())
 
@@ -157,13 +158,13 @@ class UnitExplorer(BasicGameUnit):
         # put explorer where worker stood
         self.location = self.worker_unit.location
         super().spawn()
-        print("Re-Spawning")
+        #print("Re-Spawning")
         self.fsm.change_state(states.StateIdle())
         # clear any fog
         self.gamemap.discover_fog_area((self.location[0] - 1, self.location[1] - 1), (self.location[0] + 1, self.location[1] + 1))
         # remove worker
         self.owner.remove_unit(self.worker_unit)
-        print("Removed Worker")
+        #print("Removed Worker")
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewExplorerUnit)
         self.owner.fsm.handle_message(message)
@@ -204,12 +205,12 @@ class BasicGameStructure(BasicGameEntity):
     def begin_production(self):
         # find free building tile
         tile = self.owner.get_buildable_tile()
-        print("Got free building tile")
+        #print("Got free building tile")
         # spawn structure base
         self.structure_base = StructureBase(self.owner)
         self.structure_base.location = tile.location
         self.structure_base.spawn()
-        print("Structure base placed")
+        #print("Structure base placed")
         # change to production state
         self.fsm.change_state(states.StateProduced())
 
@@ -262,12 +263,14 @@ class BasicResource(sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = location[0] * g_vars["Game"]["TileSize"] + randint(0, g_vars["Game"]["TileSize"])
         self.rect.y = location[1] * g_vars["Game"]["TileSize"] + randint(0, g_vars["Game"]["TileSize"])
+        self.gathered_type = None 
 
 class WildTree(BasicResource):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_resources
         self.tile_color = "Yellow"
         super().__init__(location)
+        self.gathered_type = g_vars["Exploration"]["WildTree"]["GatheredType"]
 
 class Tree(BasicResource):
     pass

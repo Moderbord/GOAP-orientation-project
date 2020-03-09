@@ -101,6 +101,7 @@
 	
 	"WildTree": {
 		"Production": [],
+		"GatheredType": ["Resource", "Tree", 1], 
 		"GatherTime": 3
 	}
 

@@ -49,6 +49,7 @@ class AI:
                 if not self.fsm.is_in_state(ai_state.AIStateGather):
                     self.fsm.change_state(ai_state.AIStateGather())
                     self.target_resource = (target_group, target_type, target_class)
+                self.current_task = None
             else:
                 if not self.fsm.is_in_state(ai_state.AIStateExplore):
                     self.fsm.change_state(ai_state.AIStateExplore())
@@ -56,7 +57,7 @@ class AI:
 
         # Resource group
         if target_group == "Resource":
-            if self.has_resource(target_class, target_amount):
+            if self.has_resource(target_type, target_amount):
                 self.current_task = None
             elif self.can_create_entity(target_group, target_type):
                 pass
@@ -244,15 +245,15 @@ class AI:
 
     def add_resource(self, resource):
         for owned_resource in self.resource_list:
-            if owned_resource[0] is resource[0]: # already has resource
-                owned_resource[1] += resource[1] # increment owned resource
+            if owned_resource[1] == resource[1]: # already has resource
+                owned_resource[2] += resource[2] # increment owned resource
                 return
-        self.resource_list.append(resource)      # else add it to list
+        self.resource_list.append(resource.copy())      # else add it to list
 
     def has_resource(self, target, count=1):
         for resource in self.resource_list:
-            if isinstance(resource, target):
-                if resource[1] >= count:
+            if resource[1] == target:
+                if resource[2] >= count:
                     return True
         return False
 

@@ -54,7 +54,7 @@ class BasicTile(sprite.Sprite):
         for resource in self.resource_list:
             if isinstance(resource, target):
                 self.resource_list.remove(resource)
-                return
+                return resource.gathered_type
 
 class Fog(BasicTile):
     def __init__(self, gamemap, location):

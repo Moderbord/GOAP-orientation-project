@@ -125,7 +125,9 @@ class StateGather(State):
 
             elif self.stage is self.Stage.Delivering:
                 # increment at base
+                entity.owner.add_resource(entity.carried_resource)
                 # remove resource from self
+                entity.carried_resource = None
                 self.stage = self.Stage.Done
 
             return True
@@ -141,11 +143,10 @@ class StateGather(State):
     def __get_delivery_path_callback(self, entity, result):
         self.finding_path = False
         if result:
-            # deduct one resource from tile
+            # deduct one resource from tile and carry it
             tile = entity.gamemap.get_background_tile(entity.location)
-            tile.deduct_resource(entity.owner.target_resource[2])
-            # set carrying resource
-
+            entity.carried_resource = tile.deduct_resource(entity.owner.target_resource[2])
+            # change stage and transport resource
             self.stage = self.Stage.Delivering
             entity.set_path(result)
 

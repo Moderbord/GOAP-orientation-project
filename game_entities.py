@@ -156,7 +156,7 @@ class UnitExplorer(BasicGameUnit):
         # put explorer where worker stood
         self.location = self.worker_unit.location
         # clear any fog
-        self.gamemap.clear_fog_area((self.location[0] - 1, self.location[1] - 1), (self.location[0] + 1, self.location[1] + 1))
+        self.gamemap.discover_fog_area((self.location[0] - 1, self.location[1] - 1), (self.location[0] + 1, self.location[1] + 1))
         # remove worker
         self.owner.remove_unit(self.worker_unit)
         print("Removed Worker")
@@ -167,15 +167,21 @@ class UnitExplorer(BasicGameUnit):
     def move(self, dx=0, dy=0):
         new_pos = self.location[0] + dx, self.location[1] + dy
         self.location = new_pos                               
-        
+
+        new_resources = {}
+
         if dx: # horizontal movement
             start = (new_pos[0] + dx, new_pos[1] - 1)
             stop = (new_pos[0] + dx, new_pos[1] + 1)
-            self.gamemap.clear_fog_area(start, stop)
+            new_resources.update(self.gamemap.discover_fog_area(start, stop))
         if dy: # vertical movement
             start = (new_pos[0] - 1, new_pos[1] + dy)
             stop = (new_pos[0] + 1, new_pos[1] + dy)
-            self.gamemap.clear_fog_area(start, stop)
+            new_resources.update(self.gamemap.discover_fog_area(start, stop))
+            
+        if new_resources:
+            self.owner.resource_map.update(new_resources)
+
 
 class UnitArtisan(BasicGameUnit):
     #profession

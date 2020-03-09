@@ -14,6 +14,7 @@ class Game:
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
         self.map = gamemap.GameMap()
+        self.ai_player = None
 
     # Specify a gamemap to use
     def set_map(self, map_name):
@@ -24,11 +25,11 @@ class Game:
 
     def enable_explorer(self):
         #self.explorer = entities.UnitExplorer(self.map, (2, 2))
-        self.map.clear_fog_area((1, 1), (3, 3))
+        self.map.discover_fog_area((1, 1), (3, 3))
 
     def enable_ai(self):
         self.ai_player = ai.AI(self.map, (2, 2))
-        self.map.clear_fog_area((1, 1), (3, 3))
+        self.map.discover_fog_area((1, 1), (3, 3))
         self.ai_player.current_goal = ("Unit", "Explorer", 3)
         self.ai_player.update_task_list()
 
@@ -48,7 +49,8 @@ class Game:
         self.map.update()
 
         # AI
-        self.ai_player.update()
+        if self.ai_player:
+            self.ai_player.update()
 
         # catch inputs
         keystate = pg.key.get_pressed()

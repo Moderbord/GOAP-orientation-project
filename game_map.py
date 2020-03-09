@@ -107,7 +107,8 @@ class GameMap:
     def remove_tile(self, tile):
         pg.sprite.Sprite.remove(tile, tile.groups)
     
-    def clear_fog_area(self, start, stop):
+    def discover_fog_area(self, start, stop):
+        discovered_resources = {}
         (x1, y1), (x2, y2) = start, stop
         for x in range(x1, x2 + 1):
             for y in range(y1, y2 + 1):
@@ -116,6 +117,11 @@ class GameMap:
                 if tile:
                     self.cleared_fog.append((x, y))
                     self.remove_tile(tile)
+                    # add to discovered map
+                    discovered_tile = self.get_background_tile((x, y))
+                    if discovered_tile.has_resources_remaining():
+                        discovered_resources[(x, y)] = discovered_tile
+        return discovered_resources
 
     def get_buildable_area(self, center, radius):
         buildable_tiles = []

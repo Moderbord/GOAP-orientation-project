@@ -20,7 +20,7 @@ class AI:
         self.unit_list = []
         self.structure_list = []
         self.resource_list = []
-        self.resource_tiles = []
+        self.resource_map = {}
         self.current_goal = ()
         self.current_task = None
         self.task_list = algorithms.Queue()
@@ -43,9 +43,16 @@ class AI:
         target_amount = self.current_task[2]
         entity_class = entities.to_class(entity_type)
 
-        if entity_group == "Resource":
+        if entity_group == "Exploration":
+            if self.has_found_resource(entity_class):
+                self.fsm.change_state(ai_state.AIStateGather())
+            else:
+                self.fsm.change_state(ai_state.AIStateExplore())
+        elif entity_group == "Resource":
             if self.has_resource(entity_class, target_amount):
                 self.current_task = None
+            elif self.can_create_entity(entity_group, entity_type):
+                pass
         elif entity_group == "Structure":
             if self.has_structure(entity_class):
                 self.current_task = None
@@ -180,12 +187,12 @@ class AI:
                 return
         self.resource_list.append(resource)      # else add it to list
 
-    def add_resource_tile(self, tile):
-        self.resource_tiles.append(tile)
-
     def has_resource(self, target, count=1):
         for resource in self.resource_list:
             if isinstance(resource, target):
                 if resource[1] >= count:
                     return True
         return False
+
+    def has_found_resource(self, target):
+        pass

@@ -48,7 +48,7 @@ class AI:
             if self.has_found_resource(target_class):
                 if not self.fsm.is_in_state(ai_state.AIStateGather):
                     self.fsm.change_state(ai_state.AIStateGather())
-                    self.target_resource = target_class
+                    self.target_resource = (target_group, target_type, target_class)
             else:
                 if not self.fsm.is_in_state(ai_state.AIStateExplore):
                     self.fsm.change_state(ai_state.AIStateExplore())
@@ -191,7 +191,10 @@ class AI:
             if unit is target:
                 self.unit_list.remove(unit)
                 unit.delete()
-                return                
+                return      
+
+    def print_unit_at_location(self, location):
+               pass
 
 #--------------------------STRUCTURES--------------------------#
 

@@ -40,7 +40,7 @@
 	
 	"Worker": {
 		"TileColor": "Blue",
-		"MoveFactor": 1,
+		"MoveFactor": 50,
 		"Production": [
 			["Structure", "Camp", 1]
 		],
@@ -100,7 +100,8 @@
 "Exploration": {
 	
 	"WildTree": {
-		"Production": []
+		"Production": [],
+		"GatherTime": 3
 	}
 
 },

@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from random import randint
 
+from game_settings import g_vars
 import message_dispatcher as dispatcher
 import game_time as time
 import custom_thread as c_thread
@@ -78,34 +79,33 @@ class StateGather(State):
     def enter(self, entity):
         self.stage = self.Stage.Done
         self.finding_path = False
+        self.gather_progress = 0
+        self.gather_completion = False
 
     def execute(self, entity):
         if self.stage is self.Stage.Done:
             if not self.finding_path and entity.owner.target_resource:
                 self.finding_path = True
-                goal = entity.owner.get_resource_location(entity.owner.target_resource)
+                goal = entity.owner.get_resource_location(entity.owner.target_resource[2]) # class
                 find_path(entity, entity.location, goal, self.__get_resource_path_callback)
 
         elif self.stage is self.Stage.Traversing:
             pass
-            # go to resource
-            # > Gathering
 
         elif self.stage is self.Stage.Gathering:
-            if not self.finding_path: # and completed gathering
+            # gathering is done but doesn't have a path
+            if self.gather_completion and not self.finding_path:
                 self.finding_path = True
                 goal = entity.owner.start_position
                 find_path(entity, entity.location, goal, self.__get_delivery_path_callback)
+            # if gathering is completed
+            elif self.gather_progress >= g_vars[entity.owner.target_resource[0]][entity.owner.target_resource[1]]["GatherTime"]:
+                self.gather_completion = True
             # tick progress
-            # deduct one resource from tile
-            # set carrying resource
-            # > Delivering
+            self.gather_progress += time.delta_time
 
         elif self.stage is self.Stage.Delivering:
             pass
-            # get back to base
-
-            # > Done
 
     def exit(self, entity):
         pass
@@ -113,8 +113,14 @@ class StateGather(State):
     def on_message(self, entity, message):
         if message.msg == dispatcher.MSG.ArrivedAtGoal:
             if self.stage is self.Stage.Traversing:
-                self.stage = self.Stage.Gathering
-                # occupy one resource at tile
+                # check if tile has wanted resource remaining
+                tile = entity.gamemap.get_background_tile(entity.location)
+                if tile.has_free_resource_type(entity.owner.target_resource[2]):
+                    # occupy that resource and shange stage
+                    tile.occupy_resource(entity.owner.target_resource[2])
+                    self.stage = self.Stage.Gathering
+                # else entity will find try to find another resource
+
             elif self.stage is self.Stage.Delivering:
                 # increment at base
                 # remove resource from self
@@ -133,6 +139,11 @@ class StateGather(State):
     def __get_delivery_path_callback(self, entity, result):
         self.finding_path = False
         if result:
+            # deduct one resource from tile
+            tile = entity.gamemap.get_background_tile(entity.location)
+            tile.deduct_resource(entity.owner.target_resource[2])
+            # set carrying resource
+
             self.stage = self.Stage.Delivering
             entity.set_path(result)
 

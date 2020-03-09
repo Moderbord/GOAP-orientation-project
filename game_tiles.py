@@ -23,20 +23,38 @@ class BasicTile(sprite.Sprite):
         self.rect.y = location[1] * g_vars["Game"]["TileSize"]
 
         # Resource
-        self.resource_list = []
+        self.resource_list = []         # remaining resources
+        self.available_resources = []   # not occupied resources 
 
     def add_resource(self, resource, amount=1):
         for x in range(amount):
-            y1 = self.location[1]
-            x1 = self.location[0]
+            x1, y1 = self.location[0], self.location[1]
             new_resource = resource(self.gamemap, (x1, y1))
             self.resource_list.append(new_resource)
+            self.available_resources.append(new_resource)
 
     def has_resources_remaining(self):
         return len(self.resource_list) > 0
 
-    def deduct_resource(self):
-        pass
+    def has_free_resource_type(self, target):
+        for resource in self.available_resources:
+            if isinstance(resource, target):
+                return True
+        return False
+
+    # Occupy one of the available resource for gathering
+    def occupy_resource(self, target):
+        for resource in self.available_resources:
+            if isinstance(resource, target):
+                self.available_resources.remove(resource)
+                return
+
+    # Remove and separate a resource from the tile
+    def deduct_resource(self, target):
+        for resource in self.resource_list:
+            if isinstance(resource, target):
+                self.resource_list.remove(resource)
+                return
 
 class Fog(BasicTile):
     def __init__(self, gamemap, location):

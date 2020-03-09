@@ -27,13 +27,13 @@ class State:
 
 class StateProduced(State):
     def enter(self, entity):
-        print("Beginning production of " +str(entity))
+        #print("Beginning production of " +str(entity))
         self.accumulated_production = 0
 
     def execute(self, entity):
         self.accumulated_production += time.delta_time
         if self.accumulated_production >= entity.production_time:
-            print("Completed production of " +str(entity))
+            #print("Completed production of " +str(entity))
             entity.spawn()
 
     def exit(self, entity):
@@ -120,6 +120,8 @@ class StateGather(State):
                     tile.occupy_resource(entity.owner.target_resource[2])
                     self.stage = self.Stage.Gathering
                 # else entity will find try to find another resource
+                else:
+                    self.stage = self.Stage.Done
 
             elif self.stage is self.Stage.Delivering:
                 # increment at base

@@ -15,8 +15,8 @@ class GameMap:
         self.sprite_group_entities = pg.sprite.Group()
         self.sprite_group_resources = pg.sprite.Group()
         self.tile_data = {}
+        self.fog_data = {}
         self.unpassable_tiles = []
-        self.cleared_fog = []
         self.weighted_graph = None
         self.camera = None
         self.width = 0
@@ -42,7 +42,7 @@ class GameMap:
                     self.tile_width += 1
 
                     # fog is everywhere
-                    tiles.Fog(self, (x, y))
+                    self.fog_data[(x, y)] = tiles.Fog(self, (x, y))
                     new_tile = None
 
                     if tile == "T": # Forest
@@ -95,14 +95,9 @@ class GameMap:
 
     def get_background_tile(self, cords):
         return self.tile_data[cords]
-        # for tile in self.sprite_group_background:
-        #     if cords == (tile.location[0], tile.location[1]):
-        #         return tile
-    
+
     def get_fog_tile(self, cords):
-        for tile in self.sprite_group_fog:
-            if cords == (tile.location[0], tile.location[1]):
-                return tile
+        return self.fog_data.get(cords, False)
 
     def remove_tile(self, tile):
         pg.sprite.Sprite.remove(tile, tile.groups)
@@ -115,7 +110,7 @@ class GameMap:
                 # get fog tile if it exists
                 tile = self.get_fog_tile((x, y))
                 if tile:
-                    self.cleared_fog.append((x, y))
+                    self.fog_data[(x, y)] = None
                     self.remove_tile(tile)
                     # add to discovered map
                     discovered_tile = self.get_background_tile((x, y))

@@ -31,7 +31,10 @@ class BasicGameEntity(sprite.Sprite):
         self.image = Surface((g_vars["Game"]["TileSize"], g_vars["Game"]["TileSize"]))
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
         self.rect = self.image.get_rect()
+        # dirty fix
         self.is_visible = True
+        self.rect.x = self.location[0] * g_vars["Game"]["TileSize"]
+        self.rect.y = self.location[1] * g_vars["Game"]["TileSize"]
 
     def update(self):
         # drawing
@@ -118,10 +121,11 @@ class UnitWorker(BasicGameUnit):
         self.fsm.change_state(states.StateProduced())
 
     def spawn(self):
-        super().spawn()
-        print("Spawning")
         # position to building
         self.location = self.origin_structure.location
+        # spawn
+        super().spawn()
+        print("Spawning")
         # change state
         self.fsm.change_state(states.StateIdle())
         # notify owner
@@ -150,11 +154,11 @@ class UnitExplorer(BasicGameUnit):
         self.fsm.change_state(states.StateProduced())
 
     def spawn(self):
+        # put explorer where worker stood
+        self.location = self.worker_unit.location
         super().spawn()
         print("Re-Spawning")
         self.fsm.change_state(states.StateIdle())
-        # put explorer where worker stood
-        self.location = self.worker_unit.location
         # clear any fog
         self.gamemap.discover_fog_area((self.location[0] - 1, self.location[1] - 1), (self.location[0] + 1, self.location[1] + 1))
         # remove worker
@@ -209,9 +213,6 @@ class BasicGameStructure(BasicGameEntity):
         # change to production state
         self.fsm.change_state(states.StateProduced())
 
-    def update(self):
-        super().update()
-
 class StructureBase(BasicGameStructure):
     def __init__(self, owner):
         self.groups = owner.gamemap.sprite_group_entities
@@ -227,11 +228,11 @@ class StructureCamp(BasicGameStructure):
         self.output = g_vars["Structure"]["Camp"]["Output"]
 
     def spawn(self):
+        # set position to base
+        self.location = self.structure_base.location
         super().spawn()
         # state
         self.fsm.change_state(states.StateIdle())
-        # set position to base
-        self.location = self.structure_base.location
         # remove base
         self.structure_base.delete()
 

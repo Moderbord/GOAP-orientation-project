@@ -71,16 +71,6 @@ class Game:
         if keystate[pg.K_d]:
             self.map.camera.move(dx=1)
 
-        # if (self.explorer):
-        #     if keystate[pg.K_UP]:
-        #         self.explorer.move(dy=-1)
-        #     if keystate[pg.K_DOWN]:
-        #         self.explorer.move(dy=1)
-        #     if keystate[pg.K_LEFT]:
-        #         self.explorer.move(dx=-1)
-        #     if keystate[pg.K_RIGHT]:
-        #         self.explorer.move(dx=1)
-
     def draw_grid_overlay(self):
         for x in range(0, self.map.width, g_vars["Game"]["TileSize"]):
             pg.draw.line(self.screen, g_vars["Game"]["Colors"]["LightGray"], (x, 0), (x, self.map.height))
@@ -89,7 +79,7 @@ class Game:
 
     def draw(self):
         # Background
-        self.screen.fill(g_vars["Game"]["Colors"]["Black"])
+        self.screen.fill(g_vars["Game"]["Colors"]["LightGray"])
         # Tiles
         self.map.draw(self.screen)
         # Overlay

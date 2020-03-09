@@ -101,7 +101,6 @@ class BasicGameUnit(BasicGameEntity):
 
         super().update()
 
-
 class UnitWorker(BasicGameUnit):
     def __init__(self, owner):
         self.groups = owner.gamemap.sprite_group_entities
@@ -121,12 +120,11 @@ class UnitWorker(BasicGameUnit):
         # change to production state
         self.fsm.change_state(states.StateProduced())
 
-    def spawn(self):
+    def production_spawn(self):
         # position to building
         self.location = self.origin_structure.location
         # spawn
         super().spawn()
-        #print("Spawning")
         # change state
         self.fsm.change_state(states.StateIdle())
         # notify owner
@@ -134,7 +132,6 @@ class UnitWorker(BasicGameUnit):
         self.owner.fsm.handle_message(message)
         # free structure
         self.origin_structure.fsm.change_state(states.StateIdle())
-        #print("Released Camp")
 
 class UnitExplorer(BasicGameUnit):
     def __init__(self, owner):
@@ -147,24 +144,20 @@ class UnitExplorer(BasicGameUnit):
     def begin_production(self):
         # find free worker
         self.worker_unit = self.owner.get_available_unit(UnitWorker)
-        #print("Got free Worker")
         # pause worker for production time
         self.worker_unit.fsm.change_state(states.StateLocked())
-        #print("Locked Worker")
         # change to production state
         self.fsm.change_state(states.StateProduced())
 
-    def spawn(self):
+    def production_spawn(self):
         # put explorer where worker stood
         self.location = self.worker_unit.location
         super().spawn()
-        #print("Re-Spawning")
         self.fsm.change_state(states.StateIdle())
         # clear any fog
         self.gamemap.discover_fog_area((self.location[0] - 1, self.location[1] - 1), (self.location[0] + 1, self.location[1] + 1))
         # remove worker
         self.owner.remove_unit(self.worker_unit)
-        #print("Removed Worker")
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewExplorerUnit)
         self.owner.fsm.handle_message(message)
@@ -204,7 +197,7 @@ class UnitArtisan(BasicGameUnit):
         # change to production state
         self.fsm.change_state(states.StateProduced())
 
-    def spawn(self):
+    def production_spawn(self):
         # put explorer where worker stood
         self.location = self.worker_unit.location
         super().spawn()
@@ -216,7 +209,31 @@ class UnitArtisan(BasicGameUnit):
         self.owner.fsm.handle_message(message)
 
 class UnitSoldier(BasicGameUnit):
-    pass
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
+        self.tile_color = g_vars["Unit"]["Soldier"]["TileColor"]
+        BasicGameUnit.__init__(self, owner)
+        self.move_factor = g_vars["Unit"]["Soldier"]["MoveFactor"]
+        self.production_time = g_vars["Unit"]["Soldier"]["ProductionTime"]
+
+    def begin_production(self):
+        # find free worker
+        self.worker_unit = self.owner.get_available_unit(UnitWorker)
+        # pause worker for production time
+        self.worker_unit.fsm.change_state(states.StateLocked()) # change to become soldier
+        # change to production state
+        self.fsm.change_state(states.StateProduced())
+
+    def production_spawn(self):
+        # put explorer where worker stood
+        self.location = self.worker_unit.location
+        super().spawn()
+        self.fsm.change_state(states.StateIdle())
+        # remove worker
+        self.owner.remove_unit(self.worker_unit)
+        # notify owner
+        message = dispatcher.Message(self, dispatcher.MSG.NewArtisanUnit)
+        self.owner.fsm.handle_message(message)
 
 #----------------------------STRUCTURES--------------------------------------#
 class BasicGameStructure(BasicGameEntity):
@@ -228,14 +245,21 @@ class BasicGameStructure(BasicGameEntity):
     def begin_production(self):
         # find free building tile
         tile = self.owner.get_buildable_tile()
-        #print("Got free building tile")
         # spawn structure base
         self.structure_base = StructureBase(self.owner)
         self.structure_base.location = tile.location
         self.structure_base.spawn()
-        #print("Structure base placed")
         # change to production state
         self.fsm.change_state(states.StateProduced())
+
+    def production_spawn(self):
+        # set position to base
+        self.location = self.structure_base.location
+        super().spawn()
+        # state
+        self.fsm.change_state(states.StateIdle())
+        # remove base
+        self.structure_base.delete()
 
 class StructureBase(BasicGameStructure):
     def __init__(self, owner):
@@ -251,15 +275,6 @@ class StructureCamp(BasicGameStructure):
         self.production_time = g_vars["Structure"]["Camp"]["ProductionTime"]
         self.output = g_vars["Structure"]["Camp"]["Output"]
 
-    def spawn(self):
-        # set position to base
-        self.location = self.structure_base.location
-        super().spawn()
-        # state
-        self.fsm.change_state(states.StateIdle())
-        # remove base
-        self.structure_base.delete()
-
 class StructureSmithy(BasicGameStructure):
     def __init__(self, owner):
         self.groups = owner.gamemap.sprite_group_entities
@@ -268,15 +283,6 @@ class StructureSmithy(BasicGameStructure):
         self.production_time = g_vars["Structure"]["Smithy"]["ProductionTime"]
         self.output = g_vars["Structure"]["Smithy"]["Output"]
     
-    def spawn(self):
-        # set position to base
-        self.location = self.structure_base.location
-        super().spawn()
-        # state
-        self.fsm.change_state(states.StateIdle())
-        # remove base
-        self.structure_base.delete()
-
 class StructureSmelter(BasicGameStructure):
     def __init__(self, owner):
         self.groups = owner.gamemap.sprite_group_entities
@@ -284,15 +290,6 @@ class StructureSmelter(BasicGameStructure):
         BasicGameStructure.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Smelter"]["ProductionTime"]
         self.output = g_vars["Structure"]["Smelter"]["Output"]
-
-        def spawn(self):
-            # set position to base
-            self.location = self.structure_base.location
-            super().spawn()
-            # state
-            self.fsm.change_state(states.StateIdle())
-            # remove base
-            self.structure_base.delete()
 
 class StructureRefinery(BasicGameStructure):
     def __init__(self, owner):
@@ -302,15 +299,6 @@ class StructureRefinery(BasicGameStructure):
         self.production_time = g_vars["Structure"]["Refinery"]["ProductionTime"]
         self.output = g_vars["Structure"]["Refinery"]["Output"]
     
-    def spawn(self):
-        # set position to base
-        self.location = self.structure_base.location
-        super().spawn()
-        # state
-        self.fsm.change_state(states.StateIdle())
-        # remove base
-        self.structure_base.delete()
-        
 class StructureEncampment(BasicGameStructure):
     def __init__(self, owner):
         self.groups = owner.gamemap.sprite_group_entities
@@ -318,18 +306,9 @@ class StructureEncampment(BasicGameStructure):
         BasicGameStructure.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Encampment"]["ProductionTime"]
         self.output = g_vars["Structure"]["Encampment"]["Output"]
-    
-    def spawn(self):
-        # set position to base
-        self.location = self.structure_base.location
-        super().spawn()
-        # state
-        self.fsm.change_state(states.StateIdle())
-        # remove base
-        self.structure_base.delete()
 
 #----------------------------RESOURCES??--------------------------------------#
-class BasicResource(sprite.Sprite):
+class BasicMapResource(sprite.Sprite):
     def __init__(self, location):
         sprite.Sprite.__init__(self, self.groups)
         self.image = Surface((g_vars["Game"]["ResourceSize"], g_vars["Game"]["ResourceSize"]))
@@ -337,34 +316,100 @@ class BasicResource(sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = location[0] * g_vars["Game"]["TileSize"] + randint(0, g_vars["Game"]["TileSize"])
         self.rect.y = location[1] * g_vars["Game"]["TileSize"] + randint(0, g_vars["Game"]["TileSize"])
-        self.gathered_type = None 
 
-class WildTree(BasicResource):
+class WildTree(BasicMapResource):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_resources
         self.tile_color = "Yellow"
         super().__init__(location)
         self.gathered_type = g_vars["Exploration"]["WildTree"]["GatheredType"]
 
-class Tree(BasicResource):
-    pass
-
-class Coal(BasicResource):
-    pass
-
-class IronOre(BasicResource):
+class WildIronOre(BasicMapResource):
     def __init__(self, gamemap, location):
         self.groups = gamemap.sprite_group_resources
-        self.tile_color = "Yellow"
+        self.tile_color = "Gray"
         super().__init__(location)
+        self.gathered_type = g_vars["Exploration"]["WildIronOre"]["GatheredType"]    
+
+class BasicResource(BasicMapResource):
+    def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_resources
+        self.owner = owner
+        self.tile_color = "Black"
+        super().__init__(owner.start_position)
+        self.fsm = fsm.StateMachine(self)
+        self.fsm.currentState = states.State()
+        self.origin_structure = None
+        self.gathered_type = None
+
+    def update(self):
+        self.fsm.update()
+
+    def production_spawn(self):
+        # change state
+        self.fsm.change_state(states.StateIdle())
+        # free structure
+        self.origin_structure.fsm.change_state(states.StateIdle())
+
+class Tree(BasicResource):
+    def __init__(self, owner):
+        super().__init__(owner)
+
+class IronOre(BasicResource):
+    def __init__(self, owner):
+        super().__init__(owner)
         self.gathered_type = g_vars["Exploration"]["IronOre"]["GatheredType"]
 
+class Coal(BasicResource):
+    def __init__(self, owner):
+        super().__init__(owner)
+        self.production_time = g_vars["Resource"]["Coal"]["ProductionTime"]
+
+    def begin_production(self):
+        # get structure
+        self.origin_structure = self.owner.get_available_structure(StructureRefinery)
+        # occupy structure
+        self.origin_structure.fsm.change_state(states.StateLocked())
+        # change to production state
+        self.fsm.change_state(states.StateProduced())
+
+    def production_spawn(self):
+        super().production_spawn()
+        self.owner.add_resource(["Resource", "Coal", 1])
+
 class IronBar(BasicResource):
-    pass
+    def __init__(self, owner):
+        super().__init__(owner)
+        self.production_time = g_vars["Resource"]["IronBar"]["ProductionTime"]
+
+    def begin_production(self):
+        # get structure
+        self.origin_structure = self.owner.get_available_structure(StructureSmelter)
+        # occupy structure
+        self.origin_structure.fsm.change_state(states.StateLocked())
+        # change to production state
+        self.fsm.change_state(states.StateProduced())
+
+    def production_spawn(self):
+        super().production_spawn()
+        self.owner.add_resource(["Resource", "IronBar", 1])
 
 class Sword(BasicResource):
-    pass
+    def __init__(self, owner):
+        super().__init__(owner)
+        self.production_time = g_vars["Resource"]["Sword"]["ProductionTime"]
 
+    def begin_production(self):
+        # get structure
+        self.origin_structure = self.owner.get_available_structure(StructureSmithy)
+        # occupy structure
+        self.origin_structure.fsm.change_state(states.StateLocked())
+        # change to production state
+        self.fsm.change_state(states.StateProduced())
+        
+    def production_spawn(self):
+        super().production_spawn()
+        self.owner.add_resource(["Resource", "Sword", 1])
 
 #----------------------------JSON to python class----------------------------------#
 def to_class(entity_type):
@@ -395,6 +440,8 @@ def to_class(entity_type):
         return Tree
     if entity_type == "Coal":
         return Coal
+    if entity_type == "WildIronOre":
+        return WildIronOre
     if entity_type == "IronOre":
         return IronOre
     if entity_type == "IronBar":

@@ -70,7 +70,7 @@ class GameMap:
             tile = self.get_random_background_tile()
             while not tile.passable:
                 tile = self.get_random_background_tile()
-            tile.add_resource(entities.IronOre, 1)
+            tile.add_resource(entities.WildIronOre, 1)
 
         self.width = self.tile_width * g_vars["Game"]["TileSize"]
         self.height = self.tile_height * g_vars["Game"]["TileSize"]

@@ -34,7 +34,7 @@ class StateProduced(State):
         self.accumulated_production += time.delta_time
         if self.accumulated_production >= entity.production_time:
             #print("Completed production of " +str(entity))
-            entity.spawn()
+            entity.production_spawn()
 
     def exit(self, entity):
         pass

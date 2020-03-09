@@ -154,7 +154,7 @@
 		"GatherTime": 3
 	},
 	
-	"IronOre": {
+	"WildIronOre": {
 		"Production": [],
 		"GatheredType": ["Resource", "IronOre", 1], 
 		"GatherTime": 5
@@ -180,7 +180,7 @@
 	
 	"IronOre": {
 		"Production": [
-			["Exploration", "IronOre", 1]
+			["Exploration", "WildIronOre", 1]
 		]
 	},
 	

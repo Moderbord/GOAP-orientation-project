@@ -50,17 +50,18 @@ class AI:
                     self.fsm.change_state(ai_state.AIStateGather())
                     self.target_resource = (target_group, target_type, target_class)
                 self.current_task = None
-            else:
-                if not self.fsm.is_in_state(ai_state.AIStateExplore):
-                    self.fsm.change_state(ai_state.AIStateExplore())
-            return
+        else:
+            if not self.fsm.is_in_state(ai_state.AIStateExplore):
+                self.fsm.change_state(ai_state.AIStateExplore())
+            
 
         # Resource group
         if target_group == "Resource":
             if self.has_resource(target_type, target_amount):
                 self.current_task = None
             elif self.can_create_entity(target_group, target_type):
-                pass
+                new_resource = target_class(self)
+                new_resource.begin_production()
             return
         
         # Structure group
@@ -149,7 +150,7 @@ class AI:
             target_class = entities.to_class(target[1])  # type of entity
             target_amount = target[2]                    # resource needed
             if target[0] == "Resource":
-                if not self.has_resource(target_class, target_amount):
+                if not self.has_resource(target[1], target_amount):
                     return False
             elif target[0] == "Structure":
                 if not self.has_available_structure(target_class):
@@ -159,6 +160,9 @@ class AI:
                 if not self.has_available_unit(target_class, target_amount):
                     # unit should not be locked or similiar
                     return False
+            elif target[0] == "Exploration":
+                return False
+
         return True
 
 #--------------------------UNITS--------------------------#

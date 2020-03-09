@@ -194,7 +194,17 @@ class AI:
                 return      
 
     def print_unit_at_location(self, location):
-               pass
+        for structure in self.structure_list:
+            if structure.location == location:
+                print("\n\n")
+                print(structure.__dict__)
+                print(structure.fsm.currentState.__dict__)
+
+        for unit in self.unit_list:
+            if unit.location == location:
+                print("\n\n")
+                print(unit.__dict__)
+                print(unit.fsm.currentState.__dict__)
 
 #--------------------------STRUCTURES--------------------------#
 

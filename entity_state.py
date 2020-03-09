@@ -2,6 +2,7 @@ from random import randint
 import message_dispatcher as dispatcher
 import game_time as time
 import custom_thread as c_thread
+import game_entities as entities
 
 class State:
 
@@ -64,24 +65,17 @@ class StateIdle(State):
     def on_message(self, entity, message):
         pass
 
-class StateExplore(State):
+class StateGather(State):
     def enter(self, entity):
         pass
 
     def execute(self, entity):
-        if not entity.is_traversing and not entity.is_finding_path:
+        if not entity.is_traversing and not entity.is_finding_path and entity.owner.target_resource:
 
             entity.is_finding_path = True
             loc = entity.location
-            goal = (randint(0, entity.gamemap.tile_width - 1), (randint(0, entity.gamemap.tile_height - 1)))
-            
-            thread = c_thread.BaseThread(
-                target=entity.gamemap.get_path,
-                target_args=(loc, goal),
-                callback=self.__get_path_callback,
-                callback_args=[entity]
-            )
-            thread.start()
+            goal = entity.owner.get_resource_location(entity.owner.target_resource)
+            find_path(entity, loc, goal)
 
     def exit(self, entity):
         entity.is_traversing = False
@@ -93,8 +87,39 @@ class StateExplore(State):
 
         return False
 
-    def __get_path_callback(self, entity, result):
-        entity.is_finding_path = False
-        if result:
-            entity.set_path(result)
-            entity.is_traversing = True
+class StateExplore(State):
+    def enter(self, entity):
+        pass
+
+    def execute(self, entity):
+        if not entity.is_traversing and not entity.is_finding_path:
+
+            entity.is_finding_path = True
+            loc = entity.location
+            goal = (randint(0, entity.gamemap.tile_width - 1), (randint(0, entity.gamemap.tile_height - 1)))
+            find_path(entity, loc, goal)
+
+    def exit(self, entity):
+        entity.is_traversing = False
+
+    def on_message(self, entity, message):
+        if message.msg == dispatcher.MSG.ArrivedAtGoal:
+            entity.is_traversing = False
+            return True
+
+        return False
+
+def find_path(entity, location, goal):
+        thread = c_thread.BaseThread(
+            target=entity.gamemap.get_path,
+            target_args=(location, goal),
+            callback=__get_path_callback,
+            callback_args=[entity]
+        )
+        thread.start()
+
+def __get_path_callback(entity, result):
+    entity.is_finding_path = False
+    if result:
+        entity.set_path(result)
+        entity.is_traversing = True

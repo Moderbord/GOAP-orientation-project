@@ -120,7 +120,7 @@ class GameMap:
                     # add to discovered map
                     discovered_tile = self.get_background_tile((x, y))
                     if discovered_tile.has_resources_remaining():
-                        discovered_resources[(x, y)] = discovered_tile
+                        discovered_resources[(x, y)] = discovered_tile.resource_list
         return discovered_resources
 
     def get_buildable_area(self, center, radius):

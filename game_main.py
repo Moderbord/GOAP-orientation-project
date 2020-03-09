@@ -30,8 +30,7 @@ class Game:
     def enable_ai(self):
         self.ai_player = ai.AI(self.map, (2, 2))
         self.map.discover_fog_area((1, 1), (3, 3))
-        self.ai_player.current_goal = ("Unit", "Explorer", 3)
-        self.ai_player.update_task_list()
+        self.ai_player.append_goal(("Resource", "Tree", 3))
 
     def enable_fog(self):
         self.map.draw_fog = True
@@ -62,8 +61,6 @@ class Game:
 
         if keystate[pg.K_SPACE]:
             self.ai_player.fsm.change_state(states.AIStateExplore())
-        if keystate[pg.K_q]:
-            self.ai_player.add_unit(entities.UnitWorker)
 
         if keystate[pg.K_w]:
             self.map.camera.move(dy=-1)

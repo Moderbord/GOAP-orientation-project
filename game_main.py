@@ -1,4 +1,5 @@
 from random import randint
+import math
 import pygame as pg
 
 import game_map as gamemap
@@ -14,6 +15,7 @@ class Game:
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
         self.map = gamemap.GameMap()
+        self.paused = False
         self.ai_player = None
 
     # Specify a gamemap to use
@@ -45,10 +47,11 @@ class Game:
 
     def update(self):
         # send screen to map for blit
-        self.map.update()
+        if not self.paused:
+            self.map.update()
 
         # AI
-        if self.ai_player:
+        if self.ai_player and not self.paused:
             self.ai_player.update()
 
         # catch inputs
@@ -60,7 +63,7 @@ class Game:
             self.map.draw_fog = not self.map.draw_fog
 
         if keystate[pg.K_SPACE]:
-            self.ai_player.fsm.change_state(states.AIStateExplore())
+            self.paused = not self.paused
 
         if keystate[pg.K_w]:
             self.map.camera.move(dy=-1)
@@ -92,4 +95,12 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
+            if event.type == pg.MOUSEBUTTONUP:
+                mouse = pg.mouse.get_pos()
+                x = max(math.floor((mouse[0]) / g_vars["Game"]["TileSize"]), 0)
+                y = max(math.floor((mouse[1]) / g_vars["Game"]["TileSize"]), 0)
+                print(str(x) + ", " + str(y))
+                if self.ai_player:
+                    self.ai_player.print_unit_at_location((x, y))
+            
                 

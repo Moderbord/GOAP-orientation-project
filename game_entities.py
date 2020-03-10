@@ -127,8 +127,6 @@ class UnitWorker(BasicGameUnit):
         self.location = self.origin_structure.location
         # spawn
         super().spawn()
-        # change state
-        self.fsm.change_state(states.StateIdle())
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewWorkerUnit)
         self.owner.fsm.handle_message(message)
@@ -154,7 +152,6 @@ class UnitExplorer(BasicGameUnit):
         # put explorer where worker stood
         self.location = self.worker_unit.location
         super().spawn()
-        self.fsm.change_state(states.StateIdle())
         # clear any fog
         self.gamemap.discover_fog_area((self.location[0] - 1, self.location[1] - 1), (self.location[0] + 1, self.location[1] + 1))
         # remove worker

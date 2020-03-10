@@ -7,6 +7,7 @@ import player_ai as ai
 import game_entities as entities
 import ai_state as states
 import game_time as time
+import message_dispatcher as dispatcher
 from game_settings import g_vars
 
 # TODO structures require artisan to produce stuff
@@ -36,7 +37,13 @@ class Game:
     def enable_ai(self):
         self.ai_player = ai.AI(self.map, (2, 2))
         self.map.discover_fog_area((1, 1), (3, 3))
-        self.ai_player.append_goal(["Resource", "Coal", 1])
+        self.ai_player.append_goal(["Unit", "Soldier", 1])
+
+        for x in range(0, 50):
+            worker = entities.UnitWorker(self.ai_player)
+            worker.spawn()
+            self.ai_player.add_unit(worker)
+            self.ai_player.worker_units.append(worker)
 
     def enable_fog(self):
         self.map.draw_fog = True

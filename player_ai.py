@@ -26,6 +26,11 @@ class AI:
         self.task_list = algorithms.Queue()
         self.time_since_lask_task_update = 0
 
+        self.worker_units = []
+        self.explorer_units = []
+        self.artisan_units = []
+        self.soldier_units = []
+
     def update(self):
         self.fsm.update()
 
@@ -44,24 +49,41 @@ class AI:
         target_amount = self.current_task[2]
         target_class = entities.to_class(target_type)
 
-        # Exploration group
-        if target_group == "Exploration":
-            if self.has_found_resource(target_class):
-                if not self.fsm.is_in_state(ai_state.AIStateGather):
-                    self.fsm.change_state(ai_state.AIStateGather())
-                    self.target_resource = (target_group, target_type, target_class)
-                self.current_task = None
-        else:
-            if not self.fsm.is_in_state(ai_state.AIStateExplore):
-                self.fsm.change_state(ai_state.AIStateExplore())
+        # # Exploration group
+        # if target_group == "Exploration":
+        #     if self.has_found_resource(target_class):
+        #         if not self.fsm.is_in_state(ai_state.AIStateGather):
+        #             self.fsm.change_state(ai_state.AIStateGather())
+        #             self.target_resource = (target_group, target_type, target_class)
+        #         self.current_task = None
+        #     else:
+        #         if not self.fsm.is_in_state(ai_state.AIStateExplore):
+        #             self.fsm.change_state(ai_state.AIStateExplore())
+        #     return
             
+        if target_group == "Exploration":    
+            # has not found resource
+            if not self.has_found_resource(target_class):
+                # explore
+                if not self.fsm.is_in_state(ai_state.AIStateExplore):
+                    self.fsm.change_state(ai_state.AIStateExplore())
+            # has found resource        
+            else:
+                # has found enough materials
+                if self.has_resource(g_vars[target_group][target_type]["GatheredType"][1], target_amount):
+                    # done
+                    self.complete_current_task()
+                # has not found enough materials
+                else:
+                    # gather
+                    if not self.fsm.is_in_state(ai_state.AIStateGather):
+                        self.fsm.change_state(ai_state.AIStateGather())
+                    self.target_resource = (target_group, target_type, target_class)
 
         # Resource group
         if target_group == "Resource":
             if self.has_resource(target_type, target_amount):
-                if self.current_task == self.current_goal[0]:
-                    self.current_goal.remove(self.current_task)
-                self.current_task = None
+                self.complete_current_task()
             elif self.can_create_entity(target_group, target_type):
                 new_resource = target_class(self)
                 new_resource.begin_production()
@@ -70,9 +92,7 @@ class AI:
         # Structure group
         if target_group == "Structure":
             if self.has_structure(target_class):
-                if self.current_task == self.current_goal[0]:
-                    self.current_goal.remove(self.current_task)
-                self.current_task = None
+                self.complete_current_task()
             elif self.can_create_entity(target_group, target_type):
                 new_structure = target_class(self)
                 new_structure.begin_production()
@@ -82,14 +102,17 @@ class AI:
         # Unit group
         if target_group == "Unit":
             if self.has_unit(target_class, target_amount):
-                if self.current_task == self.current_goal[0]:
-                    self.current_goal.remove(self.current_task)
-                self.current_task = None
+                self.complete_current_task()
             elif self.can_create_entity(target_group, target_type):
                 new_unit = target_class(self)
                 new_unit.begin_production()
                 self.add_unit(new_unit)
             return
+
+    def complete_current_task(self):
+        if self.current_task == self.current_goal[0]:
+            self.current_goal.remove(self.current_task)
+        self.current_task = None
 
     def update_task_list(self): # Not used atm
         if not self.current_goal:
@@ -106,6 +129,9 @@ class AI:
         self.current_task = None
 
     def append_goal(self, goal):
+        # check so last goal isn't identical
+        if len(self.current_goal) > 0 and self.current_goal[-1] == goal:
+            return
         self.current_goal.append(goal)
         # get tasks
         task_list = self.get_tasks_from_goal(goal)
@@ -114,6 +140,9 @@ class AI:
             self.task_list.put(task_list.get())
 
     def prepend_goal(self, goal):
+        # check so first goal isn't identical
+        if len(self.current_goal) > 0 and self.current_goal[0] == goal:
+            return
         self.current_goal.insert(0, goal)
         # get tasks
         task_list = self.get_tasks_from_goal(goal)
@@ -191,7 +220,7 @@ class AI:
         
     def has_available_unit(self, target, count=1):
         for unit in self.unit_list:
-            if isinstance(unit, target) and unit.fsm.is_in_state(entity_state.StateIdle):
+            if isinstance(unit, target) and unit.is_idle:
                 count -= 1
             if count <= 0:
                 return True
@@ -199,8 +228,18 @@ class AI:
 
     def get_available_unit(self, target):
         for unit in self.unit_list:
-            if isinstance(unit, target) and unit.fsm.is_in_state(entity_state.StateIdle):
-                return unit  
+            if isinstance(unit, target) and unit.is_idle:
+                return unit
+
+    def get_available_units(self, target, count=1):
+        unit_list = []
+        for unit in self.unit_list:
+            if isinstance(unit, target) and unit.is_idle:
+                unit_list.append(unit)
+                count -= 1
+            if count <= 0:
+                return unit_list
+        return unit_list
 
     def remove_unit(self, target):
         for unit in self.unit_list:
@@ -235,13 +274,13 @@ class AI:
 
     def has_available_structure(self, target):
         for structure in self.structure_list:
-            if isinstance(structure, target) and structure.fsm.is_in_state(entity_state.StateIdle):
+            if isinstance(structure, target) and structure.is_idle:
                 return True
         return False
 
     def get_available_structure(self, target):
         for structure in self.structure_list:
-            if isinstance(structure, target) and structure.fsm.is_in_state(entity_state.StateIdle):
+            if isinstance(structure, target) and structure.is_idle:
                 return structure   
 
     def remove_structure(self, target):

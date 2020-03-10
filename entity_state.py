@@ -20,20 +20,14 @@ class State:
 
     def on_message(self, entity, message):
         pass
-        # log("At loop " + str(entity.gm.GetLoop()) + ", " + entity.name +
-        #     " recieved message from " + str(entity.gm.GetEntityName(telegram.senderID)) +
-        #     " with message: " + str(telegram.msg) + ". Dispatch time: " +
-        #      str(telegram.dispatchTime))
 
 class StateProduced(State):
     def enter(self, entity):
-        #print("Beginning production of " +str(entity))
         self.accumulated_production = 0
 
     def execute(self, entity):
         self.accumulated_production += time.delta_time
         if self.accumulated_production >= entity.production_time:
-            #print("Completed production of " +str(entity))
             entity.production_spawn()
 
     def exit(self, entity):
@@ -124,10 +118,11 @@ class StateGather(State):
                     self.stage = self.Stage.Done
 
             elif self.stage is self.Stage.Delivering:
-                # increment at base
-                entity.owner.add_resource(entity.carried_resource)
-                # remove resource from self
-                entity.carried_resource = None
+                if entity.carried_resource: # TODO fix this!!
+                    # increment at base
+                    entity.owner.add_resource(entity.carried_resource)
+                    # remove resource from self
+                    entity.carried_resource = None
                 self.stage = self.Stage.Done
 
             return True

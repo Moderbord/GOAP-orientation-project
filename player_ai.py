@@ -276,7 +276,10 @@ class AI:
         return False
 
     def get_resource_location(self, target):
+        matches = []
         for location, resource_list in self.resource_map.items():
             for resource in resource_list:
                 if isinstance(resource, target):
-                    return location
+                    matches.append(location)
+        sorted_matches = sorted(matches, key=lambda cord: (cord[0] + cord[1]))            
+        return sorted_matches[0]

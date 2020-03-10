@@ -24,6 +24,7 @@ class AI:
         self.current_task = None
         self.target_resource = None
         self.task_list = algorithms.Queue()
+        self.time_since_lask_task_update = 0
 
     def update(self):
         self.fsm.update()
@@ -58,6 +59,8 @@ class AI:
         # Resource group
         if target_group == "Resource":
             if self.has_resource(target_type, target_amount):
+                if self.current_task == self.current_goal[0]:
+                    self.current_goal.remove(self.current_task)
                 self.current_task = None
             elif self.can_create_entity(target_group, target_type):
                 new_resource = target_class(self)
@@ -67,6 +70,8 @@ class AI:
         # Structure group
         if target_group == "Structure":
             if self.has_structure(target_class):
+                if self.current_task == self.current_goal[0]:
+                    self.current_goal.remove(self.current_task)
                 self.current_task = None
             elif self.can_create_entity(target_group, target_type):
                 new_structure = target_class(self)
@@ -77,6 +82,8 @@ class AI:
         # Unit group
         if target_group == "Unit":
             if self.has_unit(target_class, target_amount):
+                if self.current_task == self.current_goal[0]:
+                    self.current_goal.remove(self.current_task)
                 self.current_task = None
             elif self.can_create_entity(target_group, target_type):
                 new_unit = target_class(self)
@@ -99,12 +106,16 @@ class AI:
         self.current_task = None
 
     def append_goal(self, goal):
+        self.current_goal.append(goal)
+        # get tasks
         task_list = self.get_tasks_from_goal(goal)
         # append tasks to current queue
         while not task_list.empty():
             self.task_list.put(task_list.get())
 
     def prepend_goal(self, goal):
+        self.current_goal.insert(0, goal)
+        # get tasks
         task_list = self.get_tasks_from_goal(goal)
         # current task isn't in queue and need to be appended
         task_list.put(self.current_task)

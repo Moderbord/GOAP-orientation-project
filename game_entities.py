@@ -29,21 +29,20 @@ class BasicGameEntity(sprite.Sprite):
 
     def spawn(self):
         #sprite/asset
-        self.image = Surface((g_vars["Game"]["TileSize"], g_vars["Game"]["TileSize"]))
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
         self.rect = self.image.get_rect()
         # dirty fix
         self.is_visible = True
-        self.rect.x = self.location[0] * g_vars["Game"]["TileSize"]
-        self.rect.y = self.location[1] * g_vars["Game"]["TileSize"]
+        self.rect.x = self.location[0] * g_vars["Game"]["TileSize"] + g_vars["Game"]["TileSize"] / 3
+        self.rect.y = self.location[1] * g_vars["Game"]["TileSize"] + g_vars["Game"]["TileSize"] / 3
         # state
         self.fsm.change_state(states.StateIdle())
 
     def update(self):
         # drawing
         if self.is_visible:
-            self.rect.x = self.location[0] * g_vars["Game"]["TileSize"]
-            self.rect.y = self.location[1] * g_vars["Game"]["TileSize"]
+            self.rect.x = self.location[0] * g_vars["Game"]["TileSize"] + g_vars["Game"]["TileSize"] / 3
+            self.rect.y = self.location[1] * g_vars["Game"]["TileSize"] + g_vars["Game"]["TileSize"] / 3
         # state machine
         self.fsm.update()
 
@@ -54,6 +53,7 @@ class BasicGameEntity(sprite.Sprite):
 class BasicGameUnit(BasicGameEntity):
 
     def __init__(self, owner):
+        self.image = Surface((g_vars["Game"]["UnitSize"], g_vars["Game"]["UnitSize"]))
         BasicGameEntity.__init__(self, owner)
         self.move_factor = g_vars["Unit"]["Basic"]["MoveFactor"]
         self.move_progress = 0
@@ -235,6 +235,7 @@ class UnitSoldier(BasicGameUnit):
 #----------------------------STRUCTURES--------------------------------------#
 class BasicGameStructure(BasicGameEntity):
     def __init__(self, owner):
+        self.image = Surface((g_vars["Game"]["StructureSize"], g_vars["Game"]["StructureSize"]))
         BasicGameEntity.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Base"]["ProductionTime"]
         self.output = g_vars["Structure"]["Base"]["Output"]

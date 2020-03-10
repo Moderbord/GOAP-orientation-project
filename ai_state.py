@@ -1,5 +1,6 @@
 import game_entities as entities
 import message_dispatcher as dispatcher
+import game_time as time
 import entity_state
 
 class AIGlobalState(entity_state.State):
@@ -7,7 +8,10 @@ class AIGlobalState(entity_state.State):
         pass
 
     def execute(self, player):
-        pass
+        if player.time_since_lask_task_update >= 15:
+            player.update_task_list()
+            player.time_since_lask_task_update = 0
+        player.time_since_lask_task_update += time.delta_time
 
     def exit(self, player):
         pass
@@ -38,7 +42,7 @@ class AIStateGather(entity_state.State):
 
         # has no free workers
         if not self.workers:
-            player.prepend_goal(("Unit", "Worker", 5))
+            player.prepend_goal(["Unit", "Worker", 1])
 
     def execute(self, player):
         for worker in self.workers:
@@ -65,7 +69,7 @@ class AIStateExplore(entity_state.State):
         
         # has no explorers
         if not self.explorers:
-            player.prepend_goal(("Unit", "Explorer", 3))
+            player.prepend_goal(["Unit", "Explorer", 3])
 
     def execute(self, player):
         for explorer in self.explorers:

@@ -6,8 +6,9 @@
 	"ScreenWidth": 1080,
 	"ScreenHeight": 720,
 	"FPS": 24,
-	"TileSize": 13,
+	"TileSize": 14,
 	"UnitSize": 6,
+	"StructureSize": 10,
 	"ResourceSize": 3,
 	
 	"Colors": {
@@ -40,20 +41,20 @@
 	
 	"Worker": {
 		"TileColor": "Blue",
-		"MoveFactor": 50,
+		"MoveFactor": 100,
 		"Production": [
 			["Structure", "Camp", 1]
 		],
-		"ProductionTime": 3 
+		"ProductionTime": 1 
 	},
 	
 	"Explorer": {
 		"TileColor": "Red",
-		"MoveFactor": 20,
+		"MoveFactor": 50,
 		"Production": [
 			["Unit", "Worker", 1]
 		],
-		"ProductionTime": 5 
+		"ProductionTime": 1 
 	},
 	
 	"Artisan": {
@@ -98,7 +99,7 @@
 	"Refinery": {
 		"TileColor": "Green",
 		"Production": [
-			["Unit", "Worker", 1],
+			["Unit", "Artisan", 1],
 			["Resource", "Tree", 10]
 		],
 		"Output": [
@@ -110,7 +111,7 @@
 	"Smithy": {
 		"TileColor": "Green",
 		"Production": [
-			["Unit", "Worker", 1],
+			["Unit", "Artisan", 1],
 			["Resource", "Tree", 10],
 			["Resource", "IronBar", 3]
 		],
@@ -123,7 +124,7 @@
 	"Smelter": {
 		"TileColor": "Green",
 		"Production": [
-			["Unit", "Worker", 1],
+			["Unit", "Artisan", 1],
 			["Resource", "Tree", 10]
 		],
 		"Output": [
@@ -135,7 +136,7 @@
 	"Encampment": {
 		"TileColor": "Green",
 		"Production": [
-			["Unit", "Worker", 1],
+			["Unit", "Artisan", 1],
 			["Resource", "Tree", 10]
 		],
 		"Output": [

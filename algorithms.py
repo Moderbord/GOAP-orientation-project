@@ -71,12 +71,14 @@ class WeightedGraph:
         # If any of the neighbors is a wall return false
         return self.passable(posible_walls[0]) and self.passable(posible_walls[1])
 
-    def neighbors(self, current):
+    def neighbors(self, current, filter_func):
         (x, y) = current
 
         # 8x movement
         current_neighbors = [(x+1, y), (x, y-1), (x-1, y), (x, y+1), (x+1, y+1), (x+1, y-1), (x-1, y+1), (x-1, y-1)]
 
+        if filter_func:
+            current_neighbors = filter(filter_func, current_neighbors)
         current_neighbors = filter(self.in_bounds, current_neighbors)
         current_neighbors = filter(self.passable, current_neighbors)
         current_neighbors = filter(lambda neighbor: self.cutting_corner(current, neighbor), current_neighbors)
@@ -97,7 +99,7 @@ def HeuristicManhattar(from_node, to_node):
     (x2, y2) = to_node
     return abs(x2 - x1) + abs(y2 - y1)
 
-def Astar(graph, start, goal):
+def Astar(graph, start, goal, filter_func=None):
 
     if start == goal or not graph.passable(start) or not graph.passable(goal):
         return False
@@ -118,7 +120,7 @@ def Astar(graph, start, goal):
             break
 
         # Check cost of each neighbor next to current
-        for neighbor in graph.neighbors(current):
+        for neighbor in graph.neighbors(current, filter_func):
             # new cost is equal to current travel cost + cost to travel to next neighbor
             new_cost = travel_costs[current] + graph.cost(current, neighbor)
             # If travel cost to neighbor hasn't already been evaluated, or is lower than previous evaluated travel cost, update the travel cost

@@ -143,6 +143,7 @@ class StateGather(State):
     def __get_delivery_path_callback(self, entity, result):
         self.finding_path = False
         if result:
+            # safe to reset progress when path has been found
             self.gather_progress = 0
             self.gather_completion = False
             # deduct one resource from tile and carry it
@@ -167,7 +168,7 @@ class StateExplore(State):
             self.finding_path = True
             loc = entity.location
             goal = (randint(0, entity.gamemap.tile_width - 1), (randint(0, entity.gamemap.tile_height - 1)))
-            find_path(entity, loc, goal, self.__get_path_callback)
+            find_path(entity, loc, goal, self.__get_path_callback, False)
 
     def exit(self, entity):
         pass
@@ -186,10 +187,14 @@ class StateExplore(State):
             entity.set_path(result)
 
 # Method will create a separate thread and calculate a path between two points
-def find_path(entity, location, goal, __callback):
+def find_path(entity, location, goal, __callback, fog=True):
+        fog_filter_funtion = None
+        # if Astar should find path through fog, pass it a function to do so
+        if fog:
+            fog_filter_funtion = entity.owner.gamemap.location_is_discovered
         thread = c_thread.BaseThread(
             target=entity.gamemap.get_path,
-            target_args=(location, goal),
+            target_args=(location, goal, fog_filter_funtion),
             callback=__callback,
             callback_args=[entity]
         )

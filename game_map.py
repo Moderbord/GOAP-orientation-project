@@ -153,7 +153,7 @@ class GameMap:
                     return None
                 # get tile and check availability
                 tile = self.get_background_tile((x, y))
-                if isinstance(tile, tiles.Ground) and self.tile_is_discovered(tile) and not self.tile_is_occupied(tile):
+                if isinstance(tile, tiles.Ground) and self.location_is_discovered(tile.location) and not self.tile_is_occupied(tile):
                     buildable_tiles.append(tile)
         return buildable_tiles
 
@@ -163,11 +163,11 @@ class GameMap:
     def tile_is_occupied(self, tile):
         return self.occupied_tiles.get(tile.location, False)
 
-    def tile_is_discovered(self, tile):
-        return self.fog_data.get(tile.location, True)
+    def location_is_discovered(self, location):
+        return not self.fog_data.get(location, False)
 
-    def get_path(self, start, goal):
-        return alg.Astar(self.weighted_graph, goal, start)
+    def get_path(self, start, goal, filter_function):
+        return alg.Astar(self.weighted_graph, goal, start, filter_function)
 
 class Camera:
     def __init__(self, width, height):

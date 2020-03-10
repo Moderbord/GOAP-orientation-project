@@ -9,6 +9,12 @@ import ai_state as states
 import game_time as time
 from game_settings import g_vars
 
+# TODO get closest resource
+# TODO structures require artisan to produce stuff
+# TODO take fog into account when pathfinding
+# TODO visible resources / resource piles
+# TODO better AI state flow
+
 class Game:
 
     def __init__(self):

@@ -65,7 +65,7 @@ class AIStateExplore(entity_state.State):
         
         # has no explorers
         if not self.explorers:
-            player.prepend_goal(("Unit", "Explorer", 5))
+            player.prepend_goal(("Unit", "Explorer", 3))
 
     def execute(self, player):
         for explorer in self.explorers:

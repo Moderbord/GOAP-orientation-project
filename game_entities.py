@@ -12,6 +12,7 @@ from game_settings import g_vars
 class BasicGameEntity(sprite.Sprite):
 
     def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_entities
         sprite.Sprite.__init__(self, self.groups)
         self.owner = owner
         self.fsm = fsm.StateMachine(self)
@@ -35,6 +36,8 @@ class BasicGameEntity(sprite.Sprite):
         self.is_visible = True
         self.rect.x = self.location[0] * g_vars["Game"]["TileSize"]
         self.rect.y = self.location[1] * g_vars["Game"]["TileSize"]
+        # state
+        self.fsm.change_state(states.StateIdle())
 
     def update(self):
         # drawing
@@ -103,7 +106,6 @@ class BasicGameUnit(BasicGameEntity):
 
 class UnitWorker(BasicGameUnit):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Unit"]["Worker"]["TileColor"]
         BasicGameUnit.__init__(self, owner)
         self.move_factor = g_vars["Unit"]["Worker"]["MoveFactor"]
@@ -135,7 +137,6 @@ class UnitWorker(BasicGameUnit):
 
 class UnitExplorer(BasicGameUnit):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Unit"]["Explorer"]["TileColor"]
         BasicGameUnit.__init__(self, owner)
         self.move_factor = g_vars["Unit"]["Explorer"]["MoveFactor"]
@@ -183,7 +184,6 @@ class UnitExplorer(BasicGameUnit):
 
 class UnitArtisan(BasicGameUnit):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Unit"]["Artisan"]["TileColor"]
         BasicGameUnit.__init__(self, owner)
         self.move_factor = g_vars["Unit"]["Artisan"]["MoveFactor"]
@@ -201,7 +201,6 @@ class UnitArtisan(BasicGameUnit):
         # put explorer where worker stood
         self.location = self.worker_unit.location
         super().spawn()
-        self.fsm.change_state(states.StateIdle())
         # remove worker
         self.owner.remove_unit(self.worker_unit)
         # notify owner
@@ -210,7 +209,6 @@ class UnitArtisan(BasicGameUnit):
 
 class UnitSoldier(BasicGameUnit):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Unit"]["Soldier"]["TileColor"]
         BasicGameUnit.__init__(self, owner)
         self.move_factor = g_vars["Unit"]["Soldier"]["MoveFactor"]
@@ -228,7 +226,6 @@ class UnitSoldier(BasicGameUnit):
         # put explorer where worker stood
         self.location = self.worker_unit.location
         super().spawn()
-        self.fsm.change_state(states.StateIdle())
         # remove worker
         self.owner.remove_unit(self.worker_unit)
         # notify owner
@@ -256,20 +253,16 @@ class BasicGameStructure(BasicGameEntity):
         # set position to base
         self.location = self.structure_base.location
         super().spawn()
-        # state
-        self.fsm.change_state(states.StateIdle())
         # remove base
         self.structure_base.delete()
 
 class StructureBase(BasicGameStructure):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Structure"]["Base"]["TileColor"]
         BasicGameStructure.__init__(self, owner)
 
 class StructureCamp(BasicGameStructure):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Structure"]["Camp"]["TileColor"]
         BasicGameStructure.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Camp"]["ProductionTime"]
@@ -277,7 +270,6 @@ class StructureCamp(BasicGameStructure):
 
 class StructureSmithy(BasicGameStructure):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Structure"]["Smithy"]["TileColor"]
         BasicGameStructure.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Smithy"]["ProductionTime"]
@@ -285,7 +277,6 @@ class StructureSmithy(BasicGameStructure):
     
 class StructureSmelter(BasicGameStructure):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Structure"]["Smelter"]["TileColor"]
         BasicGameStructure.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Smelter"]["ProductionTime"]
@@ -293,7 +284,6 @@ class StructureSmelter(BasicGameStructure):
 
 class StructureRefinery(BasicGameStructure):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Structure"]["Refinery"]["TileColor"]
         BasicGameStructure.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Refinery"]["ProductionTime"]
@@ -301,7 +291,6 @@ class StructureRefinery(BasicGameStructure):
     
 class StructureEncampment(BasicGameStructure):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
         self.tile_color = g_vars["Structure"]["Encampment"]["TileColor"]
         BasicGameStructure.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Encampment"]["ProductionTime"]
@@ -309,7 +298,8 @@ class StructureEncampment(BasicGameStructure):
 
 #----------------------------RESOURCES??--------------------------------------#
 class BasicMapResource(sprite.Sprite):
-    def __init__(self, location):
+    def __init__(self, gamemap, location):
+        self.groups = gamemap.sprite_group_resources
         sprite.Sprite.__init__(self, self.groups)
         self.image = Surface((g_vars["Game"]["ResourceSize"], g_vars["Game"]["ResourceSize"]))
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
@@ -319,24 +309,21 @@ class BasicMapResource(sprite.Sprite):
 
 class WildTree(BasicMapResource):
     def __init__(self, gamemap, location):
-        self.groups = gamemap.sprite_group_resources
         self.tile_color = "Yellow"
-        super().__init__(location)
+        super().__init__(gamemap, location)
         self.gathered_type = g_vars["Exploration"]["WildTree"]["GatheredType"]
 
 class WildIronOre(BasicMapResource):
     def __init__(self, gamemap, location):
-        self.groups = gamemap.sprite_group_resources
         self.tile_color = "Gray"
-        super().__init__(location)
+        super().__init__(gamemap, location)
         self.gathered_type = g_vars["Exploration"]["WildIronOre"]["GatheredType"]    
 
 class BasicResource(BasicMapResource):
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_resources
         self.owner = owner
         self.tile_color = "Black"
-        super().__init__(owner.start_position)
+        super().__init__(owner.gamemap, owner.start_position)
         self.fsm = fsm.StateMachine(self)
         self.fsm.currentState = states.State()
         self.origin_structure = None

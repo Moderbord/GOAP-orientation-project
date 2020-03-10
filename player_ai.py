@@ -240,8 +240,15 @@ class AI:
                 structure.delete()
                 return         
 
-    def get_buildable_tile(self): # TODO change to list which is filled when creating the ai
-        buildable_tiles = self.gamemap.get_buildable_area(self.start_position, 1)
+    def get_buildable_tile(self):
+        radius = 1
+        # search for buildable locations around starting position
+        buildable_tiles = self.gamemap.get_buildable_area(self.start_position, radius)
+        # increase search radius 
+        while not buildable_tiles:
+            radius += 1
+            buildable_tiles = self.gamemap.get_buildable_area(self.start_position, radius)
+        # choose one of the available tiles
         index = randint(0, len(buildable_tiles) - 1)
         return buildable_tiles[index]
 

@@ -242,6 +242,8 @@ class BasicGameStructure(BasicGameEntity):
     def begin_production(self):
         # find free building tile
         tile = self.owner.get_buildable_tile()
+        # occupy it
+        self.owner.gamemap.occupy_tile(tile)
         # spawn structure base
         self.structure_base = StructureBase(self.owner)
         self.structure_base.location = tile.location

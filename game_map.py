@@ -17,6 +17,7 @@ class GameMap:
         self.sprite_group_resources = pg.sprite.Group()
         self.tile_data = {}
         self.fog_data = {}
+        self.occupied_tiles = {}
         self.unpassable_tiles = []
         self.weighted_graph = None
         self.camera = None
@@ -130,7 +131,7 @@ class GameMap:
                 # get fog tile if it exists
                 tile = self.get_fog_tile((x, y))
                 if tile:
-                    self.fog_data[(x, y)] = None
+                    del self.fog_data[(x, y)]
                     self.remove_tile(tile)
                     # add to discovered map
                     discovered_tile = self.get_background_tile((x, y))
@@ -141,12 +142,29 @@ class GameMap:
     def get_buildable_area(self, center, radius):
         buildable_tiles = []
         (x1, y1) = center
-        for x in range(x1 - radius, x1 + radius + 1):
-            for y in range(y1 - radius, y1 + radius + 1):
+        # scan specified area
+        for x in range(abs(x1 - radius), x1 + radius + 1):
+            # map boundaries
+            if x >= self.tile_width:
+                return None
+            for y in range(abs(y1 - radius), y1 + radius + 1):
+                # map boundaries
+                if y >= self.tile_height:
+                    return None
+                # get tile and check availability
                 tile = self.get_background_tile((x, y))
-                if isinstance(tile, tiles.Ground):
+                if isinstance(tile, tiles.Ground) and self.tile_is_discovered(tile) and not self.tile_is_occupied(tile):
                     buildable_tiles.append(tile)
         return buildable_tiles
+
+    def occupy_tile(self, tile):
+        self.occupied_tiles[tile.location] = True
+
+    def tile_is_occupied(self, tile):
+        return self.occupied_tiles.get(tile.location, False)
+
+    def tile_is_discovered(self, tile):
+        return self.fog_data.get(tile.location, True)
 
     def get_path(self, start, goal):
         return alg.Astar(self.weighted_graph, goal, start)

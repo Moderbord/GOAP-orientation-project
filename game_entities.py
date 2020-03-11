@@ -239,7 +239,7 @@ class UnitSoldier(BasicGameUnit):
         # remove worker
         self.owner.remove_unit(self.worker_unit)
         # notify owner
-        message = dispatcher.Message(self, dispatcher.MSG.NewArtisanUnit)
+        message = dispatcher.Message(self, dispatcher.MSG.NewSoldierUnit)
         self.owner.fsm.handle_message(message)
 
 #----------------------------STRUCTURES--------------------------------------#
@@ -249,7 +249,8 @@ class BasicGameStructure(BasicGameEntity):
         BasicGameEntity.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Base"]["ProductionTime"]
         self.output = g_vars["Structure"]["Base"]["Output"]
-        self.builder_unit = None
+        self.artisan_unit = None
+        self.artisan_required = None
     
     def begin_production(self):
         # find free building tile
@@ -260,17 +261,19 @@ class BasicGameStructure(BasicGameEntity):
         self.structure_base = StructureBase(self.owner)
         self.structure_base.location = tile.location
         self.structure_base.spawn()
-        # set position to base
+        # set position to base (for artisan unit)
         self.location = self.structure_base.location
+        # specify required artisan
+        self.artisan_required = UnitArtisan.Profession.Builder
         # change to wait for builder state
-        self.fsm.change_state(states.StateWaitForBuilder())
+        self.fsm.change_state(states.StateWaitForArtisan())
 
     def production_spawn(self):
         super().spawn()
         # remove base
         self.structure_base.delete()
         # release builder
-        self.builder_unit.fsm.change_state(states.StateBuilder())
+        self.artisan_unit.fsm.change_state(states.StateArtisan())
 
 class StructureBase(BasicGameStructure):
     def __init__(self, owner):

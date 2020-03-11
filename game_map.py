@@ -45,8 +45,8 @@ class GameMap:
 
                     # fog is everywhere
                     self.fog_data[(x, y)] = tiles.Fog(self, (x, y))
+                    
                     new_tile = None
-
                     if tile == "T": # Forest
                         new_tile = tiles.Forest(self, (x, y))
                         new_tile.add_resource(entities.WildTree, 5)

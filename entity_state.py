@@ -27,7 +27,7 @@ class Stage(Enum):
         Gathering = auto()
         Delivering = auto()
 
-class StateWaitForBuilder(State):
+class StateWaitForArtisan(State):
     def enter(self, entity):
         self.update_interval = 5
         self.time_since_last_update = 0
@@ -35,30 +35,30 @@ class StateWaitForBuilder(State):
     def execute(self, entity):
         if self.time_since_last_update >= self.update_interval:
             free_artisans = []
-            builders = []
-            builder_count = 0
-            # count number of builders and free artisans
+            target_artisans = []
+            target_artisan_count = 0
+            # count number of target_artisans and free artisans
             for artisan in entity.owner.artisan_units:
-                if artisan.profession == entities.UnitArtisan.Profession.Builder:
-                    builder_count += 1
-                    builders.append(artisan)
+                if artisan.profession == entity.artisan_required:
+                    target_artisan_count += 1
+                    target_artisans.append(artisan)
                 elif artisan.profession == entities.UnitArtisan.Profession.Free:
                     free_artisans.append(artisan)
-            # check to see if any more builders needs to be created (currently 1)
-            if builder_count < 1:
-                # create builder if needed
+            # check to see if any more target_artisans needs to be created (currently 1)
+            if target_artisan_count < 1:
+                # assign artisan if needed
                 if free_artisans:
-                    free_artisans[0].profession = entities.UnitArtisan.Profession.Builder
-                    free_artisans[0].fsm.change_state(StateBuilder())
+                    free_artisans[0].profession = entity.artisan_required
+                    free_artisans[0].fsm.change_state(StateArtisan())
                 # has no free artisans -> order one
                 else:
-                    entity.owner.prepend_goal(["Unit", "Artisan", 1 - builder_count])
+                    entity.owner.prepend_goal(["Unit", "Artisan", 1 - target_artisan_count])
 
-            # try and get a builder to come
-            for builder in builders:
-                if builder.fsm.is_in_state(StateBuilder):
-                    message = dispatcher.Message(entity, dispatcher.MSG.BuilderNeeded)
-                    builder.fsm.handle_message(message)
+            # try and get an artisan to come
+            for artisan in target_artisans:
+                if artisan.fsm.is_in_state(StateArtisan):
+                    message = dispatcher.Message(entity, dispatcher.MSG.ArtisanNeeded)
+                    artisan.fsm.handle_message(message)
                     break
 
             # reset timer   
@@ -69,17 +69,17 @@ class StateWaitForBuilder(State):
         pass
 
     def on_message(self, entity, message):
-        # builder has arrived
-        if message.msg == dispatcher.MSG.BuilderArrived:
-            # save reference to builder
-            entity.builder_unit = message.sender
-            # lock builder
+        # artisan has arrived
+        if message.msg == dispatcher.MSG.ArtisanArrived:
+            # save reference to artisan
+            entity.artisan_unit = message.sender
+            # lock artisan
             message.sender.fsm.change_state(StateLocked())
             # change state
             entity.fsm.change_state(StateProduced())
             return True
 
-class StateBuilder(State):
+class StateArtisan(State):
     def enter(self, entity):
         self.stage = Stage.Done
         self.finding_path = False
@@ -93,14 +93,14 @@ class StateBuilder(State):
 
     def on_message(self, entity, message):
         # Go where work is needed if not currently walking
-        if message.msg == dispatcher.MSG.BuilderNeeded and not self.finding_path:
+        if message.msg == dispatcher.MSG.ArtisanNeeded and not self.finding_path:
             self.finding_path = True
             self.target_structure = message.sender
             find_path(entity, entity.location, message.sender.location, get_path_callback)
             return True
         # has arrived to work -> notify structure
         if message.msg == dispatcher.MSG.ArrivedAtGoal:
-            message = dispatcher.Message(entity, dispatcher.MSG.BuilderArrived)
+            message = dispatcher.Message(entity, dispatcher.MSG.ArtisanArrived)
             self.target_structure.fsm.handle_message(message)
             return True
 

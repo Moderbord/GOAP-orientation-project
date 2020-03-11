@@ -1,11 +1,12 @@
 from enum import Enum, auto
 from random import randint
 
-from game_settings import g_vars
-import message_dispatcher as dispatcher
-import game_time as time
 import custom_thread as c_thread
 import game_entities as entities
+import game_time as time
+import message_dispatcher as dispatcher
+from game_settings import g_vars
+
 
 class State:
 
@@ -52,7 +53,8 @@ class StateWaitForArtisan(State):
                     free_artisans[0].fsm.change_state(StateArtisan())
                 # has no free artisans -> order one
                 else:
-                    entity.owner.prepend_goal(["Unit", "Artisan", 1 - target_artisan_count])
+                    entity.owner.prepend_goal(["Unit", "Artisan", 4]) # currently maximun needed artisans
+                    # can be incremented each time a structure requiring an artisan is built
 
             # try and get an artisan to come
             for artisan in target_artisans:
@@ -75,9 +77,16 @@ class StateWaitForArtisan(State):
             entity.artisan_unit = message.sender
             # lock artisan
             message.sender.fsm.change_state(StateLocked())
-            # change state
-            entity.fsm.change_state(StateProduced())
+            # if-check depends on if the structure has been built or not
+            if message.sender.profession == entities.UnitArtisan.Profession.Builder:
+                # needs to be built
+                entity.fsm.change_state(StateProduced())
+            else:
+                # has been built and received managing artisan
+                entity.fsm.change_state(StateIdle())
             return True
+
+        return False
 
 class StateArtisan(State):
     def enter(self, entity):

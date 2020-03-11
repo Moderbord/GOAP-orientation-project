@@ -32,7 +32,7 @@ class BasicGameEntity(sprite.Sprite):
         #sprite/asset
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
         self.rect = self.image.get_rect()
-        # dirty fix
+        # initial draw
         self.is_visible = True
         self.rect.x = self.location[0] * g_vars["Game"]["TileSize"] + g_vars["Game"]["TileSize"] / 3
         self.rect.y = self.location[1] * g_vars["Game"]["TileSize"] + g_vars["Game"]["TileSize"] / 3
@@ -295,6 +295,13 @@ class StructureSmithy(BasicGameStructure):
         self.production_time = g_vars["Structure"]["Smithy"]["ProductionTime"]
         self.output = g_vars["Structure"]["Smithy"]["Output"]
     
+    def production_spawn(self):
+        super().production_spawn()
+        # specify required artisan
+        self.artisan_required = UnitArtisan.Profession.Smith
+        # change to wait for builder state
+        self.fsm.change_state(states.StateWaitForArtisan())
+    
 class StructureSmelter(BasicGameStructure):
     def __init__(self, owner):
         self.tile_color = g_vars["Structure"]["Smelter"]["TileColor"]
@@ -302,12 +309,26 @@ class StructureSmelter(BasicGameStructure):
         self.production_time = g_vars["Structure"]["Smelter"]["ProductionTime"]
         self.output = g_vars["Structure"]["Smelter"]["Output"]
 
+    def production_spawn(self):
+        super().production_spawn()
+        # specify required artisan
+        self.artisan_required = UnitArtisan.Profession.Smelter
+        # change to wait for builder state
+        self.fsm.change_state(states.StateWaitForArtisan())
+
 class StructureRefinery(BasicGameStructure):
     def __init__(self, owner):
         self.tile_color = g_vars["Structure"]["Refinery"]["TileColor"]
         BasicGameStructure.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Refinery"]["ProductionTime"]
         self.output = g_vars["Structure"]["Refinery"]["Output"]
+
+    def production_spawn(self):
+        super().production_spawn()
+        # specify required artisan
+        self.artisan_required = UnitArtisan.Profession.Refiner
+        # change to wait for builder state
+        self.fsm.change_state(states.StateWaitForArtisan())
     
 class StructureEncampment(BasicGameStructure):
     def __init__(self, owner):

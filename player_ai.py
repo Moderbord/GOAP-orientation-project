@@ -1,12 +1,13 @@
 from random import randint
 
-import state_machine as fsm
-import message_dispatcher as dispatch
-import game_entities as entities
-import algorithms
 import ai_state
+import algorithms
 import entity_state
+import game_entities as entities
+import message_dispatcher as dispatch
+import state_machine as fsm
 from game_settings import g_vars
+
 
 class AI:
     def __init__(self, gamemap, start_position):
@@ -115,12 +116,15 @@ class AI:
     def update_task_list(self): # Not used atm
         if not self.current_goal:
             return
-
+        self.task_list = algorithms.Queue()
         # loop through current goal(s)
         for goal in self.current_goal:
             (target_group, target_class, target_amount) = goal
-            # queue all requirements
-            self.task_list = self.get_requirements(g_vars[target_group][target_class], target_amount)
+            # get all requirements
+            task_list = self.get_requirements(g_vars[target_group][target_class], target_amount)
+            # re-queue them
+            while not task_list.empty():
+                self.task_list.put(task_list.get())
             # given task need to be put as last task
             self.task_list.put([target_group, target_class, target_amount])
         # clear current task

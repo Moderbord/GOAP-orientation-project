@@ -10,8 +10,6 @@ import game_time as time
 import message_dispatcher as dispatcher
 from game_settings import g_vars
 
-# TODO render units above structures
-# TODO structures require artisan to produce stuff
 # TODO deduct resources when producing something
 # TODO remove units from their own lists in AI when deleting
 # TODO visible resources / resource piles

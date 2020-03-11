@@ -148,9 +148,10 @@ class StateGather(State):
     def execute(self, entity):
         if self.stage is Stage.Done:
             if not self.finding_path and entity.owner.target_resource:
-                self.finding_path = True
                 goal = entity.owner.get_resource_location(entity.owner.target_resource[2]) # class
-                find_path(entity, entity.location, goal, get_path_callback)
+                if goal:
+                    self.finding_path = True
+                    find_path(entity, entity.location, goal, get_path_callback)
 
         elif self.stage is Stage.Traversing:
             pass

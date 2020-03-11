@@ -314,10 +314,15 @@ class AI:
         return False
 
     def get_resource_location(self, target):
+        # find matching resources
         matches = []
         for location, resource_list in self.resource_map.items():
             for resource in resource_list:
                 if isinstance(resource, target):
                     matches.append(location)
+        # no matches
+        if not matches:
+            return None
+        # sort matches by Manhattan
         sorted_matches = sorted(matches, key=lambda cord: (cord[0] + cord[1]))            
         return sorted_matches[0]

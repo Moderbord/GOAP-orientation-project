@@ -105,10 +105,6 @@ class GameMap:
                 if tile.has_resources_remaining():
                     for resource in tile.resource_list:
                         screen.blit(resource.image, self.camera.apply(resource))
-        # draw units
-        for sprite in self.sprite_group_entities:
-            if sprite.is_visible:
-                screen.blit(sprite.image, self.camera.apply(sprite))
 
     def get_background_tile(self, cords):
         return self.tile_data[cords]

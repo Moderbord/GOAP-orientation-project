@@ -261,6 +261,7 @@ class BasicGameStructure(BasicGameEntity):
         self.structure_base = StructureBase(self.owner)
         self.structure_base.location = tile.location
         self.structure_base.spawn()
+        self.owner.add_structure(self.structure_base)
         # set position to base (for artisan unit)
         self.location = self.structure_base.location
         # specify required artisan

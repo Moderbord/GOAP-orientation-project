@@ -99,6 +99,8 @@ class Game:
         self.screen.fill(g_vars["Game"]["Colors"]["LightGray"])
         # Tiles
         self.map.draw(self.screen)
+        # AI
+        self.ai_player.draw(self.screen)
         # Overlay
         #self.draw_grid_overlay()
         # Flip

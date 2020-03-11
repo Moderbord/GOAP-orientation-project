@@ -39,6 +39,16 @@ class AI:
 
         self.check_current_task() # TODO move elsewhere
 
+    # draw units
+    def draw(self, screen):
+        for structure in self.structure_list:
+            if structure.is_visible:
+                screen.blit(structure.image, self.gamemap.camera.apply(structure))
+
+        for unit in self.unit_list:
+            if unit.is_visible:
+                screen.blit(unit.image, self.gamemap.camera.apply(unit))
+
     # Method that checks if progress can be made on current task
     def check_current_task(self):
         if not self.current_task:

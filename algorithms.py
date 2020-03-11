@@ -101,8 +101,12 @@ def HeuristicManhattar(from_node, to_node):
 
 def Astar(graph, start, goal, filter_func=None):
 
-    if start == goal or not graph.passable(start) or not graph.passable(goal):
+    if not graph.passable(start) or not graph.passable(goal):
         return False
+
+    if start == goal:
+        path = {start : None}
+        return path
 
     front = PriorityQueue()
     front.put(start, 0)

@@ -6,6 +6,8 @@ class MSG(Enum):
     NewArtisanUnit = auto()
     NewSoldierUnit = auto()
 
+    BuilderNeeded = auto()
+    BuilderArrived = auto()
     DoneProduced = auto()
 
     ArrivedAtGoal = auto()

@@ -1,6 +1,7 @@
 from pygame import sprite
 from pygame import Surface
 from random import randint
+from enum import Enum, auto
 
 import entity_state as states
 import state_machine as fsm
@@ -82,26 +83,29 @@ class BasicGameUnit(BasicGameEntity):
     def update(self):
         # movement
         if self.current_path:
-            (x1, y1), (x2, y2) = self.location, self.next_tile
-            dx, dy = x2 - x1, y2 - y1
-            # get required movement threshold
-            threshold = self.current_tile.movement_straight if (dx * dy == 0) else self.current_tile.movement_diagonal
-            # take movement factor into account
-            self.move_progress += time.delta_time * self.move_factor
-            if self.move_progress >= threshold:
-                # reset progress
-                self.move_progress = 0
-                # move
-                self.move(dx, dy)
-                # update next tile
-                self.next_tile = self.current_path[self.next_tile]
-            
+
             if self.next_tile is None:
                 self.current_path = None
                 # message telling the entity that is has arrived
                 message = dispatcher.Message(self, dispatcher.MSG.ArrivedAtGoal)
                 self.fsm.handle_message(message)
-
+            
+            else:
+                (x1, y1) = self.location
+                (x2, y2) = self.next_tile
+                dx, dy = x2 - x1, y2 - y1
+                # get required movement threshold
+                threshold = self.current_tile.movement_straight if (dx * dy == 0) else self.current_tile.movement_diagonal
+                # take movement factor into account
+                self.move_progress += time.delta_time * self.move_factor
+                if self.move_progress >= threshold:
+                    # reset progress
+                    self.move_progress = 0
+                    # move
+                    self.move(dx, dy)
+                    # update next tile
+                    self.next_tile = self.current_path[self.next_tile]
+            
         super().update()
 
 class UnitWorker(BasicGameUnit):
@@ -180,11 +184,20 @@ class UnitExplorer(BasicGameUnit):
 
 
 class UnitArtisan(BasicGameUnit):
+
+    class Profession(Enum):
+        Free = auto()
+        Refiner = auto()
+        Smith = auto()
+        Builder = auto()
+        Smelter = auto()
+
     def __init__(self, owner):
         self.tile_color = g_vars["Unit"]["Artisan"]["TileColor"]
         BasicGameUnit.__init__(self, owner)
         self.move_factor = g_vars["Unit"]["Artisan"]["MoveFactor"]
         self.production_time = g_vars["Unit"]["Artisan"]["ProductionTime"]
+        self.profession = self.Profession.Free
 
     def begin_production(self):
         # find free worker
@@ -236,6 +249,7 @@ class BasicGameStructure(BasicGameEntity):
         BasicGameEntity.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Base"]["ProductionTime"]
         self.output = g_vars["Structure"]["Base"]["Output"]
+        self.builder_unit = None
     
     def begin_production(self):
         # find free building tile
@@ -246,8 +260,8 @@ class BasicGameStructure(BasicGameEntity):
         self.structure_base = StructureBase(self.owner)
         self.structure_base.location = tile.location
         self.structure_base.spawn()
-        # change to production state
-        self.fsm.change_state(states.StateProduced())
+        # change to wait for builder state
+        self.fsm.change_state(states.StateWaitForBuilder())
 
     def production_spawn(self):
         # set position to base
@@ -255,6 +269,8 @@ class BasicGameStructure(BasicGameEntity):
         super().spawn()
         # remove base
         self.structure_base.delete()
+        # release builder
+        self.builder_unit.fsm.change_state(states.StateBuilder())
 
 class StructureBase(BasicGameStructure):
     def __init__(self, owner):

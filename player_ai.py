@@ -48,18 +48,6 @@ class AI:
         target_type = self.current_task[1]
         target_amount = self.current_task[2]
         target_class = entities.to_class(target_type)
-
-        # # Exploration group
-        # if target_group == "Exploration":
-        #     if self.has_found_resource(target_class):
-        #         if not self.fsm.is_in_state(ai_state.AIStateGather):
-        #             self.fsm.change_state(ai_state.AIStateGather())
-        #             self.target_resource = (target_group, target_type, target_class)
-        #         self.current_task = None
-        #     else:
-        #         if not self.fsm.is_in_state(ai_state.AIStateExplore):
-        #             self.fsm.change_state(ai_state.AIStateExplore())
-        #     return
             
         if target_group == "Exploration":    
             # has not found resource

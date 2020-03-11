@@ -59,7 +59,7 @@
 	
 	"Artisan": {
 		"TileColor": "Yellow",
-		"MoveFactor": 10,
+		"MoveFactor": 20,
 		"Production": [
 			["Unit", "Worker", 1]
 		],
@@ -99,7 +99,6 @@
 	"Refinery": {
 		"TileColor": "Green",
 		"Production": [
-			["Unit", "Artisan", 1],
 			["Resource", "Tree", 10]
 		],
 		"Output": [
@@ -111,7 +110,6 @@
 	"Smithy": {
 		"TileColor": "Green",
 		"Production": [
-			["Unit", "Artisan", 1],
 			["Resource", "Tree", 10],
 			["Resource", "IronBar", 3]
 		],
@@ -124,7 +122,6 @@
 	"Smelter": {
 		"TileColor": "Green",
 		"Production": [
-			["Unit", "Artisan", 1],
 			["Resource", "Tree", 10]
 		],
 		"Output": [
@@ -136,7 +133,6 @@
 	"Encampment": {
 		"TileColor": "Green",
 		"Production": [
-			["Unit", "Artisan", 1],
 			["Resource", "Tree", 10]
 		],
 		"Output": [

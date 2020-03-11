@@ -313,7 +313,7 @@ class AI:
                     return True
         return False
 
-    def get_resource_location(self, target):
+    def get_resource_location(self, worker_location, target):
         # find matching resources
         matches = []
         for location, resource_tile in self.resource_map.items():
@@ -323,6 +323,6 @@ class AI:
         # no matches
         if not matches:
             return None
-        # sort matches by Manhattan
-        sorted_matches = sorted(matches, key=lambda cord: (cord[0] + cord[1]))            
+        # sort matches by Manhattan from worker location
+        sorted_matches = sorted(matches, key=lambda cord: (abs(cord[0] - worker_location[0]) + abs(cord[1] - worker_location[1])))
         return sorted_matches[0]

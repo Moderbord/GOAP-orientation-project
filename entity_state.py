@@ -150,7 +150,7 @@ class StateGather(State):
         if self.stage is Stage.Done:
             if not self.finding_path and entity.owner.target_resource:
                 self.target_resource = entity.owner.target_resource # save which recourse worker set out to gather
-                goal = entity.owner.get_resource_location(self.target_resource[2]) # class
+                goal = entity.owner.get_resource_location(entity.location, self.target_resource[2]) # class
                 if goal:
                     self.finding_path = True
                     find_path(entity, entity.location, goal, get_path_callback)

@@ -144,11 +144,13 @@ class StateGather(State):
         self.finding_path = False
         self.gather_progress = 0
         self.gather_completion = False
+        self.target_resource = None
 
     def execute(self, entity):
         if self.stage is Stage.Done:
             if not self.finding_path and entity.owner.target_resource:
-                goal = entity.owner.get_resource_location(entity.owner.target_resource[2]) # class
+                self.target_resource = entity.owner.target_resource # save which recourse worker set out to gather
+                goal = entity.owner.get_resource_location(self.target_resource[2]) # class
                 if goal:
                     self.finding_path = True
                     find_path(entity, entity.location, goal, get_path_callback)
@@ -163,7 +165,7 @@ class StateGather(State):
                 goal = entity.owner.start_position
                 find_path(entity, entity.location, goal, self.__get_delivery_path_callback)
             # if gathering is completed
-            elif self.gather_progress >= g_vars[entity.owner.target_resource[0]][entity.owner.target_resource[1]]["GatherTime"]:
+            elif self.gather_progress >= g_vars[self.target_resource[0]][self.target_resource[1]]["GatherTime"]:
                 self.gather_completion = True
             # tick progress
             self.gather_progress += time.delta_time
@@ -179,9 +181,9 @@ class StateGather(State):
             if self.stage is Stage.Traversing:
                 # check if tile has wanted resource remaining
                 tile = entity.gamemap.get_background_tile(entity.location)
-                if tile.has_free_resource_type(entity.owner.target_resource[2]):
+                if tile.has_free_resource_type(self.target_resource[2]):
                     # occupy that resource and shange stage
-                    tile.occupy_resource(entity.owner.target_resource[2])
+                    tile.occupy_resource(self.target_resource[2])
                     self.stage = Stage.Gathering
                 # else entity will find try to find another resource
                 else:
@@ -207,7 +209,7 @@ class StateGather(State):
             self.gather_completion = False
             # deduct one resource from tile and carry it
             tile = entity.gamemap.get_background_tile(entity.location)
-            entity.carried_resource = tile.deduct_resource(entity.owner.target_resource[2])
+            entity.carried_resource = tile.deduct_resource(self.target_resource[2])
             # change stage and transport resource
             self.stage = Stage.Delivering
             entity.set_path(result)

@@ -279,7 +279,7 @@ class AI:
                 return         
 
     def get_buildable_tile(self):
-        radius = 1
+        radius = 4
         # search for buildable locations around starting position
         buildable_tiles = self.gamemap.get_buildable_area(self.start_position, radius)
         # increase search radius 

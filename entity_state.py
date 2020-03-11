@@ -190,11 +190,13 @@ class StateGather(State):
                     self.stage = Stage.Done
 
             elif self.stage is Stage.Delivering:
-                if entity.carried_resource: # TODO fix this!!
+                if entity.carried_resource: # TODO fix this!! (is fixed? probably)
                     # increment at base
                     entity.owner.add_resource(entity.carried_resource)
                     # remove resource from self
                     entity.carried_resource = None
+                else:
+                    test = None #testis
                 self.stage = Stage.Done
 
             return True

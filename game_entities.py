@@ -260,12 +260,12 @@ class BasicGameStructure(BasicGameEntity):
         self.structure_base = StructureBase(self.owner)
         self.structure_base.location = tile.location
         self.structure_base.spawn()
+        # set position to base
+        self.location = self.structure_base.location
         # change to wait for builder state
         self.fsm.change_state(states.StateWaitForBuilder())
 
     def production_spawn(self):
-        # set position to base
-        self.location = self.structure_base.location
         super().spawn()
         # remove base
         self.structure_base.delete()

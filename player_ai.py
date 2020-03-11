@@ -307,8 +307,8 @@ class AI:
         return False
 
     def has_found_resource(self, target):
-        for resource_list in self.resource_map.values():
-            for resource in resource_list:
+        for resource_tile in self.resource_map.values():
+            for resource in resource_tile.resource_list:
                 if isinstance(resource, target):
                     return True
         return False
@@ -316,8 +316,8 @@ class AI:
     def get_resource_location(self, target):
         # find matching resources
         matches = []
-        for location, resource_list in self.resource_map.items():
-            for resource in resource_list:
+        for location, resource_tile in self.resource_map.items():
+            for resource in resource_tile.available_resources:
                 if isinstance(resource, target):
                     matches.append(location)
         # no matches

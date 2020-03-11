@@ -86,6 +86,7 @@ class AI:
             elif self.can_create_entity(target_group, target_type):
                 new_resource = target_class(self)
                 new_resource.begin_production()
+                self.deduct_resource_cost(g_vars[target_group][target_type]["Production"])
             return
         
         # Structure group
@@ -96,6 +97,7 @@ class AI:
                 new_structure = target_class(self)
                 new_structure.begin_production()
                 self.add_structure(new_structure)
+                self.deduct_resource_cost(g_vars[target_group][target_type]["Production"])
             return
 
         # Unit group
@@ -106,6 +108,7 @@ class AI:
                 new_unit = target_class(self)
                 new_unit.begin_production()
                 self.add_unit(new_unit)
+                self.deduct_resource_cost(g_vars[target_group][target_type]["Production"])
             return
 
     def complete_current_task(self):
@@ -347,3 +350,16 @@ class AI:
         # sort matches by Manhattan from worker location
         sorted_matches = sorted(matches, key=lambda cord: (abs(cord[0] - worker_location[0]) + abs(cord[1] - worker_location[1])))
         return sorted_matches[0]
+
+    def deduct_resource_cost(self, resource_list):
+        for resource_cost in resource_list:
+            target_group = resource_cost[0]
+            target_type = resource_cost[1]
+            target_amount = resource_cost[2]
+            # only resources should be deducted
+            if not target_group == "Resource":
+                continue
+            # find correct resource and deduct
+            for resource in self.resource_list:
+                if resource[1] == target_type:
+                    resource[2] -= target_amount

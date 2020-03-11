@@ -10,10 +10,9 @@ import game_time as time
 import message_dispatcher as dispatcher
 from game_settings import g_vars
 
-# TODO deduct resources when producing something
-# TODO remove units from their own lists in AI when deleting
 # TODO visible resources / resource piles
 # TODO explorer search bias
+# TODO better production (ex. when queuing artisan it should produce one)
 
 class Game:
 

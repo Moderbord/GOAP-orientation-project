@@ -169,8 +169,8 @@
 	
 	"Coal": {
 		"Production": [
-			["Structure", "Refinery", 1],
-			["Resource", "Tree", 2]
+			["Resource", "Tree", 2],
+			["Structure", "Refinery", 1]
 		],
 		"ProductionTime": 3 
 	},
@@ -183,18 +183,18 @@
 	
 	"IronBar": {
 		"Production": [
-			["Structure", "Smelter", 1],
 			["Resource", "IronOre", 2],
-			["Resource", "Coal", 3]
+			["Resource", "Coal", 3],
+			["Structure", "Smelter", 1]
 		],
 		"ProductionTime": 3
 	},
 	
 	"Sword": {
 		"Production": [
-			["Structure", "Smithy", 1],
+			["Resource", "Coal", 2],
 			["Resource", "IronBar", 1],
-			["Resource", "Coal", 2]
+			["Structure", "Smithy", 1]
 		],
 		"ProductionTime": 3
 	}

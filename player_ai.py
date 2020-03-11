@@ -244,11 +244,20 @@ class AI:
         return unit_list
 
     def remove_unit(self, target):
-        for unit in self.unit_list:
-            if unit is target:
-                self.unit_list.remove(unit)
-                unit.delete()
-                return      
+        # complete unity list
+        self.unit_list.remove(target)
+        # specific list
+        if isinstance(target, entities.UnitWorker):
+            self.worker_units.remove(target)
+        elif isinstance(target, entities.UnitExplorer):
+            self.explorer_units.remove(target)
+        elif isinstance(target, entities.UnitArtisan):
+            self.artisan_units.remove(target)
+        elif isinstance(target, entities.UnitSoldier):
+            self.soldier_units.remove(target)
+        # sprite
+        target.delete()
+        return      
 
     def print_unit_at_location(self, location):
         for structure in self.structure_list:
@@ -283,14 +292,12 @@ class AI:
     def get_available_structure(self, target):
         for structure in self.structure_list:
             if isinstance(structure, target) and structure.is_idle:
-                return structure   
+                return structure
 
     def remove_structure(self, target):
-        for structure in self.structure_list:
-            if structure is target:
-                self.unit_list.remove(structure)
-                structure.delete()
-                return         
+        self.structure_list.remove(target)
+        target.delete()
+        return         
 
     def get_buildable_tile(self):
         radius = 4

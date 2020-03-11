@@ -272,7 +272,7 @@ class BasicGameStructure(BasicGameEntity):
     def production_spawn(self):
         super().spawn()
         # remove base
-        self.structure_base.delete()
+        self.owner.remove_structure(self.structure_base)
         # release builder
         self.artisan_unit.fsm.change_state(states.StateArtisan())
 

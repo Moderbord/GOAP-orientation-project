@@ -403,7 +403,7 @@ class Coal(BasicResource):
 
     def production_spawn(self):
         super().production_spawn()
-        self.owner.add_resource(["Resource", "Coal", 1])
+        self.owner.add_resource(g_vars["Structure"]["Refinery"]["Output"])
 
 class IronBar(BasicResource):
     def __init__(self, owner):
@@ -420,7 +420,7 @@ class IronBar(BasicResource):
 
     def production_spawn(self):
         super().production_spawn()
-        self.owner.add_resource(["Resource", "IronBar", 1])
+        self.owner.add_resource(g_vars["Structure"]["Smelter"]["Output"])
 
 class Sword(BasicResource):
     def __init__(self, owner):
@@ -437,7 +437,7 @@ class Sword(BasicResource):
         
     def production_spawn(self):
         super().production_spawn()
-        self.owner.add_resource(["Resource", "Sword", 1])
+        self.owner.add_resource(g_vars["Structure"]["Smithy"]["Output"])
 
 #----------------------------JSON to python class----------------------------------#
 def to_class(entity_type):

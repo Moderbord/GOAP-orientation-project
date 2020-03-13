@@ -60,13 +60,13 @@ class AI:
         target_amount = self.current_task[2]
         target_class = entities.to_class(target_type)
             
-        if target_group == "Exploration":    
+        if target_group == "Exploration":
             # has not found resource
             if not self.has_found_resource(target_class):
                 # explore
                 if not self.fsm.is_in_state(ai_state.AIStateExplore):
                     self.fsm.change_state(ai_state.AIStateExplore())
-            # has found resource        
+            # has found resource
             else:
                 # has found enough materials
                 if self.has_resource(g_vars[target_group][target_type]["GatheredType"][1], target_amount):
@@ -78,6 +78,7 @@ class AI:
                     if not self.fsm.is_in_state(ai_state.AIStateGather):
                         self.fsm.change_state(ai_state.AIStateGather())
                     self.target_resource = (target_group, target_type, target_class)
+            return
 
         # Resource group
         if target_group == "Resource":
@@ -87,6 +88,9 @@ class AI:
                 new_resource = target_class(self)
                 new_resource.begin_production()
                 self.deduct_resource_cost(g_vars[target_group][target_type]["Production"])
+            else:
+                self.prepend_goal(self.current_task)
+                
             return
         
         # Structure group
@@ -98,6 +102,8 @@ class AI:
                 new_structure.begin_production()
                 self.add_structure(new_structure)
                 self.deduct_resource_cost(g_vars[target_group][target_type]["Production"])
+            else:
+                self.prepend_goal(self.current_task)
             return
 
         # Unit group
@@ -109,6 +115,8 @@ class AI:
                 new_unit.begin_production()
                 self.add_unit(new_unit)
                 self.deduct_resource_cost(g_vars[target_group][target_type]["Production"])
+            else:
+                self.prepend_goal(self.current_task)
             return
 
     def complete_current_task(self):
@@ -209,6 +217,9 @@ class AI:
                 return False
 
         return True
+
+    # def has_entities(self, function):
+    #     return filter()
 
 #--------------------------UNITS--------------------------#
 
@@ -317,17 +328,17 @@ class AI:
 #--------------------------RESOURCES--------------------------#
 
     def add_resource(self, resource):
-        for owned_resource in self.resource_list:
-            if owned_resource[1] == resource[1]: # already has resource
-                owned_resource[2] += resource[2] # increment owned resource
-                return
-        self.resource_list.append(resource.copy())      # else add it to list
+        for x in range(0, resource[2]): # amount
+            new_resource = entities.to_class(resource[1])
+            self.resource_list.append(new_resource(self))
 
     def has_resource(self, target, count=1):
+        target_class = entities.to_class(target)
         for resource in self.resource_list:
-            if resource[1] == target:
-                if resource[2] >= count:
-                    return True
+            if isinstance(resource, target_class):
+                count -= 1
+            if count <= 0:
+                return True
         return False
 
     def has_found_resource(self, target):
@@ -354,12 +365,14 @@ class AI:
     def deduct_resource_cost(self, resource_list):
         for resource_cost in resource_list:
             target_group = resource_cost[0]
-            target_type = resource_cost[1]
+            target_class = entities.to_class(resource_cost[1])
             target_amount = resource_cost[2]
             # only resources should be deducted
             if not target_group == "Resource":
                 continue
             # find correct resource and deduct
-            for resource in self.resource_list:
-                if resource[1] == target_type:
-                    resource[2] -= target_amount
+            while target_amount > 0:
+                for resource in reversed(self.resource_list):
+                    if isinstance(resource, target_class):
+                        self.resource_list.remove(resource)
+                        target_amount -= 1

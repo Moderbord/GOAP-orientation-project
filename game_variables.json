@@ -41,40 +41,38 @@
 	
 	"Worker": {
 		"TileColor": "Blue",
-		"MoveFactor": 100,
-		"Production": [
-			["Structure", "Camp", 1]
-		],
-		"ProductionTime": 1 
+		"MoveFactor": 1,
+		"Production": [],
+		"ProductionTime": 0
 	},
 	
 	"Explorer": {
 		"TileColor": "Red",
-		"MoveFactor": 50,
+		"MoveFactor": 1,
 		"Production": [
 			["Unit", "Worker", 1]
 		],
-		"ProductionTime": 1 
+		"ProductionTime": 60 
 	},
 	
 	"Artisan": {
 		"TileColor": "Yellow",
-		"MoveFactor": 20,
+		"MoveFactor": 1,
 		"Production": [
 			["Unit", "Worker", 1]
 		],
-		"ProductionTime": 5 
+		"ProductionTime": 120
 	},
 	
 	"Soldier": {
 		"TileColor": "White",
-		"MoveFactor": 15,
+		"MoveFactor": 1,
 		"Production": [
 			["Structure", "Encampment", 1],
 			["Resource", "Sword", 1],
 			["Unit", "Worker", 1]
 		],
-		"ProductionTime": 5 
+		"ProductionTime": 60
 	}
 },
 
@@ -104,7 +102,7 @@
 		"Output": [
 			["Resource", "Coal", 1]
 		],
-		"ProductionTime": 5 
+		"ProductionTime": 60
 	},
 	
 	"Smithy": {
@@ -116,7 +114,7 @@
 		"Output": [
 			["Resource", "Sword", 1]
 		],
-		"ProductionTime": 5 
+		"ProductionTime": 180
 	},
 	
 	"Smelter": {
@@ -127,7 +125,7 @@
 		"Output": [
 			["Resource", "IronBar", 1]
 		],
-		"ProductionTime": 5 
+		"ProductionTime": 120
 	},
 	
 	"Encampment": {
@@ -138,7 +136,7 @@
 		"Output": [
 			["Unit", "Soldier", 1]
 		],
-		"ProductionTime": 5 
+		"ProductionTime": 120
 	}
 
 },
@@ -148,13 +146,13 @@
 	"WildTree": {
 		"Production": [],
 		"GatheredType": ["Resource", "Tree", 1], 
-		"GatherTime": 3
+		"GatherTime": 30
 	},
 	
 	"WildIronOre": {
 		"Production": [],
 		"GatheredType": ["Resource", "IronOre", 1], 
-		"GatherTime": 5
+		"GatherTime": 30
 	}
 
 },
@@ -172,7 +170,7 @@
 			["Resource", "Tree", 2],
 			["Structure", "Refinery", 1]
 		],
-		"ProductionTime": 3 
+		"ProductionTime": 30
 	},
 	
 	"IronOre": {
@@ -187,7 +185,7 @@
 			["Resource", "Coal", 3],
 			["Structure", "Smelter", 1]
 		],
-		"ProductionTime": 3
+		"ProductionTime": 30
 	},
 	
 	"Sword": {
@@ -196,7 +194,7 @@
 			["Resource", "IronBar", 1],
 			["Structure", "Smithy", 1]
 		],
-		"ProductionTime": 3
+		"ProductionTime": 60
 	}
 	
 },
@@ -217,8 +215,8 @@
 	
 	"Forest": {
 		"Passable" : 1,
-		"MovementStraight": 14,
-		"MovementDiagonal": 18
+		"MovementStraight": 15,
+		"MovementDiagonal": 21
 	},
 	
 	"Bog": {

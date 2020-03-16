@@ -152,6 +152,9 @@ class AI:
             target_group = product[0]           # Unit, Structure
             target_type = product[1]            # Worker, Explorer, Smithy, etc.
             target_amount = product[2]          # How many is needed/ordered
+            # already completed -> skip
+            if self.has_num_entities(entities.to_class(target_type), target_amount):
+                continue
             # chain multiplikation
             if not target_group == "Structure":
                 target_amount *= amount         

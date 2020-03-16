@@ -22,9 +22,14 @@ class Game:
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
         self.map = gamemap.GameMap()
+        self.speed = 100
         self.paused = False
+        self.draw_grid = False
+        self.draw_ui = True
+        self.draw_ui_tasks = False
+        self.draw_ui_resources = False
+        self.draw_ui_entities = False
         self.ai_player = None
-        self.menu = None
 
     # Specify a gamemap to use
     def set_map(self, map_name):
@@ -40,36 +45,57 @@ class Game:
     def enable_ai(self):
         self.ai_player = ai.AI(self.map, (2, 2))
         self.ai_player.resource_map.update(self.map.discover_fog_area((1, 1), (50, 50)))
-        self.ai_player.append_goal(["Unit", "Soldier", 5])
+        self.ai_player.append_goal(["Unit", "Soldier", 20])
 
         for x in range(0, 50):
             worker = entities.UnitWorker(self.ai_player)
             worker.spawn()
-            self.ai_player.add_entity(worker)
 
     def init_thorpy(self):
         res_trees = thorpy.OneLineText("Trees: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Tree)))))
         self.box = thorpy.Box(elements=[res_trees])
+        self.box_u = thorpy.Box(elements=[res_trees])
+        self.box_r = thorpy.Box(elements=[res_trees])
         #we regroup all elements on a menu, even if we do not launch the menu
-        self.menu = thorpy.Menu(self.box)
+        menu = thorpy.Menu([self.box, self.box_u])
         #important : set the screen as surface for all elements
-        for element in self.menu.get_population():
+        for element in menu.get_population():
             element.surface = self.screen
         #use the elements normally...
         self.box.set_topleft((0, 0))
 
     def update_thorpy(self):
-        res_trees = thorpy.OneLineText("Trees: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Tree)))))
-        res_coal = thorpy.OneLineText("Coal: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Coal)))))
-        res_iron_ore = thorpy.OneLineText("IronOre: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.IronOre)))))
-        res_iron_bar = thorpy.OneLineText("IronBar: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.IronBar)))))
-        res_swords = thorpy.OneLineText("Swords: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Sword)))))
-        goal = thorpy.MultilineText(str(self.ai_player.current_goal), (300, 50))
-        task = thorpy.MultilineText(str(self.ai_player.current_task), (300, 50))
-        task_list = thorpy.MultilineText(str(self.ai_player.task_list.elements), (220, 600))
-        self.box = thorpy.Box(elements=[res_trees, res_coal, res_iron_ore, res_iron_bar, res_swords, goal, task, task_list])
-        self.box.blit()
-        self.box.update()
+        # tasks
+        if self.draw_ui_tasks:
+            goal = thorpy.MultilineText(str(self.ai_player.current_goal), (220, 50))
+            task = thorpy.MultilineText(str(self.ai_player.current_task), (220, 50))
+            task_list = thorpy.MultilineText(str(self.ai_player.task_list.elements), (220, 600))
+            self.box = thorpy.Box(elements=[goal, task, task_list])
+            self.box.blit()
+            self.box.update()
+
+        # resources
+        if self.draw_ui_resources:
+            resources = thorpy.MultilineText("Trees: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Tree))))
+            + "          Coal: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Coal))))
+            + "          IronOre: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.IronOre))))
+            + "          IronBar: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.IronBar))))
+            + "          Swords: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Sword)))), (600, 30))
+            self.box_r = thorpy.Box(elements=[resources])
+            self.box_r.set_topleft((230, 0))
+            self.box_r.blit()
+            self.box_r.update()
+
+        # units
+        if self.draw_ui_entities:
+            units = thorpy.MultilineText("Workers: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.UnitWorker))))
+            + "          Explorers: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.UnitExplorer))))
+            + "          Artisans: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.UnitArtisan))))
+            + "          Soldiers: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.UnitSoldier)))), (500, 30))
+            self.box_u = thorpy.Box(elements=[units])
+            self.box_u.set_topleft((230, 40))
+            self.box_u.blit()
+            self.box_u.update()
 
     def enable_fog(self):
         self.map.draw_fog = True
@@ -77,7 +103,7 @@ class Game:
     def run(self):
         self.running = True
         while (self.running):
-            time.delta_time = time.clock.tick(g_vars["Game"]["FPS"]) / 100
+            time.delta_time = time.clock.tick(g_vars["Game"]["FPS"]) / self.speed
             self.events()
             self.update()
             self.draw()
@@ -102,10 +128,23 @@ class Game:
         if keystate[pg.K_SPACE]:
             self.paused = not self.paused
 
+        if keystate[pg.K_KP_PLUS]:
+            self.speed -= 100
+            if self.speed <= 0:
+                self.speed = 10
+        if keystate[pg.K_KP_MINUS]:
+            self.speed += 100
+
+        if keystate[pg.K_1]:
+            self.draw_ui_tasks = not self.draw_ui_tasks
+        if keystate[pg.K_2]:
+            self.draw_ui_resources = not self.draw_ui_resources
+        if keystate[pg.K_3]:
+            self.draw_ui_entities = not self.draw_ui_entities
+        if keystate[pg.K_g]:
+            self.draw_grid = not self.draw_grid
         if keystate[pg.K_q]:
-            test = self.ai_player.entities_where(lambda x: (x.is_idle == True))
-            for x in test:
-                print (x)
+            self.draw_ui = not self.draw_ui
         if keystate[pg.K_w]:
             self.map.camera.move(dy=-1)
         if keystate[pg.K_s]:
@@ -127,9 +166,11 @@ class Game:
         # Tiles
         self.map.draw(self.screen)
         # Overlay
-        #self.draw_grid_overlay()
-        
-        self.update_thorpy()
+        if self.draw_grid:
+            self.draw_grid_overlay()
+        # UI
+        if self.draw_ui:
+            self.update_thorpy()
         # Flip
         pg.display.flip()
 
@@ -138,12 +179,3 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
-            # if event.type == pg.MOUSEBUTTONUP:
-            #     mouse = pg.mouse.get_pos()
-            #     x = max(math.floor((mouse[0]) / g_vars["Game"]["TileSize"]), 0)
-            #     y = max(math.floor((mouse[1]) / g_vars["Game"]["TileSize"]), 0)
-            #     print(str(x) + ", " + str(y))
-            #     if self.ai_player:
-            #         self.ai_player.print_unit_at_location((x, y))
-            if self.menu:
-                self.menu.react(event)

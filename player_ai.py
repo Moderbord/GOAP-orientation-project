@@ -18,6 +18,7 @@ class AI:
         self.fsm.currentState = ai_state.AIStateIdle()
         self.dispatcher = dispatch.MessageDispatcher()
         self.entity_list = []
+        self.production_list = []
         self.resource_map = {}
         self.current_goal = []
         self.current_task = None
@@ -63,15 +64,12 @@ class AI:
                     self.target_resource = (target_group, target_type, target_class)
             return
 
-
         else:
             if self.has_num_entities(target_class, target_amount):
                 self.complete_current_task()
             elif self.can_create_entity(target_group, target_type):
                 new_entity = target_class(self)
                 new_entity.begin_production()
-                self.add_entity(new_entity)
-                print("Created 1 " + str(target_class))
                 self.deduct_resource_cost(g_vars[target_group][target_type]["Production"])
             else:
                 self.prepend_goal(self.current_task)
@@ -81,6 +79,8 @@ class AI:
         if self.current_task == self.current_goal[0]:
             self.current_goal.remove(self.current_task)
         self.current_task = None
+        # tasks has been updated
+        self.time_since_lask_task_update = 0
 
     def update_task_list(self): # Not used atm
         if not self.current_goal:
@@ -98,6 +98,8 @@ class AI:
             self.task_list.put([target_group, target_class, target_amount])
         # clear current task
         self.current_task = None
+        # tasks has been updated
+        self.time_since_lask_task_update = 0
 
     def append_goal(self, goal):
         # check so last goal isn't identical
@@ -109,6 +111,8 @@ class AI:
         # append tasks to current queue
         while not task_list.empty():
             self.task_list.put(task_list.get())
+        # tasks has been updated
+        self.time_since_lask_task_update = 0
 
     def prepend_goal(self, goal):
         # check so first goal isn't identical
@@ -117,8 +121,6 @@ class AI:
         self.current_goal.insert(0, goal)
         # get tasks
         task_list = self.get_tasks_from_goal(goal)
-        # current task isn't in queue and need to be appended
-        # task_list.put(self.current_task)
         # append current queue to new queue
         while not self.task_list.empty():
             task_list.put(self.task_list.get())
@@ -126,6 +128,8 @@ class AI:
         self.task_list = task_list
         # current task then needs to be cleared
         self.current_task = None
+        # tasks has been updated
+        self.time_since_lask_task_update = 0
 
     def get_tasks_from_goal(self, goal):
         (target_group, target_class, target_amount) = goal
@@ -187,20 +191,26 @@ class AI:
         entity_list = [e for e in self.entity_list if function(e)]
         return entity_list[:count]
 
-    def add_entity(self, unit):
-        self.entity_list.append(unit)
+    def add_entity(self, entity):
+        self.entity_list.append(entity)
+        print("\nAdded entity: " + str(entity))
 
     def remove_entity(self, target):
         self.entity_list.remove(target)
         target.delete()
-        return      
+        print("Removed entity: " + str(target))      
 
     def has_num_entities(self, target, count=1):
+        # check own entities
         for entity in self.entity_list:
             if isinstance(entity, target):
                 count -= 1
-            if count <= 0:
-                return True
+        # check what is currently udner production
+        for entity in self.production_list:
+            if isinstance(entity, target):
+                count -= 1
+        if count <= 0:
+            return True
         return False
 
 #--------------------------UNITS--------------------------#
@@ -236,20 +246,6 @@ class AI:
                 return unit_list
         return unit_list 
 
-    def print_unit_at_location(self, location):
-        pass
-        # for structure in self.entity_list:
-        #     if structure.location == location:
-        #         print("\n\n")
-        #         print(structure.__dict__)
-        #         print(structure.fsm.currentState.__dict__)
-
-        # for unit in self.entity_list:
-        #     if unit.location == location:
-        #         print("\n\n")
-        #         print(unit.__dict__)
-        #         print(unit.fsm.currentState.__dict__)
-
 #--------------------------STRUCTURES--------------------------#
 
     def has_available_structure(self, target):
@@ -280,7 +276,7 @@ class AI:
     def add_resource(self, resource):
         for x in range(0, resource[0][2]): # amount
             new_resource = entities.to_class(resource[0][1])
-            self.entity_list.append(new_resource(self))
+            self.add_entity(new_resource(self))
 
     def has_resource(self, target, count=1):
         target_class = entities.to_class(target)
@@ -322,10 +318,6 @@ class AI:
             # only resources should be deducted
             if not target_group == "Resource":
                 continue
-            num = 0
             # find correct resource and deduct
             for resource in self.entities_count_where(lambda res: isinstance(res, target_class), target_amount):
-                self.entity_list.remove(resource)
-                num += 1
-            print("Removed " + str(num) + " of " + str(target_class))
-        print("\n")
+                self.remove_entity(resource)

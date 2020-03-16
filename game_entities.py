@@ -26,9 +26,10 @@ class BasicGameEntity(sprite.Sprite):
         self.is_idle = False
 
     def begin_production(self):
-        pass
+        self.owner.production_list.append(self)
 
     def spawn(self):
+        self.owner.add_entity(self)
         #sprite/asset
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
         self.rect = self.image.get_rect()
@@ -118,6 +119,7 @@ class UnitWorker(BasicGameUnit):
         self.carried_resource = None
 
     def begin_production(self):
+        super().begin_production()
         # get structure
         self.origin_structure = self.owner.get_available_structure(StructureCamp)
         #print("Got free Camp")
@@ -128,6 +130,7 @@ class UnitWorker(BasicGameUnit):
         self.fsm.change_state(states.StateProduced())
 
     def production_spawn(self):
+        self.owner.production_list.remove(self)
         # position to building
         self.location = self.origin_structure.location
         # spawn
@@ -146,6 +149,7 @@ class UnitExplorer(BasicGameUnit):
         self.production_time = g_vars["Unit"]["Explorer"]["ProductionTime"]
 
     def begin_production(self):
+        super().begin_production()
         # find free worker
         self.worker_unit = self.owner.get_available_unit(UnitWorker)
         # pause worker for production time
@@ -154,6 +158,7 @@ class UnitExplorer(BasicGameUnit):
         self.fsm.change_state(states.StateProduced())
 
     def production_spawn(self):
+        self.owner.production_list.remove(self)
         # put explorer where worker stood
         self.location = self.worker_unit.location
         super().spawn()
@@ -201,6 +206,7 @@ class UnitArtisan(BasicGameUnit):
         self.profession = self.Profession.Free
 
     def begin_production(self):
+        super().begin_production()
         # find free worker
         self.worker_unit = self.owner.get_available_unit(UnitWorker)
         # pause worker for production time
@@ -209,6 +215,7 @@ class UnitArtisan(BasicGameUnit):
         self.fsm.change_state(states.StateProduced())
 
     def production_spawn(self):
+        self.owner.production_list.remove(self)
         # put explorer where worker stood
         self.location = self.worker_unit.location
         super().spawn()
@@ -226,6 +233,7 @@ class UnitSoldier(BasicGameUnit):
         self.production_time = g_vars["Unit"]["Soldier"]["ProductionTime"]
 
     def begin_production(self):
+        super().begin_production()
         # find free worker
         self.worker_unit = self.owner.get_available_unit(UnitWorker)
         # pause worker for production time
@@ -234,6 +242,7 @@ class UnitSoldier(BasicGameUnit):
         self.fsm.change_state(states.StateProduced())
 
     def production_spawn(self):
+        self.owner.production_list.remove(self)
         # put explorer where worker stood
         self.location = self.worker_unit.location
         super().spawn()
@@ -255,6 +264,7 @@ class BasicGameStructure(BasicGameEntity):
         self.artisan_required = None
     
     def begin_production(self):
+        super().begin_production()
         # find free building tile
         tile = self.owner.get_buildable_tile()
         # occupy it
@@ -272,6 +282,7 @@ class BasicGameStructure(BasicGameEntity):
         self.fsm.change_state(states.StateWaitForArtisan())
 
     def production_spawn(self):
+        self.owner.production_list.remove(self)
         super().spawn()
         # remove base
         self.owner.remove_entity(self.structure_base)
@@ -350,6 +361,9 @@ class BasicMapResource(sprite.Sprite):
         self.rect.x = location[0] * g_vars["Game"]["TileSize"] + randint(0, g_vars["Game"]["TileSize"])
         self.rect.y = location[1] * g_vars["Game"]["TileSize"] + randint(0, g_vars["Game"]["TileSize"])
 
+    def delete(self):
+        sprite.Sprite.remove(self, self.groups)
+
 class WildTree(BasicMapResource):
     def __init__(self, gamemap, location):
         self.tile_color = "Yellow"
@@ -376,7 +390,11 @@ class BasicResource(BasicMapResource):
     def update(self):
         self.fsm.update()
 
+    def begin_production(self):
+        self.owner.production_list.append(self)
+
     def production_spawn(self):
+        self.owner.production_list.remove(self)
         self.is_visible = True
         # change state
         self.fsm.change_state(states.StateIdle())
@@ -397,6 +415,7 @@ class Coal(BasicResource):
         self.production_time = g_vars["Resource"]["Coal"]["ProductionTime"]
 
     def begin_production(self):
+        super().begin_production()
         # get structure
         self.origin_structure = self.owner.get_available_structure(StructureRefinery)
         # occupy structure
@@ -414,6 +433,7 @@ class IronBar(BasicResource):
         self.production_time = g_vars["Resource"]["IronBar"]["ProductionTime"]
 
     def begin_production(self):
+        super().begin_production()
         # get structure
         self.origin_structure = self.owner.get_available_structure(StructureSmelter)
         # occupy structure
@@ -431,6 +451,7 @@ class Sword(BasicResource):
         self.production_time = g_vars["Resource"]["Sword"]["ProductionTime"]
 
     def begin_production(self):
+        super().begin_production()
         # get structure
         self.origin_structure = self.owner.get_available_structure(StructureSmithy)
         # occupy structure

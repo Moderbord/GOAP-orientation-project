@@ -13,7 +13,7 @@ from game_settings import g_vars
 class BasicGameEntity(sprite.Sprite):
 
     def __init__(self, owner):
-        self.groups = owner.gamemap.sprite_group_entities
+        #self.groups = owner.gamemap.sprite_group_entities
         sprite.Sprite.__init__(self, self.groups)
         self.owner = owner
         self.fsm = fsm.StateMachine(self)
@@ -54,6 +54,7 @@ class BasicGameEntity(sprite.Sprite):
 class BasicGameUnit(BasicGameEntity):
 
     def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_units
         self.image = Surface((g_vars["Game"]["UnitSize"], g_vars["Game"]["UnitSize"]))
         BasicGameEntity.__init__(self, owner)
         self.move_factor = g_vars["Unit"]["Basic"]["MoveFactor"]
@@ -159,7 +160,7 @@ class UnitExplorer(BasicGameUnit):
         # clear any fog
         self.gamemap.discover_fog_area((self.location[0] - 1, self.location[1] - 1), (self.location[0] + 1, self.location[1] + 1))
         # remove worker
-        self.owner.remove_unit(self.worker_unit)
+        self.owner.remove_entity(self.worker_unit)
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewExplorerUnit)
         self.owner.fsm.handle_message(message)
@@ -212,7 +213,7 @@ class UnitArtisan(BasicGameUnit):
         self.location = self.worker_unit.location
         super().spawn()
         # remove worker
-        self.owner.remove_unit(self.worker_unit)
+        self.owner.remove_entity(self.worker_unit)
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewArtisanUnit)
         self.owner.fsm.handle_message(message)
@@ -237,7 +238,7 @@ class UnitSoldier(BasicGameUnit):
         self.location = self.worker_unit.location
         super().spawn()
         # remove worker
-        self.owner.remove_unit(self.worker_unit)
+        self.owner.remove_entity(self.worker_unit)
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewSoldierUnit)
         self.owner.fsm.handle_message(message)
@@ -245,6 +246,7 @@ class UnitSoldier(BasicGameUnit):
 #----------------------------STRUCTURES--------------------------------------#
 class BasicGameStructure(BasicGameEntity):
     def __init__(self, owner):
+        self.groups = owner.gamemap.sprite_group_structures
         self.image = Surface((g_vars["Game"]["StructureSize"], g_vars["Game"]["StructureSize"]))
         BasicGameEntity.__init__(self, owner)
         self.production_time = g_vars["Structure"]["Base"]["ProductionTime"]
@@ -261,7 +263,7 @@ class BasicGameStructure(BasicGameEntity):
         self.structure_base = StructureBase(self.owner)
         self.structure_base.location = tile.location
         self.structure_base.spawn()
-        self.owner.add_structure(self.structure_base)
+        self.owner.add_entity(self.structure_base)
         # set position to base (for artisan unit)
         self.location = self.structure_base.location
         # specify required artisan
@@ -272,7 +274,7 @@ class BasicGameStructure(BasicGameEntity):
     def production_spawn(self):
         super().spawn()
         # remove base
-        self.owner.remove_structure(self.structure_base)
+        self.owner.remove_entity(self.structure_base)
         # release builder
         self.artisan_unit.fsm.change_state(states.StateArtisan())
 
@@ -367,6 +369,7 @@ class BasicResource(BasicMapResource):
         super().__init__(owner.gamemap, owner.start_position)
         self.fsm = fsm.StateMachine(self)
         self.fsm.currentState = states.State()
+        self.is_visible = False
         self.origin_structure = None
         self.gathered_type = None
 
@@ -374,6 +377,7 @@ class BasicResource(BasicMapResource):
         self.fsm.update()
 
     def production_spawn(self):
+        self.is_visible = True
         # change state
         self.fsm.change_state(states.StateIdle())
         # free structure
@@ -386,7 +390,6 @@ class Tree(BasicResource):
 class IronOre(BasicResource):
     def __init__(self, owner):
         super().__init__(owner)
-        self.gathered_type = g_vars["Exploration"]["IronOre"]["GatheredType"]
 
 class Coal(BasicResource):
     def __init__(self, owner):

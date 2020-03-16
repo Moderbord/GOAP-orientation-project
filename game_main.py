@@ -1,13 +1,15 @@
-from random import randint
 import math
-import pygame as pg
+from random import randint
 
-import game_map as gamemap
-import player_ai as ai
-import game_entities as entities
+import pygame as pg
+import thorpy
+
 import ai_state as states
+import game_entities as entities
+import game_map as gamemap
 import game_time as time
 import message_dispatcher as dispatcher
+import player_ai as ai
 from game_settings import g_vars
 
 # TODO visible resources / resource piles
@@ -22,6 +24,7 @@ class Game:
         self.map = gamemap.GameMap()
         self.paused = False
         self.ai_player = None
+        self.menu = None
 
     # Specify a gamemap to use
     def set_map(self, map_name):
@@ -36,14 +39,37 @@ class Game:
 
     def enable_ai(self):
         self.ai_player = ai.AI(self.map, (2, 2))
-        self.map.discover_fog_area((1, 1), (3, 3))
-        self.ai_player.append_goal(["Unit", "Soldier", 1])
+        self.ai_player.resource_map.update(self.map.discover_fog_area((1, 1), (50, 50)))
+        self.ai_player.append_goal(["Unit", "Soldier", 5])
 
         for x in range(0, 50):
             worker = entities.UnitWorker(self.ai_player)
             worker.spawn()
-            self.ai_player.add_unit(worker)
-            self.ai_player.worker_units.append(worker)
+            self.ai_player.add_entity(worker)
+
+    def init_thorpy(self):
+        res_trees = thorpy.OneLineText("Trees: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Tree)))))
+        self.box = thorpy.Box(elements=[res_trees])
+        #we regroup all elements on a menu, even if we do not launch the menu
+        self.menu = thorpy.Menu(self.box)
+        #important : set the screen as surface for all elements
+        for element in self.menu.get_population():
+            element.surface = self.screen
+        #use the elements normally...
+        self.box.set_topleft((0, 0))
+
+    def update_thorpy(self):
+        res_trees = thorpy.OneLineText("Trees: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Tree)))))
+        res_coal = thorpy.OneLineText("Coal: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Coal)))))
+        res_iron_ore = thorpy.OneLineText("IronOre: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.IronOre)))))
+        res_iron_bar = thorpy.OneLineText("IronBar: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.IronBar)))))
+        res_swords = thorpy.OneLineText("Swords: " + str(len(self.ai_player.entities_where(lambda e: isinstance(e, entities.Sword)))))
+        goal = thorpy.MultilineText(str(self.ai_player.current_goal), (300, 50))
+        task = thorpy.MultilineText(str(self.ai_player.current_task), (300, 50))
+        task_list = thorpy.MultilineText(str(self.ai_player.task_list.elements), (220, 600))
+        self.box = thorpy.Box(elements=[res_trees, res_coal, res_iron_ore, res_iron_bar, res_swords, goal, task, task_list])
+        self.box.blit()
+        self.box.update()
 
     def enable_fog(self):
         self.map.draw_fog = True
@@ -51,7 +77,7 @@ class Game:
     def run(self):
         self.running = True
         while (self.running):
-            time.delta_time = time.clock.tick(g_vars["Game"]["FPS"]) / 1000
+            time.delta_time = time.clock.tick(g_vars["Game"]["FPS"]) / 100
             self.events()
             self.update()
             self.draw()
@@ -76,6 +102,10 @@ class Game:
         if keystate[pg.K_SPACE]:
             self.paused = not self.paused
 
+        if keystate[pg.K_q]:
+            test = self.ai_player.entities_where(lambda x: (x.is_idle == True))
+            for x in test:
+                print (x)
         if keystate[pg.K_w]:
             self.map.camera.move(dy=-1)
         if keystate[pg.K_s]:
@@ -96,10 +126,10 @@ class Game:
         self.screen.fill(g_vars["Game"]["Colors"]["LightGray"])
         # Tiles
         self.map.draw(self.screen)
-        # AI
-        self.ai_player.draw(self.screen)
         # Overlay
         #self.draw_grid_overlay()
+        
+        self.update_thorpy()
         # Flip
         pg.display.flip()
 
@@ -108,12 +138,12 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
-            if event.type == pg.MOUSEBUTTONUP:
-                mouse = pg.mouse.get_pos()
-                x = max(math.floor((mouse[0]) / g_vars["Game"]["TileSize"]), 0)
-                y = max(math.floor((mouse[1]) / g_vars["Game"]["TileSize"]), 0)
-                print(str(x) + ", " + str(y))
-                if self.ai_player:
-                    self.ai_player.print_unit_at_location((x, y))
-            
-                
+            # if event.type == pg.MOUSEBUTTONUP:
+            #     mouse = pg.mouse.get_pos()
+            #     x = max(math.floor((mouse[0]) / g_vars["Game"]["TileSize"]), 0)
+            #     y = max(math.floor((mouse[1]) / g_vars["Game"]["TileSize"]), 0)
+            #     print(str(x) + ", " + str(y))
+            #     if self.ai_player:
+            #         self.ai_player.print_unit_at_location((x, y))
+            if self.menu:
+                self.menu.react(event)

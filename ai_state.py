@@ -8,8 +8,8 @@ class AIGlobalState(entity_state.State):
         pass
 
     def execute(self, player):
-        if player.time_since_lask_task_update >= 15:
-            player.update_task_list()
+        if player.time_since_lask_task_update >= 1000:
+            #player.update_task_list()
             player.time_since_lask_task_update = 0
         player.time_since_lask_task_update += time.delta_time
 
@@ -17,21 +17,22 @@ class AIGlobalState(entity_state.State):
         pass
 
     def on_message(self, player, message):
-        if message.msg == dispatcher.MSG.NewWorkerUnit:
-            player.worker_units.append(message.sender)
-            return True
+        #player.entity_list.append(message.sender)
+        # if message.msg == dispatcher.MSG.NewWorkerUnit:
+        #     player.worker_units.append(message.sender)
+        #     return True
         
-        if message.msg == dispatcher.MSG.NewExplorerUnit:
-            player.explorer_units.append(message.sender)
-            return True
+        # if message.msg == dispatcher.MSG.NewExplorerUnit:
+        #     player.explorer_units.append(message.sender)
+        #     return True
 
-        if message.msg == dispatcher.MSG.NewArtisanUnit:
-            player.artisan_units.append(message.sender)
-            return True
+        # if message.msg == dispatcher.MSG.NewArtisanUnit:
+        #     player.artisan_units.append(message.sender)
+        #     return True
 
-        if message.msg == dispatcher.MSG.NewSoldierUnit:
-            player.soldier_units.append(message.sender)
-            return True
+        # if message.msg == dispatcher.MSG.NewSoldierUnit:
+        #     player.soldier_units.append(message.sender)
+        #     return True
 
         return False
 
@@ -57,7 +58,7 @@ class AIStateGather(entity_state.State):
         if self.time_since_last_update >= self.update_interval:
             # count current workers that is currently gathering
             count = 0
-            for worker in player.worker_units:
+            for worker in player.entities_where(lambda e: isinstance(e, entities.UnitWorker)):
                 if worker.fsm.is_in_state(entity_state.StateGather):
                     count += 1
             # try to have x workers in gathering state at the same time (currently 10)
@@ -66,7 +67,7 @@ class AIStateGather(entity_state.State):
                 worker.fsm.change_state(entity_state.StateGather())
             # if count is less want wanted -> queue work
             if count < 10:
-                player.prepend_goal(["Unit", "Worker", 10 - count])
+                player.prepend_goal(["Unit", "Worker", 10])
             # reset timer   
             self.time_since_last_update = 0
 
@@ -87,14 +88,14 @@ class AIStateExplore(entity_state.State):
         if self.time_since_last_update >= self.update_interval:
             # count current explorers
             count = 0
-            for explorer in player.explorer_units:
+            for explorer in player.entities_where(lambda e: isinstance(e, entities.UnitExplorer)):
                 # if explorer is not currently exploring -> change its state
-                if not explorer.fsm.is_in_state(entity_state.StateExplore):
+                if explorer.is_idle:
                     explorer.fsm.change_state(entity_state.StateExplore())
                 count += 1
             # try to have x amount of explorers units (currently 5)
             if count < 5:
-                player.prepend_goal(["Unit", "Explorer", 5 - count])
+                player.prepend_goal(["Unit", "Explorer", 5])
             # reset timer   
             self.time_since_last_update = 0
 

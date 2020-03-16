@@ -13,7 +13,8 @@ class GameMap:
     def __init__(self):
         self.sprite_group_background = pg.sprite.Group()
         self.sprite_group_fog = pg.sprite.Group()
-        self.sprite_group_entities = pg.sprite.Group()
+        self.sprite_group_units = pg.sprite.Group()
+        self.sprite_group_structures = pg.sprite.Group()
         self.sprite_group_resources = pg.sprite.Group()
         self.tile_data = {}
         self.fog_data = {}
@@ -67,7 +68,7 @@ class GameMap:
                     
                     self.tile_data[(x, y)] = new_tile
 
-        for i in range(0, 60):
+        for i in range(0, 360):
             tile = self.get_random_background_tile()
             while not tile.passable:
                 tile = self.get_random_background_tile()
@@ -82,7 +83,8 @@ class GameMap:
     def update(self):
         self.sprite_group_background.update()
         self.sprite_group_resources.update()
-        self.sprite_group_entities.update()
+        self.sprite_group_structures.update()
+        self.sprite_group_units.update()
         self.sprite_group_fog.update()
 
     def draw(self, screen):
@@ -105,6 +107,14 @@ class GameMap:
                 if tile.has_resources_remaining():
                     for resource in tile.resource_list:
                         screen.blit(resource.image, self.camera.apply(resource))
+
+        for sprite in self.sprite_group_structures:
+            if sprite.is_visible:
+                screen.blit(sprite.image, self.camera.apply(sprite))
+
+        for sprite in self.sprite_group_units:
+            if sprite.is_visible:
+                screen.blit(sprite.image, self.camera.apply(sprite))
 
     def get_background_tile(self, cords):
         return self.tile_data[cords]

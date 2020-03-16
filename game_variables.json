@@ -5,7 +5,7 @@
 	"Title": "Barf Fortress",
 	"ScreenWidth": 1080,
 	"ScreenHeight": 720,
-	"FPS": 24,
+	"FPS": 60,
 	"TileSize": 14,
 	"UnitSize": 6,
 	"StructureSize": 10,

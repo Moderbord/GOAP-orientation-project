@@ -5,5 +5,6 @@ game.set_map("default_map.txt")
 game.enable_fog()
 #game.enable_explorer()
 game.enable_ai()
+game.init_thorpy()
 game.run()
 

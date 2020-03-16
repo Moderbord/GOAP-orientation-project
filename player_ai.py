@@ -17,20 +17,13 @@ class AI:
         self.fsm.globalState = ai_state.AIGlobalState()
         self.fsm.currentState = ai_state.AIStateIdle()
         self.dispatcher = dispatch.MessageDispatcher()
-        self.unit_list = []
-        self.structure_list = []
-        self.resource_list = []
+        self.entity_list = []
         self.resource_map = {}
         self.current_goal = []
         self.current_task = None
         self.target_resource = None
         self.task_list = algorithms.Queue()
         self.time_since_lask_task_update = 0
-
-        self.worker_units = []
-        self.explorer_units = []
-        self.artisan_units = []
-        self.soldier_units = []
 
     def update(self):
         self.fsm.update()
@@ -39,16 +32,6 @@ class AI:
             self.current_task = self.task_list.get()
 
         self.check_current_task() # TODO move elsewhere
-
-    # draw units
-    def draw(self, screen):
-        for structure in self.structure_list:
-            if structure.is_visible:
-                screen.blit(structure.image, self.gamemap.camera.apply(structure))
-
-        for unit in self.unit_list:
-            if unit.is_visible:
-                screen.blit(unit.image, self.gamemap.camera.apply(unit))
 
     # Method that checks if progress can be made on current task
     def check_current_task(self):
@@ -62,7 +45,7 @@ class AI:
             
         if target_group == "Exploration":
             # has not found resource
-            if not self.has_found_resource(target_class):
+            if not self.has_found_resource(target_class, target_amount):
                 # explore
                 if not self.fsm.is_in_state(ai_state.AIStateExplore):
                     self.fsm.change_state(ai_state.AIStateExplore())
@@ -80,40 +63,15 @@ class AI:
                     self.target_resource = (target_group, target_type, target_class)
             return
 
-        # Resource group
-        if target_group == "Resource":
-            if self.has_resource(target_type, target_amount):
-                self.complete_current_task()
-            elif self.can_create_entity(target_group, target_type):
-                new_resource = target_class(self)
-                new_resource.begin_production()
-                self.deduct_resource_cost(g_vars[target_group][target_type]["Production"])
-            else:
-                self.prepend_goal(self.current_task)
-                
-            return
-        
-        # Structure group
-        if target_group == "Structure":
-            if self.has_structure(target_class):
-                self.complete_current_task()
-            elif self.can_create_entity(target_group, target_type):
-                new_structure = target_class(self)
-                new_structure.begin_production()
-                self.add_structure(new_structure)
-                self.deduct_resource_cost(g_vars[target_group][target_type]["Production"])
-            else:
-                self.prepend_goal(self.current_task)
-            return
 
-        # Unit group
-        if target_group == "Unit":
-            if self.has_unit(target_class, target_amount):
+        else:
+            if self.has_num_entities(target_class, target_amount):
                 self.complete_current_task()
             elif self.can_create_entity(target_group, target_type):
-                new_unit = target_class(self)
-                new_unit.begin_production()
-                self.add_unit(new_unit)
+                new_entity = target_class(self)
+                new_entity.begin_production()
+                self.add_entity(new_entity)
+                print("Created 1 " + str(target_class))
                 self.deduct_resource_cost(g_vars[target_group][target_type]["Production"])
             else:
                 self.prepend_goal(self.current_task)
@@ -160,7 +118,7 @@ class AI:
         # get tasks
         task_list = self.get_tasks_from_goal(goal)
         # current task isn't in queue and need to be appended
-        task_list.put(self.current_task)
+        # task_list.put(self.current_task)
         # append current queue to new queue
         while not self.task_list.empty():
             task_list.put(self.task_list.get())
@@ -190,12 +148,16 @@ class AI:
             target_group = product[0]           # Unit, Structure
             target_type = product[1]            # Worker, Explorer, Smithy, etc.
             target_amount = product[2]          # How many is needed/ordered
+            # chain multiplikation
             if not target_group == "Structure":
-                target_amount *= amount         # chain multiplikation
+                target_amount *= amount         
+            # get sub-requirements
             self.get_requirements(g_vars[target_group][target_type], target_amount, task_list)
             task_list.put([target_group, target_type, target_amount])
 
         return task_list
+
+#--------------------------Entities--------------------------#
 
     def can_create_entity(self, target_group, target_type):
         production_list = g_vars[target_group][target_type]["Production"]
@@ -218,24 +180,41 @@ class AI:
 
         return True
 
-    # def has_entities(self, function):
-    #     return filter()
+    def entities_where(self, function):
+        return [e for e in self.entity_list if function(e)]
+
+    def entities_count_where(self, function, count=1):
+        entity_list = [e for e in self.entity_list if function(e)]
+        return entity_list[:count]
+
+    def add_entity(self, unit):
+        self.entity_list.append(unit)
+
+    def remove_entity(self, target):
+        self.entity_list.remove(target)
+        target.delete()
+        return      
+
+    def has_num_entities(self, target, count=1):
+        for entity in self.entity_list:
+            if isinstance(entity, target):
+                count -= 1
+            if count <= 0:
+                return True
+        return False
 
 #--------------------------UNITS--------------------------#
 
-    def add_unit(self, unit):
-        self.unit_list.append(unit)
-
     def has_unit(self, target, count=1):
-        for unit in self.unit_list:
-            if isinstance(unit, target):
+        for unit in self.entity_list:
+            if isinstance(unit, target) and unit.is_visible:
                 count -= 1
             if count <= 0:
                 return True
         return False
         
     def has_available_unit(self, target, count=1):
-        for unit in self.unit_list:
+        for unit in self.entity_list:
             if isinstance(unit, target) and unit.is_idle:
                 count -= 1
             if count <= 0:
@@ -243,75 +222,46 @@ class AI:
         return False
 
     def get_available_unit(self, target):
-        for unit in self.unit_list:
+        for unit in self.entity_list:
             if isinstance(unit, target) and unit.is_idle:
                 return unit
 
     def get_available_units(self, target, count=1):
         unit_list = []
-        for unit in self.unit_list:
+        for unit in self.entity_list:
             if isinstance(unit, target) and unit.is_idle:
                 unit_list.append(unit)
                 count -= 1
             if count <= 0:
                 return unit_list
-        return unit_list
-
-    def remove_unit(self, target):
-        # complete unity list
-        self.unit_list.remove(target)
-        # specific list
-        if isinstance(target, entities.UnitWorker):
-            self.worker_units.remove(target)
-        elif isinstance(target, entities.UnitExplorer):
-            self.explorer_units.remove(target)
-        elif isinstance(target, entities.UnitArtisan):
-            self.artisan_units.remove(target)
-        elif isinstance(target, entities.UnitSoldier):
-            self.soldier_units.remove(target)
-        # sprite
-        target.delete()
-        return      
+        return unit_list 
 
     def print_unit_at_location(self, location):
-        for structure in self.structure_list:
-            if structure.location == location:
-                print("\n\n")
-                print(structure.__dict__)
-                print(structure.fsm.currentState.__dict__)
+        pass
+        # for structure in self.entity_list:
+        #     if structure.location == location:
+        #         print("\n\n")
+        #         print(structure.__dict__)
+        #         print(structure.fsm.currentState.__dict__)
 
-        for unit in self.unit_list:
-            if unit.location == location:
-                print("\n\n")
-                print(unit.__dict__)
-                print(unit.fsm.currentState.__dict__)
+        # for unit in self.entity_list:
+        #     if unit.location == location:
+        #         print("\n\n")
+        #         print(unit.__dict__)
+        #         print(unit.fsm.currentState.__dict__)
 
 #--------------------------STRUCTURES--------------------------#
 
-    def add_structure(self, structure):
-        self.structure_list.append(structure)
-
-    def has_structure(self, target):
-        for structure in self.structure_list:
-            if isinstance(structure, target):
-                return True
-        return False
-
     def has_available_structure(self, target):
-        for structure in self.structure_list:
+        for structure in self.entity_list:
             if isinstance(structure, target) and structure.is_idle:
                 return True
         return False
 
     def get_available_structure(self, target):
-        for structure in self.structure_list:
+        for structure in self.entity_list:
             if isinstance(structure, target) and structure.is_idle:
-                return structure
-
-    def remove_structure(self, target):
-        self.structure_list.remove(target)
-        target.delete()
-        return         
+                return structure   
 
     def get_buildable_tile(self):
         radius = 4
@@ -328,23 +278,25 @@ class AI:
 #--------------------------RESOURCES--------------------------#
 
     def add_resource(self, resource):
-        for x in range(0, resource[2]): # amount
-            new_resource = entities.to_class(resource[1])
-            self.resource_list.append(new_resource(self))
+        for x in range(0, resource[0][2]): # amount
+            new_resource = entities.to_class(resource[0][1])
+            self.entity_list.append(new_resource(self))
 
     def has_resource(self, target, count=1):
         target_class = entities.to_class(target)
-        for resource in self.resource_list:
+        for resource in self.entity_list:
             if isinstance(resource, target_class):
                 count -= 1
             if count <= 0:
                 return True
         return False
 
-    def has_found_resource(self, target):
+    def has_found_resource(self, target, count=1):
         for resource_tile in self.resource_map.values():
             for resource in resource_tile.resource_list:
                 if isinstance(resource, target):
+                    count -= 1
+                if count <= 0:
                     return True
         return False
 
@@ -370,9 +322,10 @@ class AI:
             # only resources should be deducted
             if not target_group == "Resource":
                 continue
+            num = 0
             # find correct resource and deduct
-            while target_amount > 0:
-                for resource in reversed(self.resource_list):
-                    if isinstance(resource, target_class):
-                        self.resource_list.remove(resource)
-                        target_amount -= 1
+            for resource in self.entities_count_where(lambda res: isinstance(res, target_class), target_amount):
+                self.entity_list.remove(resource)
+                num += 1
+            print("Removed " + str(num) + " of " + str(target_class))
+        print("\n")

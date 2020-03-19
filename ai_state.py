@@ -8,7 +8,7 @@ class AIGlobalState(entity_state.State):
         pass
 
     def execute(self, player):
-        if player.time_since_lask_task_update >= 2000:
+        if player.time_since_lask_task_update >= 100:
             player.update_task_list()
             player.time_since_lask_task_update = 0
         player.time_since_lask_task_update += time.delta_time
@@ -40,12 +40,9 @@ class AIStateGather(entity_state.State):
     def execute(self, player):
         if self.time_since_last_update >= self.update_interval:
             # count current workers that is currently gathering
-            count = 0
-            for worker in player.entities_where(lambda e: isinstance(e, entities.UnitWorker)):
-                if worker.fsm.is_in_state(entity_state.StateGather):
-                    count += 1
+            count = len(player.entities_where(lambda e: isinstance(e, entities.UnitWorker) and e.fsm.is_in_state(entity_state.StateGather)))
             # try to have x workers in gathering state at the same time (currently 10)
-            new_workers = player.get_available_units(entities.UnitWorker, 20 - count)
+            new_workers = player.entities_count_where(lambda e: isinstance(e, entities.UnitWorker) and e.is_idle, 20 - count)
             for worker in new_workers:
                 worker.fsm.change_state(entity_state.StateGather())
             # if count is less want wanted -> queue work

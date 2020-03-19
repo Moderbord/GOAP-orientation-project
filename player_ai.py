@@ -152,14 +152,20 @@ class AI:
             target_group = product[0]           # Unit, Structure
             target_type = product[1]            # Worker, Explorer, Smithy, etc.
             target_amount = product[2]          # How many is needed/ordered
+            target_class = entities.to_class(target_type)    # Class instance
+
             # already completed -> skip
-            if self.has_num_entities(entities.to_class(target_type), target_amount):
+            if self.has_num_entities(target_class, target_amount):
                 continue
+            # deduct already owned resources (if any)
+            else:
+                amount -= len(self.entities_where(lambda e: isinstance(e, target_class)))
             # chain multiplikation
             if not target_group == "Structure":
-                target_amount *= amount         
+                target_amount *= amount
             # get sub-requirements
             self.get_requirements(g_vars[target_group][target_type], target_amount, task_list)
+            # append parent task last
             task_list.put([target_group, target_type, target_amount])
 
         return task_list
@@ -171,18 +177,9 @@ class AI:
         for target in production_list:
             target_class = entities.to_class(target[1])  # type of entity
             target_amount = target[2]                    # resource needed
-            if target[0] == "Resource":
-                if not self.has_resource(target[1], target_amount):
+            if target[0] == "Exploration":
                     return False
-            elif target[0] == "Structure":
-                if not self.has_available_structure(target_class):
-                    # structure should not be occupied
-                    return False
-            elif target[0] == "Unit":
-                if not self.has_available_unit(target_class, target_amount):
-                    # unit should not be locked or similiar
-                    return False
-            elif target[0] == "Exploration":
+            elif not len(self.entities_where(lambda e: isinstance(e, target_class) and e.is_idle)) >= target_amount:
                 return False
 
         return True
@@ -196,12 +193,10 @@ class AI:
 
     def add_entity(self, entity):
         self.entity_list.append(entity)
-        print("\nAdded entity: " + str(entity))
 
     def remove_entity(self, target):
         self.entity_list.remove(target)
         target.delete()
-        print("Removed entity: " + str(target))      
 
     def has_num_entities(self, target, count=1):
         # check own entities
@@ -215,52 +210,6 @@ class AI:
         if count <= 0:
             return True
         return False
-
-#--------------------------UNITS--------------------------#
-
-    def has_unit(self, target, count=1):
-        for unit in self.entity_list:
-            if isinstance(unit, target) and unit.is_visible:
-                count -= 1
-            if count <= 0:
-                return True
-        return False
-        
-    def has_available_unit(self, target, count=1):
-        for unit in self.entity_list:
-            if isinstance(unit, target) and unit.is_idle:
-                count -= 1
-            if count <= 0:
-                return True
-        return False
-
-    def get_available_unit(self, target):
-        for unit in self.entity_list:
-            if isinstance(unit, target) and unit.is_idle:
-                return unit
-
-    def get_available_units(self, target, count=1):
-        unit_list = []
-        for unit in self.entity_list:
-            if isinstance(unit, target) and unit.is_idle:
-                unit_list.append(unit)
-                count -= 1
-            if count <= 0:
-                return unit_list
-        return unit_list 
-
-#--------------------------STRUCTURES--------------------------#
-
-    def has_available_structure(self, target):
-        for structure in self.entity_list:
-            if isinstance(structure, target) and structure.is_idle:
-                return True
-        return False
-
-    def get_available_structure(self, target):
-        for structure in self.entity_list:
-            if isinstance(structure, target) and structure.is_idle:
-                return structure   
 
     def get_buildable_tile(self):
         radius = 4
@@ -279,7 +228,9 @@ class AI:
     def add_resource(self, resource):
         for x in range(0, resource[0][2]): # amount
             new_resource = entities.to_class(resource[0][1])
-            self.add_entity(new_resource(self))
+            new_resource = new_resource(self)
+            new_resource.is_idle = True
+            self.add_entity(new_resource)
 
     def has_resource(self, target, count=1):
         target_class = entities.to_class(target)

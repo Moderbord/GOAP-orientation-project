@@ -13,7 +13,6 @@ from game_settings import g_vars
 class BasicGameEntity(sprite.Sprite):
 
     def __init__(self, owner):
-        #self.groups = owner.gamemap.sprite_group_entities
         sprite.Sprite.__init__(self, self.groups)
         self.owner = owner
         self.fsm = fsm.StateMachine(self)
@@ -121,11 +120,9 @@ class UnitWorker(BasicGameUnit):
     def begin_production(self):
         super().begin_production()
         # get structure
-        self.origin_structure = self.owner.get_available_structure(StructureCamp)
-        #print("Got free Camp")
+        self.origin_structure = self.owner.entities_where(lambda e: isinstance(e, StructureCamp) and e.is_idle)[0]
         # occupy structure
         self.origin_structure.fsm.change_state(states.StateLocked())
-        #print("Locked Camp")
         # change to production state
         self.fsm.change_state(states.StateProduced())
 
@@ -151,7 +148,7 @@ class UnitExplorer(BasicGameUnit):
     def begin_production(self):
         super().begin_production()
         # find free worker
-        self.worker_unit = self.owner.get_available_unit(UnitWorker)
+        self.worker_unit = self.owner.entities_where(lambda e: isinstance(e, UnitWorker) and e.is_idle)[0]
         # pause worker for production time
         self.worker_unit.fsm.change_state(states.StateLocked())
         # change to production state
@@ -208,7 +205,7 @@ class UnitArtisan(BasicGameUnit):
     def begin_production(self):
         super().begin_production()
         # find free worker
-        self.worker_unit = self.owner.get_available_unit(UnitWorker)
+        self.worker_unit = self.owner.entities_where(lambda e: isinstance(e, UnitWorker) and e.is_idle)[0]
         # pause worker for production time
         self.worker_unit.fsm.change_state(states.StateLocked())
         # change to production state
@@ -235,7 +232,7 @@ class UnitSoldier(BasicGameUnit):
     def begin_production(self):
         super().begin_production()
         # find free worker
-        self.worker_unit = self.owner.get_available_unit(UnitWorker)
+        self.worker_unit = self.owner.entities_where(lambda e: isinstance(e, UnitWorker) and e.is_idle)[0]
         # pause worker for production time
         self.worker_unit.fsm.change_state(states.StateLocked()) # change to become soldier
         # change to production state
@@ -383,6 +380,7 @@ class BasicResource(BasicMapResource):
         super().__init__(owner.gamemap, owner.start_position)
         self.fsm = fsm.StateMachine(self)
         self.fsm.currentState = states.State()
+        self.is_idle = False    # can be used when structures need to occupy resource
         self.is_visible = False
         self.origin_structure = None
         self.gathered_type = None
@@ -395,6 +393,7 @@ class BasicResource(BasicMapResource):
 
     def production_spawn(self):
         self.owner.production_list.remove(self)
+        self.is_idle = True
         self.is_visible = True
         # change state
         self.fsm.change_state(states.StateIdle())
@@ -417,7 +416,7 @@ class Coal(BasicResource):
     def begin_production(self):
         super().begin_production()
         # get structure
-        self.origin_structure = self.owner.get_available_structure(StructureRefinery)
+        self.origin_structure = self.owner.entities_where(lambda e: isinstance(e, StructureRefinery) and e.is_idle)[0]
         # occupy structure
         self.origin_structure.fsm.change_state(states.StateLocked())
         # change to production state
@@ -435,7 +434,7 @@ class IronBar(BasicResource):
     def begin_production(self):
         super().begin_production()
         # get structure
-        self.origin_structure = self.owner.get_available_structure(StructureSmelter)
+        self.origin_structure = self.owner.entities_where(lambda e: isinstance(e, StructureSmelter) and e.is_idle)[0]
         # occupy structure
         self.origin_structure.fsm.change_state(states.StateLocked())
         # change to production state
@@ -453,7 +452,7 @@ class Sword(BasicResource):
     def begin_production(self):
         super().begin_production()
         # get structure
-        self.origin_structure = self.owner.get_available_structure(StructureSmithy)
+        self.origin_structure = self.owner.entities_where(lambda e: isinstance(e, StructureSmithy) and e.is_idle)[0]
         # occupy structure
         self.origin_structure.fsm.change_state(states.StateLocked())
         # change to production state

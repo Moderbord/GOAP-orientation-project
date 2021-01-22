@@ -246,6 +246,30 @@ class StateExplore(State):
 
         return False
 
+class StateMove(State):
+
+    def enter(self, entity):
+        self.stage = Stage.Done
+        self.finding_path = False
+
+    def execute(self, entity):
+        if self.stage is Stage.Done and not self.finding_path:
+            self.finding_path = True
+            loc = entity.location
+            goal = (3, 10)
+            find_path(entity, loc, goal, get_path_callback, False)
+
+    def exit(self, entity):
+        pass
+
+    def on_message(self, entity, message):
+        if message.msg == dispatcher.MSG.ArrivedAtGoal:
+            self.stage = Stage.Done
+            entity.fsm.change_state(StateIdle())
+            return True
+
+        return False
+
 # Method will create a separate thread and calculate a path between two points
 def find_path(entity, location, goal, __callback, fog=True):
         fog_filter_funtion = None

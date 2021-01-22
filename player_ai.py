@@ -179,7 +179,7 @@ class AI:
             target_amount = target[2]                    # resource needed
             if target[0] == "Exploration":
                     return False
-            elif not len(self.entities_where(lambda e: isinstance(e, target_class) and e.is_idle)) >= target_amount:
+            elif not len(self.entities_where(lambda e: isinstance(e, target_class) and e.is_idle)) >= 1:
                 return False
 
         return True

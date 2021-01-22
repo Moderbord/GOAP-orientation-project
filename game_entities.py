@@ -248,6 +248,8 @@ class UnitSoldier(BasicGameUnit):
         # notify owner
         message = dispatcher.Message(self, dispatcher.MSG.NewSoldierUnit)
         self.owner.fsm.handle_message(message)
+        # move to spec. loc
+        self.fsm.change_state(states.StateMove())
 
 #----------------------------STRUCTURES--------------------------------------#
 class BasicGameStructure(BasicGameEntity):

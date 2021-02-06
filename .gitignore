@@ -1,2 +1,6 @@
 # Cache and log
 /__pycache__
+/GOAP/__pycache__
+/GOAP/Actions/__pycache__
+/GOAP/Agents/__pycache__
+/GOAP/FSM/__pycache__

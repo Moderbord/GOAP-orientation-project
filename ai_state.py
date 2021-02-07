@@ -11,7 +11,7 @@ class AIGlobalState(entity_state.State):
         if player.time_since_lask_task_update >= 100:
             player.update_task_list()
             player.time_since_lask_task_update = 0
-        player.time_since_lask_task_update += time.delta_time
+        player.time_since_lask_task_update += time.clock.delta
 
     def exit(self, player):
         pass
@@ -51,7 +51,7 @@ class AIStateGather(entity_state.State):
             # reset timer   
             self.time_since_last_update = 0
 
-        self.time_since_last_update += time.delta_time
+        self.time_since_last_update += time.clock.delta
 
     def exit(self, player):
         pass
@@ -79,7 +79,7 @@ class AIStateExplore(entity_state.State):
             # reset timer   
             self.time_since_last_update = 0
 
-        self.time_since_last_update += time.delta_time
+        self.time_since_last_update += time.clock.delta
 
     def exit(self, player):
         pass

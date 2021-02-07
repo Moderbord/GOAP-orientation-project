@@ -98,7 +98,7 @@ class BasicGameUnit(BasicGameEntity):
                 # get required movement threshold
                 threshold = self.current_tile.movement_straight if (dx * dy == 0) else self.current_tile.movement_diagonal
                 # take movement factor into account
-                self.move_progress += time.delta_time * self.move_factor
+                self.move_progress += time.clock.delta * self.move_factor
                 if self.move_progress >= threshold:
                     # reset progress
                     self.move_progress = 0

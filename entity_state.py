@@ -65,7 +65,7 @@ class StateWaitForArtisan(State):
 
             # reset timer   
             self.time_since_last_update = 0
-        self.time_since_last_update += time.delta_time
+        self.time_since_last_update += time.clock.delta
 
     def exit(self, entity):
         pass
@@ -120,7 +120,7 @@ class StateProduced(State):
         self.accumulated_production = 0
 
     def execute(self, entity):
-        self.accumulated_production += time.delta_time
+        self.accumulated_production += time.clock.delta
         if self.accumulated_production >= entity.production_time:
             entity.production_spawn()
 
@@ -177,7 +177,7 @@ class StateGather(State):
             elif self.gather_progress >= g_vars[self.target_resource[0]][self.target_resource[1]]["GatherTime"]:
                 self.gather_completion = True
             # tick progress
-            self.gather_progress += time.delta_time
+            self.gather_progress += time.clock.delta
 
         elif self.stage is Stage.Delivering:
             pass

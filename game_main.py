@@ -103,7 +103,7 @@ class Game:
     def run(self):
         self.running = True
         while (self.running):
-            time.delta_time = time.clock.tick(g_vars["Game"]["FPS"]) / self.speed
+            time.clock.update(g_vars["Game"]["FPS"], self.speed)
             self.events()
             self.update()
             self.draw()

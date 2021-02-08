@@ -1,22 +1,25 @@
-import GOAP.action_set as action_set
+from GOAP.action_set import ActionSet
 
 class GOAPAction:
 
     def __init__(self):
-        self.preconditions = action_set.ActionSet()
-        self.effects = action_set.ActionSet()
+        self.preconditions = ActionSet()
+        self.effects = ActionSet()
 
         self.target = None
-        self.minimun_range = 0
         self.in_range = False
+        self.minimun_range = 0
         self.cost = 1.0
 
     def reset(self):
-        self.in_range = False
         self.target = None
+        self.in_range = False
 
     def requires_in_range(self):
         pass
+
+    def get_cost(self):
+        return self.cost
 
     def completed(self):
         pass

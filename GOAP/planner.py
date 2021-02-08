@@ -1,12 +1,13 @@
 import queue
-import GOAP.action_set as action_set
+
+from GOAP.action_set import ActionSet
 
 class GOAPNode:
 
     def __init__(self, parent, cost, state, action):
         self.parent = parent
         self.cost = cost
-        self.state = action_set.ActionSet()
+        self.state = state
         self.action = action
 
     def __iter__(self):
@@ -33,7 +34,8 @@ class GOAPPlanner:
         success = self.build_graph(start, leaves, available_actions, goal)
 
         if not success:
-            print("No plan!")
+            # print("Failed to evaluate plan")
+            self.usable_actions.clear()
             return None
 
         #cheapest_node = min(leaves)
@@ -47,7 +49,7 @@ class GOAPPlanner:
         result = queue.deque()
         while cheapest_node:
             if cheapest_node.action:
-                result.append(cheapest_node.action)
+                result.appendleft(cheapest_node.action)
                 cheapest_node = cheapest_node.parent
             else:
                 cheapest_node = None
@@ -62,9 +64,9 @@ class GOAPPlanner:
             if self.solves_conditions(action.preconditions, parent.state):
 
                 current_state = self.populate_state(parent.state, action.effects)
-                node = GOAPNode(parent, parent.cost + action.cost, current_state, action)
+                node = GOAPNode(parent, parent.cost + action.get_cost(), current_state, action)
 
-                if self.solves_conditions(goal, current_state):
+                if self.solves_state(goal, current_state):
                     leaves.append(node)
                     solution = True
                 else:
@@ -87,13 +89,31 @@ class GOAPPlanner:
         match = True
 
         for k, v in preconditions.items():
-            if not state_conditions.get(k) == v:
+            if not state_conditions.get(k) == v: # values must exist and solve condition
                 match = False
 
         return match
 
+    def solves_state(self, goal, current_state):
+
+        match = False
+
+        for state_key, state_value in current_state.items():
+            goal_value = goal.get(state_key, None)
+
+            if goal_value is None: # value doesn't exist in goal -> doesn't effect goal state
+                continue
+
+            if state_value != goal_value: # value exist and differs from goal state -> stop
+                match = False
+                break
+            else:
+                match = True # at least one match must be same as in goal state
+
+        return match
+
     def populate_state(self, parent_state, action_effects):
-        new_state = action_set.ActionSet()
+        new_state = ActionSet()
         new_state.update(parent_state)
         new_state.update(action_effects)
 

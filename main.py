@@ -9,19 +9,29 @@
 # game.run()
 
 import game_time as time
-import GOAP.agent as agent
-import GOAP.Agents.dragon_keeper as dragon_keeper
 
-#agent = agent.GOAPAgent()
-dk = dragon_keeper.DragonKeeper()
-dk.start()
+from GOAP.Agents.dragon_keeper import DragonKeeper
+from GOAP.Agents.dragon import Dragon
+from GOAP.Agents.miner import Miner
 
+dragon = Dragon()
+
+agents = []
+agents.append(DragonKeeper(dragon))
+agents.append(dragon)
+#agents.append(Miner())
+
+for agent in agents:
+    agent.start()
 
 while True:
 
-    time.clock.update(3)
+    time.clock.update(60)
 
-    dk.update()
+    for agent in agents:
+        agent.update()
+    
+    
 
 
 

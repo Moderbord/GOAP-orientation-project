@@ -1,15 +1,35 @@
-import GOAP.Actions.mine_ore as mine_ore
-import GOAP.Agents.labourer as labourer
-import GOAP.action_set as action_set
+from GOAP.Agents.labourer import Labourer
+from GOAP.action_set import ActionSet
 
-class DragonKeeper(labourer.Labourer):
+# Actions
+from GOAP.Actions.fish_for_dragon import FishForDragon
+from GOAP.Actions.hunt_for_dragon import HuntForDragon
+from GOAP.Actions.feed_dragon import FeedDragon
 
-    def __init__(self):
+class DragonKeeper(Labourer):
+
+    def __init__(self, dragon):
         super().__init__()
-        self.add_action(mine_ore.MineOre())
+
+        # local variables
+        self.dragon = dragon
+
+        # actions
+        self.add_action(FishForDragon())
+        self.add_action(HuntForDragon())
+        self.add_action(FeedDragon())
+
+    def get_world_state(self):
+        # Returns an evaluated set of the world state
+        world_data = {}
+        #
+        world_data["dragonIsHungry"] = self.dragon.get_world_state()["isHungry"]
+        world_data["hasMeat"] = self.backpack.count("Meat") > 0
+        #
+        return world_data
 
     def create_goal_state(self):
-        goal_state = action_set.ActionSet()
+        goal_state = ActionSet()
+        goal_state.add("satisfyDragon", True)
 
-        goal_state.add("collectOre", True)
         return goal_state

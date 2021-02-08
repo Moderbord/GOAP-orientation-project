@@ -1,13 +1,16 @@
 import queue
 
-import GOAP.FSM.fsm as fsm
-import GOAP.planner as planner
-import GOAP.transform as transform
+import game_time as time
+
+from GOAP.FSM.fsm import FSM
+from GOAP.planner import GOAPPlanner
+from GOAP.transform import Position
+from GOAP.transform import distance
 
 class GOAPAgent:
 
     def __init__(self):
-        self.state_machine = fsm.FSM()
+        self.state_machine = FSM()
 
         self.__state_idle = None
         self.__state_move = None
@@ -17,9 +20,12 @@ class GOAPAgent:
         self.current_actions = queue.deque()
 
         self.data_provider = None
-        self.planner = planner.GOAPPlanner()
+        self.planner = GOAPPlanner()
 
-        self.position = transform.Position()
+        self.position = Position()
+        self.move_speed = 1
+        self.move_progress = 0.0
+        self.move_threshold = 1.0
 
     def start(self):
         self.__state_idle = self.idle_state
@@ -68,15 +74,10 @@ class GOAPAgent:
             self.state_machine.set_state(self.perform_state)
 
     def perform_state(self):
-        
-        if not self.has_action_plan():
-            print("Done actions!")
-            self.state_machine.set_state(self.idle_state)
-            self.data_provider.actions_finished()
 
         action = self.current_actions[0]
         if action.completed():
-            self.current_actions.popleft() #pop
+            self.current_actions.popleft()
         
         if self.has_action_plan():
             action = self.current_actions[0]
@@ -93,5 +94,25 @@ class GOAPAgent:
                 self.state_machine.set_state(self.move_state)        
         
         else:
+            print(type(self).__name__ + " done actions!")
             self.state_machine.set_state(self.idle_state)
-            self.data_provider.actions_finished()
+            #self.data_provider.actions_finished()
+
+    def move_agent(self, next_action):
+        if distance(self.position, next_action.target) <= next_action.minimun_range:
+            next_action.set_in_range(True)
+            return True
+        
+        if self.move_progress >= self.move_threshold:
+            self.move_progress = 0
+            # Move towards next action location
+            if not self.position.x == next_action.target.x:
+                self.position.x += self.move_speed if self.position.x < next_action.target.x else -self.move_speed
+
+            if not self.position.y == next_action.target.y:
+                self.position.y += self.move_speed if self.position.y < next_action.target.y else -self.move_speed
+
+            print(type(self).__name__ + " moving to [" + str(self.position.x) + ", " + str(self.position.y) + "]...")
+            return False
+        
+        self.move_progress += time.clock.delta

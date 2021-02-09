@@ -14,7 +14,7 @@ class FishForDragon(GOAPAction):
         # local variables
         self.fished = False
         self.progress = 0
-        self.hunting_duration = 3
+        self.hunting_duration = 25
 
         # preconditions
         self.add_precondition("dragonIsHungry", True)

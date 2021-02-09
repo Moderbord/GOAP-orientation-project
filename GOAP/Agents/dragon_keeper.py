@@ -24,6 +24,7 @@ class DragonKeeper(Labourer):
         world_data = {}
         #
         world_data["dragonIsHungry"] = self.dragon.get_world_state()["isHungry"]
+        world_data["dragonIsHome"] = self.dragon.get_world_state()["isHome"]
         world_data["hasMeat"] = self.backpack.count("Meat") > 0
         #
         return world_data

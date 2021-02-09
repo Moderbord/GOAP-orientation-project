@@ -12,6 +12,7 @@ class FeedDragon(GOAPAction):
 
         # preconditions
         self.add_precondition("hasMeat", True)
+        self.add_precondition("dragonIsHome", True)
         
         # effects
         self.add_effect("satisfyDragon", True)
@@ -31,7 +32,7 @@ class FeedDragon(GOAPAction):
 
     def check_precondition(self, agent):
         # check for any required criterias for the action
-        self.target = agent.dragon.position
+        self.target = agent.dragon.home
         return True
 
     def perform(self, agent):

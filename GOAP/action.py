@@ -24,7 +24,7 @@ class GOAPAction:
     def completed(self):
         pass
 
-    def check_precondition(self, agent):
+    def check_precondition(self, agent): # more like setup/initialize
         pass
 
     def perform(self, agent):

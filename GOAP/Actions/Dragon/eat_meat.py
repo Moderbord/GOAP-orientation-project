@@ -8,6 +8,7 @@ class EatMeat(GOAPAction):
         self.has_eaten = False
 
         # preconditions
+        self.add_precondition("isHungry", True)
         self.add_precondition("hasMeat", True)
         
         # effects
@@ -32,8 +33,12 @@ class EatMeat(GOAPAction):
 
     def perform(self, agent):
         # perform the action
-        print("EATING.... *CHOMP*")
-        self.has_eaten = True
-        agent.hunger = 0
-        agent.backpack.remove("Meat")
-        return True
+        if agent.backpack.count("Meat") > 0:
+            print("EATING.... *CHOMP*")
+            self.has_eaten = True
+            agent.hunger = 0
+            agent.backpack.remove("Meat")
+            agent.waited_for_food = False
+            return True
+        
+        return False

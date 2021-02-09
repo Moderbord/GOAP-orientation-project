@@ -17,7 +17,7 @@ from GOAP.Agents.miner import Miner
 dragon = Dragon()
 
 agents = []
-agents.append(DragonKeeper(dragon))
+#agents.append(DragonKeeper(dragon))
 agents.append(dragon)
 #agents.append(Miner())
 
@@ -28,8 +28,11 @@ while True:
 
     time.clock.update(60)
 
+
     for agent in agents:
         agent.update()
+
+
     
     
 

@@ -18,14 +18,15 @@ class GOAPAgent:
 
         self.available_actions = set()
         self.current_actions = queue.deque()
-
+        
+        self.owner = None
         self.data_provider = None
         self.planner = GOAPPlanner()
 
-        self.position = Position()
-        self.move_speed = 1
-        self.move_progress = 0.0
-        self.move_threshold = 1.0
+        self.position = Position()  # put movement into other class?
+        self.move_speed = 1         #
+        self.move_progress = 0.0    #
+        self.move_threshold = 1.0   #
 
     def start(self):
         self.__state_idle = self.idle_state
@@ -49,7 +50,7 @@ class GOAPAgent:
         return len(self.current_actions) > 0
 
     def idle_state(self):
-        world_state = self.data_provider.get_world_state()
+        world_state = self.data_provider.create_world_state()
         goal = self.data_provider.create_goal_state()
 
         plan = self.planner.plan(self, self.available_actions, world_state, goal)
@@ -112,7 +113,7 @@ class GOAPAgent:
             if not self.position.y == next_action.target.y:
                 self.position.y += self.move_speed if self.position.y < next_action.target.y else -self.move_speed
 
-            print(type(self).__name__ + " moving to [" + str(self.position.x) + ", " + str(self.position.y) + "]...")
+            #print(type(self).__name__ + " moving to [" + str(self.position.x) + ", " + str(self.position.y) + "]...")
             return False
         
         self.move_progress += time.clock.delta

@@ -10,7 +10,7 @@ class __Base(GOAPAction):
         # self.minimun_range = 0
         # self.cost = 1.0
 
-        # loval variables
+        # local variables
 
         # preconditions
         

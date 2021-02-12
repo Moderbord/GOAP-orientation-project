@@ -10,16 +10,19 @@
 
 import game_time as time
 
-from GOAP.Agents.dragon_keeper import DragonKeeper
-from GOAP.Agents.dragon import Dragon
-from GOAP.Agents.miner import Miner
+#from GOAP.Agents.dragon_keeper import DragonKeeper
+#from GOAP.Agents.dragon import Dragon
+from GOAP.Agents.worker import Worker
+from GOAP.Agents.player import Player
 
-dragon = Dragon()
+#dragon = Dragon()
+player = Player()
+
 
 agents = []
 #agents.append(DragonKeeper(dragon))
-agents.append(dragon)
-#agents.append(Miner())
+#agents.append(dragon)
+agents.append(player)
 
 for agent in agents:
     agent.start()
@@ -27,7 +30,6 @@ for agent in agents:
 while True:
 
     time.clock.update(60)
-
 
     for agent in agents:
         agent.update()

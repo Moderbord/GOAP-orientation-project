@@ -36,8 +36,8 @@ class GOAPAction:
     def set_in_range(self, value):
         self.in_range = value
 
-    def add_precondition(self, key, value):
-        self.preconditions.add(key, value)
+    def add_precondition(self, key, value, amount=0):
+        self.preconditions.add(key, value, amount)
 
     def remove_precondition(self, key):
         for k in self.preconditions.keys():
@@ -45,8 +45,8 @@ class GOAPAction:
                 self.preconditions[key] = None
                 break
 
-    def add_effect(self, key, value):
-        self.effects.add(key, value)
+    def add_effect(self, key, value, amount=0):
+        self.effects.add(key, value, amount)
 
     def remove_effect(self, key):
         for k in self.effects.keys():

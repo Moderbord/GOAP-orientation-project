@@ -50,7 +50,7 @@ class Dragon(GOAPAgent, GOAPProvidable):
         self.social += 1.0 * time.clock.delta
         self.boredom += 3.0 * time.clock.delta
 
-    def get_world_state(self):
+    def create_world_state(self):
         # Returns an evaluated set of the world state
         world_data = {}
         #
@@ -71,21 +71,3 @@ class Dragon(GOAPAgent, GOAPProvidable):
         goal_state.add("staySatisfied", True)
 
         return goal_state
-
-    def plan_failed(self, failed_goal):
-        pass
-
-    def plan_found(self, goal, actions):
-        string = "Plan found: "
-        tmp = actions.copy()
-        while len(tmp) > 0:
-            a = tmp.popleft()
-            string += type(a).__name__
-            string += " -> "
-        print(string + str(goal))
-        
-    def actions_finished(self):
-        pass
-
-    def plan_aborted(self, aborted_action):
-        print("Aborted plan: " + type(aborted_action).__name__)

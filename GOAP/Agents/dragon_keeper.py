@@ -1,12 +1,13 @@
-from GOAP.Agents.labourer import Labourer
+from GOAP.agent import GOAPAgent
+from GOAP.providable import GOAPProvidable
 from GOAP.action_set import ActionSet
 
 # Actions
-from GOAP.Actions.fish_for_dragon import FishForDragon
-from GOAP.Actions.hunt_for_dragon import HuntForDragon
-from GOAP.Actions.feed_dragon import FeedDragon
+from GOAP.Actions.DragonKeeper.fish_for_dragon import FishForDragon
+from GOAP.Actions.DragonKeeper.hunt_for_dragon import HuntForDragon
+from GOAP.Actions.DragonKeeper.feed_dragon import FeedDragon
 
-class DragonKeeper(Labourer):
+class DragonKeeper(GOAPAgent, GOAPProvidable):
 
     def __init__(self, dragon):
         super().__init__()
@@ -19,7 +20,7 @@ class DragonKeeper(Labourer):
         self.add_action(HuntForDragon())
         self.add_action(FeedDragon())
 
-    def get_world_state(self):
+    def create_world_state(self):
         # Returns an evaluated set of the world state
         world_data = {}
         #

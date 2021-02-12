@@ -25,7 +25,7 @@ class GOAPProvidable:
         print(string + str(goal))
         
     def actions_finished(self):
-        print("Action finished!")
+        print(type(self).__name__ + " done actions!")
 
     def plan_aborted(self, aborted_action):
         print("Aborted plan: " + type(aborted_action).__name__)

@@ -95,9 +95,8 @@ class GOAPAgent:
                 self.state_machine.set_state(self.move_state)        
         
         else:
-            print(type(self).__name__ + " done actions!")
             self.state_machine.set_state(self.idle_state)
-            #self.data_provider.actions_finished()
+            self.data_provider.actions_finished()
 
     def move_agent(self, next_action):
         if distance(self.position, next_action.target) <= next_action.minimun_range:

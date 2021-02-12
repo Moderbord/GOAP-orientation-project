@@ -1,7 +1,7 @@
 from GOAP.action import GOAPAction
 from GOAP.action_set import ActionSet
 
-class GatherStyleEven(GOAPAction):
+class GatherResources(GOAPAction):
 
     def __init__(self):
         super().__init__()
@@ -36,14 +36,16 @@ class GatherStyleEven(GOAPAction):
 
     def perform(self, agent):
         # perform the action
-        maximun_gatherers = 2
+        maximun_gatherers = 5
         gather_table = {}
-        gathering_types = ["collectOre", "collectLogs"]
+        #gathering_types = ["collectOre", "collectLogs"]
+        gathering_types = ["collect" + s for s in ["Ore", "Logs"]] # ÓwÒ
 
         all_workers = agent.get_units("Worker")
         idle_workers = [e for e in all_workers if e.goal_state is None] # worker is idle
 
         if not idle_workers: # no idle workers -> skip
+            self.finished = True
             return True
 
         for gather_type in gathering_types:
@@ -53,16 +55,16 @@ class GatherStyleEven(GOAPAction):
         diff = min(maximun_gatherers - current_gatherers, len(idle_workers)) # get potential number of gatherers or minimun available workers
 
         for i in range(diff):      
-            least_gathered = min(gather_table, key=gather_table.get) # get the least gathered resource
+            least_gathered = min(gather_table, key=gather_table.get) # get the least gathered resource <-- this defines the gathering behavior
 
             goal_state = ActionSet()
             goal_state.add(least_gathered, True)
-            idle_workers[i].set_goal_state(goal_state)
+            idle_workers[i].set_goal_state(goal_state) # check if locked from gathering?
 
             gather_table[least_gathered] = gather_table.get(least_gathered) + 1
             current_gatherers += 1
 
         if current_gatherers >= maximun_gatherers:
-            self.finished = True            
+            self.finished = True
 
         return True

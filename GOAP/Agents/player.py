@@ -11,7 +11,7 @@ from GOAP.action_set import ActionSet
 from GOAP.Actions.Player.produce_worker import ProduceWorker
 from GOAP.Actions.Player.assign_worker_logs import AssignWorkerLogs
 from GOAP.Actions.Player.assign_worker_ore import AssignWorkerOre
-from GOAP.Actions.Player.gather_style_even import GatherStyleEven
+from GOAP.Actions.Player.gather_resources import GatherResources
 
 class EntityTable():
 
@@ -38,7 +38,7 @@ class Player(GOAPAgent, GOAPProvidable):
         self.add_action(ProduceWorker())
         #self.add_action(AssignWorkerLogs())
         #self.add_action(AssignWorkerOre())
-        self.add_action(GatherStyleEven())
+        self.add_action(GatherResources())
 
     def update(self):
         for unit in self.units:
@@ -49,17 +49,18 @@ class Player(GOAPAgent, GOAPProvidable):
         # Returns an evaluated set of the world state
         world_data = ActionSet()
         #
-        workers = self.count_units("Worker")
-        world_data.add("freeWorkerSlot", workers < 3)
+        # workers = self.count_units("Worker")
+        # world_data.add("canCreateWorker", workers < 3)
         #
-        free_workers = self.count_unit_type_where("Worker", lambda x: x.goal_state is None)
-        world_data.add("hasFreeWorker", free_workers > 0)
+        # free_workers = self.count_unit_type_where("Worker", lambda x: x.goal_state is None)
+        # world_data.add("hasFreeWorker", free_workers > 0)
         #
         return world_data
 
     def create_goal_state(self):
         goal_state = ActionSet()
         goal_state.add("gatherResources", True)
+        goal_state.add("haveFreeWorker", True)
 
         return goal_state
 

@@ -17,6 +17,11 @@ from GOAP.Agents.player import Player
 
 #dragon = Dragon()
 player = Player()
+player.add_unit(Worker())
+player.add_unit(Worker())
+player.add_unit(Worker())
+player.add_unit(Worker())
+player.add_unit(Worker())
 
 
 agents = []

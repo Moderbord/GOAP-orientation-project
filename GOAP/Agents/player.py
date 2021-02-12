@@ -1,3 +1,5 @@
+from random import randint
+
 import game_time as time
 
 from GOAP.agent import GOAPAgent
@@ -9,6 +11,7 @@ from GOAP.action_set import ActionSet
 from GOAP.Actions.Player.produce_worker import ProduceWorker
 from GOAP.Actions.Player.assign_worker_logs import AssignWorkerLogs
 from GOAP.Actions.Player.assign_worker_ore import AssignWorkerOre
+from GOAP.Actions.Player.gather_style_even import GatherStyleEven
 
 class EntityTable():
 
@@ -33,8 +36,9 @@ class Player(GOAPAgent, GOAPProvidable):
 
         # actions
         self.add_action(ProduceWorker())
-        self.add_action(AssignWorkerLogs())
-        self.add_action(AssignWorkerOre())
+        #self.add_action(AssignWorkerLogs())
+        #self.add_action(AssignWorkerOre())
+        self.add_action(GatherStyleEven())
 
     def update(self):
         for unit in self.units:
@@ -55,8 +59,7 @@ class Player(GOAPAgent, GOAPProvidable):
 
     def create_goal_state(self):
         goal_state = ActionSet()
-        goal_state.add("hasLogs", True)
-        goal_state.add("hasOre", True)
+        goal_state.add("gatherResources", True)
 
         return goal_state
 
@@ -77,6 +80,9 @@ class Player(GOAPAgent, GOAPProvidable):
 
     def get_units_where(self, function):
         return [x for x in self.units if function(x)]
+
+    def get_unit_type_where(self, unit, function):
+        return [x for x in self.get_units(unit) if function(x)]
 
     def count_units(self, unit):
         return len([x for x in self.units if type(x).__name__ == unit])
@@ -104,7 +110,14 @@ class Player(GOAPAgent, GOAPProvidable):
     
     def get_resource_location(self, resource):
         if resource == "Ore":
-            return Position(3, 3)
+            return Position(randint(3, 5), randint(-3, 3))
         elif resource == "Logs":
-            return Position(0, 5)
+            return Position(randint(-3, 3), randint(-6, -3))
+
+    def plan_found(self, goal, actions):
+        pass
+
+    def actions_finished(self):
+        pass
+
 

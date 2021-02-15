@@ -28,11 +28,13 @@ class EntityTable():
 
 class Player(GOAPAgent, GOAPProvidable):
 
-    def __init__(self):
+    def __init__(self, game_map, starting_location=Position()):
         super().__init__()
         self.data_provider = self
         self.resources = []
         self.units = []
+        self.game_map = game_map
+        self.starting_location = starting_location
 
         # actions
         self.add_action(ProduceWorker())
@@ -73,7 +75,8 @@ class Player(GOAPAgent, GOAPProvidable):
 
     def add_unit(self, unit):
         unit.owner = self
-        unit.start()
+        unit.start_agent() # GOAP
+        unit.start_actor() # Draw
         self.units.append(unit)
 
     def get_units(self, unit):
@@ -104,16 +107,16 @@ class Player(GOAPAgent, GOAPProvidable):
         return False
 
     def count_resource(self, resource):
-        return len([x for x in self.resources if type(e).__name__ == resource])
+        return len([x for x in self.resources if type(x).__name__ == resource])
 
     def get_resource_drop_off_loc(self):
         return Position(1, 1)
     
     def get_resource_location(self, resource):
         if resource == "Ore":
-            return Position(randint(3, 5), randint(-3, 3))
+            return Position(randint(8, 10), randint(2, 4))
         elif resource == "Logs":
-            return Position(randint(-3, 3), randint(-6, -3))
+            return Position(randint(1, 4), randint(6, 9))
 
     def plan_found(self, goal, actions):
         pass

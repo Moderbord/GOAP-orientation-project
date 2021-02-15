@@ -1,6 +1,7 @@
 from GOAP.agent import GOAPAgent
 from GOAP.providable import GOAPProvidable
 from GOAP.action_set import ActionSet
+from GOAP.game_actor import GameActor
 
 # Actions
 from GOAP.Actions.Worker.gather_logs import GatherLogs
@@ -8,10 +9,11 @@ from GOAP.Actions.Worker.gather_ore import GatherOre
 from GOAP.Actions.Worker.deliver_logs import DeliverLogs
 from GOAP.Actions.Worker.deliver_ore import DeliverOre
 
-class Worker(GOAPAgent, GOAPProvidable):
+class Worker(GOAPAgent, GameActor, GOAPProvidable):
 
     def __init__(self):
-        super().__init__()
+        GOAPAgent.__init__(self)
+        GameActor.__init__(self)
         self.data_provider = self
         self.goal_state = None
         
@@ -41,3 +43,7 @@ class Worker(GOAPAgent, GOAPProvidable):
         goal_state.add("isIdle", True)
 
         return goal_state
+
+    def update(self):
+        GOAPAgent.update(self)
+        GameActor.update(self)

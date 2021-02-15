@@ -1,11 +1,8 @@
 import queue
 
-import game_time as time
-
 from GOAP.FSM.fsm import FSM
 from GOAP.planner import GOAPPlanner
-from GOAP.transform import Position
-from GOAP.transform import distance
+
 
 class GOAPAgent:
 
@@ -23,12 +20,7 @@ class GOAPAgent:
         self.data_provider = None
         self.planner = GOAPPlanner()
 
-        self.position = Position()  # put movement into other class?
-        self.move_speed = 1         #
-        self.move_progress = 0.0    #
-        self.move_threshold = 1.0   #
-
-    def start(self):
+    def start_agent(self):
         self.__state_idle = self.idle_state
         self.__state_move = self.move_state
         self.__state_perform = self.perform_state
@@ -71,7 +63,7 @@ class GOAPAgent:
             self.state_machine.set_state(self.idle_state)
 
         # Moves agent until target arrives at destination
-        if self.data_provider.move_agent(action):
+        if self.data_provider.move_actor(action):
             self.state_machine.set_state(self.perform_state)
 
     def perform_state(self):
@@ -98,21 +90,3 @@ class GOAPAgent:
             self.state_machine.set_state(self.idle_state)
             self.data_provider.actions_finished()
 
-    def move_agent(self, next_action):
-        if distance(self.position, next_action.target) <= next_action.minimun_range:
-            next_action.set_in_range(True)
-            return True
-        
-        if self.move_progress >= self.move_threshold:
-            self.move_progress = 0
-            # Move towards next action location
-            if not self.position.x == next_action.target.x:
-                self.position.x += self.move_speed if self.position.x < next_action.target.x else -self.move_speed
-
-            if not self.position.y == next_action.target.y:
-                self.position.y += self.move_speed if self.position.y < next_action.target.y else -self.move_speed
-
-            #print(type(self).__name__ + " moving to [" + str(self.position.x) + ", " + str(self.position.y) + "]...")
-            return False
-        
-        self.move_progress += time.clock.delta

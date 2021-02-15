@@ -8,32 +8,16 @@
 # game.init_thorpy()
 # game.run()
 
+from game_GOAP import Game
 import game_time as time
 
-#from GOAP.Agents.dragon_keeper import DragonKeeper
-#from GOAP.Agents.dragon import Dragon
-from GOAP.Agents.worker import Worker
-from GOAP.Agents.player import Player
-
-#dragon = Dragon()
-player = Player()
+game = Game()
+game.set_map("default_map.txt")
+game.set_fog_visibility(False)
+game.enable_GOAP_ai()
+game.run()
 
 
-
-agents = []
-#agents.append(DragonKeeper(dragon))
-#agents.append(dragon)
-agents.append(player)
-
-for agent in agents:
-    agent.start()
-
-while True:
-
-    time.clock.update(60)
-
-    for agent in agents:
-        agent.update()
 
 
     

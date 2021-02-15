@@ -1,5 +1,4 @@
 from pygame.sprite import Sprite
-from pygame import Surface
 
 import game_time as time
 from game_settings import g_vars
@@ -18,13 +17,11 @@ class GameActor(Sprite):
         # sprite
         self.is_visible = False
         self.tile_size = g_vars["Game"]["TileSize"]
-        self.tile_color = g_vars["Unit"]["Worker"]["TileColor"]
-        self.image = Surface((g_vars["Game"]["UnitSize"], g_vars["Game"]["UnitSize"]))
+        
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
         self.rect = self.image.get_rect()
 
     def start_actor(self):
-        self.groups = self.owner.game_map.sprite_group_units
         Sprite.__init__(self, self.groups)
         self.is_visible = True
         self.update()

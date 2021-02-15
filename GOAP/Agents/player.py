@@ -33,18 +33,21 @@ class Player(GOAPAgent, GOAPProvidable):
         self.data_provider = self
         self.resources = []
         self.units = []
+        self.structures = []
         self.game_map = game_map
         self.starting_location = starting_location
 
         # actions
-        self.add_action(ProduceWorker())
-        #self.add_action(AssignWorkerLogs())
-        #self.add_action(AssignWorkerOre())
-        self.add_action(GatherResources())
+        # self.add_action(ProduceWorker())
+        # self.add_action(AssignWorkerLogs())
+        # self.add_action(AssignWorkerOre())
+        # self.add_action(GatherResources())
 
     def update(self):
         for unit in self.units:
             unit.update()
+        for structure in self.structures:
+            structure.update()
         super().update()
 
     def create_world_state(self):
@@ -76,8 +79,16 @@ class Player(GOAPAgent, GOAPProvidable):
     def add_unit(self, unit):
         unit.owner = self
         unit.start_agent() # GOAP
+        unit.groups = self.game_map.sprite_group_units
         unit.start_actor() # Draw
         self.units.append(unit)
+    
+    def add_structure(self, structure):
+        structure.owner = self
+        structure.start_agent() # GOAP
+        structure.groups = self.game_map.sprite_group_structures
+        structure.start_actor() # Draw
+        self.structures.append(structure)
 
     def get_units(self, unit):
         return [x for x in self.units if type(x).__name__ == unit]
@@ -93,6 +104,14 @@ class Player(GOAPAgent, GOAPProvidable):
 
     def count_unit_type_where(self, unit, function):
         return len([x for x in self.get_units(unit) if function(x)])
+
+    def get_structure(self, target):
+        structure = [x for x in self.structures if type(x).__name__ == target]
+        return structure[0] if structure else None
+
+    def get_structure_where(self, function):
+        structure = [x for x in self.structures if function(x)]
+        return structure[0] if structure else None
 
     def add_resource(self, resource):
         self.resources.append(resource)

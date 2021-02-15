@@ -61,6 +61,7 @@ class GOAPAgent:
         if action.requires_in_range() and action.target is None:
             print("Action requires target!! Plan failed")
             self.state_machine.set_state(self.idle_state)
+            return
 
         # Moves agent until target arrives at destination
         if self.data_provider.move_actor(action):

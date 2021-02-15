@@ -12,6 +12,9 @@ import game_time as time
 from game_settings import g_vars
 
 from GOAP.Agents.worker import Worker
+from GOAP.Agents.explorer import Explorer
+from GOAP.Agents.artisan import Artisan
+from GOAP.Agents.refinery import Refinery
 from GOAP.Agents.player import Player
 
 # TODO visible resources / resource piles
@@ -44,9 +47,13 @@ class Game:
         #agents.append(DragonKeeper(dragon))
         #agents.append(dragon)
         player = Player(self.map, Position(3, 3))
-        player.add_unit(Worker())
-        player.add_unit(Worker())
-        player.add_unit(Worker())
+        player.add_unit(Artisan())
+        player.add_structure(Refinery())
+        player.add_structure(Refinery())
+        player.add_structure(Refinery())
+        # player.add_unit(Worker())
+        # player.add_unit(Worker())
+        # player.add_unit(Explorer())
         self.agents.append(player)
 
     def set_fog_visibility(self, value):

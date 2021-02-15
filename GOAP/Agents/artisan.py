@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from pygame import Surface
 
 from game_settings import g_vars
@@ -7,41 +8,45 @@ from GOAP.providable import GOAPProvidable
 from GOAP.action_set import ActionSet
 from GOAP.game_actor import GameActor
 
-# Actions
-from GOAP.Actions.Worker.gather_logs import GatherLogs
-from GOAP.Actions.Worker.gather_ore import GatherOre
-from GOAP.Actions.Worker.deliver_logs import DeliverLogs
-from GOAP.Actions.Worker.deliver_ore import DeliverOre
+class Profession(Enum):
+        Refiner = auto()
+        Smith = auto()
+        Builder = auto()
+        Smelter = auto()
 
-class Worker(GOAPAgent, GameActor, GOAPProvidable):
+# Actions
+from GOAP.Actions.Artisan.build_structure import BuildStructure
+
+class Artisan(GOAPAgent, GameActor, GOAPProvidable):
 
     def __init__(self):
         GOAPAgent.__init__(self)
         self.data_provider = self
-        self.tile_color = g_vars["Unit"]["Worker"]["TileColor"]
+        self.tile_color = g_vars["Unit"]["Artisan"]["TileColor"]
         self.image = Surface((g_vars["Game"]["UnitSize"], g_vars["Game"]["UnitSize"]))
         GameActor.__init__(self)
+        self.position.x = 1
+        self.position.y = 2
         
         # local variables
-        self.backpack = []
         self.goal_state = None
+        self.profession = Profession.Builder
 
         # actions
-        self.add_action(GatherLogs())
-        self.add_action(GatherOre())
-        self.add_action(DeliverLogs())
-        self.add_action(DeliverOre())
+        self.add_action(BuildStructure())
 
     def create_world_state(self):
         # Returns an evaluated set of the world state
         world_data = {}
         #
-        world_data["hasOre"] = self.backpack.count("Ore") > 0
-        world_data["hasLogs"] = self.backpack.count("Logs") > 0
+        world_data["isRefiner"] = self.profession == Profession.Refiner
+        world_data["isSmith"]   = self.profession == Profession.Smith
+        world_data["isBuilder"] = self.profession == Profession.Builder
+        world_data["isSmelter"] = self.profession == Profession.Smelter
         #
         return world_data
 
-    def create_goal_state(self):
+    def create_goal_state(self):        
         if self.goal_state:
             return self.goal_state
         

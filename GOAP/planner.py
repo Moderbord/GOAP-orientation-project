@@ -20,7 +20,7 @@ class GOAPPlanner:
     def plan(self, agent, available_actions, world_state=None, goal=None):
         t1 = time.now()
         
-        usable_actions = []
+        action_cost_table = {}
 
         for action in available_actions:
             # reset action?
@@ -28,12 +28,12 @@ class GOAPPlanner:
 
             # check available actions
             if action.check_precondition(agent):
-                usable_actions.append(action)
+                action_cost_table[action] = action.get_cost(agent)
 
         leaves = []
         start = GOAPNode(None, 0, world_state, None)
 
-        success = self.build_graph(start, leaves, usable_actions, goal)
+        success = self.build_graph(start, leaves, action_cost_table, goal)
 
         if not success:
             # print("Failed to evaluate plan")
@@ -60,32 +60,32 @@ class GOAPPlanner:
 
         return result
 
-    def build_graph(self, parent, leaves, usable_actions, goal):
+    def build_graph(self, parent, leaves, action_cost_table, goal):
 
         solution = False
 
-        for action in usable_actions:
+        for action in action_cost_table.keys():
             if self.solves_conditions(action.preconditions, parent.state):
 
                 # TODO append unlocked actions
                 current_state = self.populate_state(parent.state, action.effects)
-                node = GOAPNode(parent, parent.cost + action.get_cost(), current_state, action)
+                node = GOAPNode(parent, parent.cost + action_cost_table[action], current_state, action)
 
                 if self.solves_conditions(goal, current_state):
                     leaves.append(node)
                     solution = True
                 else:
-                    subset = self.subset(usable_actions, action)
+                    subset = self.subset(action_cost_table, action)
                     solution = self.build_graph(node, leaves, subset, goal)
 
         return solution
 
 
-    def subset(self, usable_actions, remove_action):
-        new_set = set()
-        for action in usable_actions:
-            if not action == remove_action:
-                new_set.add(action)
+    def subset(self, action_cost_table, remove_action):
+        new_set = {}
+        for action, cost in action_cost_table.items():
+            if not action_cost_table.get(action):
+                new_set[action] = cost
 
         return new_set
 

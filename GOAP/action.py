@@ -18,7 +18,7 @@ class GOAPAction:
     def requires_in_range(self):
         pass
 
-    def get_cost(self):
+    def get_cost(self, agent):
         return self.cost
 
     def completed(self):

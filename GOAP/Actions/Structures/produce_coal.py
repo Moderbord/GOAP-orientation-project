@@ -10,8 +10,9 @@ class ProduceCoal(GOAPAction):
         self.finished = False
         self.is_producing = False
         self.target_resource = "Coal"
+        self.message_on_finish = "finished producing coal."
         self.progress = 0
-        self.duration = 4
+        self.production_time = 4
 
         # preconditions
         self.add_precondition("isBuilt", True)
@@ -45,15 +46,14 @@ class ProduceCoal(GOAPAction):
         if self.is_producing:
             self.progress += time.clock.delta
 
-            if self.progress >= self.duration:
-                print(type(agent).__name__ + " finished producing coal.")
+            if self.progress >= self.production_time:
+                print(type(agent).__name__ + " " + self.message_on_finish)
                 self.finished = True
-                agent.produce.append("Coal")
+                agent.produce.append(self.target_resource)
 
             return True
 
-        state = agent.create_world_state()
-        if state["hasMaterials"]:
+        if agent.has_materials:
             for material, amount in agent.required_materials.items():
                 for x in range(amount):
                     agent.raw_materials.remove(material)

@@ -8,5 +8,3 @@ class GatherLogs(GatherAction):
         self.message_on_finish = "chopped wood."
 
         self.duration = 5
-
-        self.add_effect("hasLogs", True)

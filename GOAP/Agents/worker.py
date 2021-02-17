@@ -10,8 +10,6 @@ from GOAP.game_actor import GameActor
 # Actions
 from GOAP.Actions.Worker.gather_logs import GatherLogs
 from GOAP.Actions.Worker.gather_ore import GatherOre
-from GOAP.Actions.Worker.deliver_logs import DeliverLogs
-from GOAP.Actions.Worker.deliver_ore import DeliverOre
 
 class Worker(GOAPAgent, GameActor, GOAPProvidable):
 
@@ -24,14 +22,11 @@ class Worker(GOAPAgent, GameActor, GOAPProvidable):
         
         # local variables
         self.backpack = []
-        self.goal_state = None
 
         # actions
         self.add_action(GatherLogs())
         self.add_action(GatherOre())
-        self.add_action(DeliverLogs())
-        self.add_action(DeliverOre())
-
+        
     def create_world_state(self):
         # Returns an evaluated set of the world state
         world_data = {}
@@ -41,12 +36,9 @@ class Worker(GOAPAgent, GameActor, GOAPProvidable):
         #
         return world_data
 
-    def create_goal_state(self):
-        if self.goal_state:
-            return self.goal_state
-        
+    def create_goal_state(self):        
         goal_state = ActionSet()
-        goal_state.add("isIdle", True)
+        goal_state.add("doWork", True)
 
         return goal_state
 

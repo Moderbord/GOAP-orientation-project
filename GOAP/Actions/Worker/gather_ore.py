@@ -8,5 +8,4 @@ class GatherOre(GatherAction):
         self.message_on_finish = "mined ore."
 
         self.duration = 3
-
-        self.add_effect("hasOre", True)
+        

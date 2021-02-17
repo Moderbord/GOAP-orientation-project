@@ -1,8 +1,7 @@
-from random import randint
 from GOAP.action import GOAPAction
 from GOAP.job_system import Job, JobType
 
-class CreateFetchJob(GOAPAction):
+class CreateCollectJob(GOAPAction):
 
     def __init__(self):
         super().__init__()
@@ -10,18 +9,16 @@ class CreateFetchJob(GOAPAction):
         self.finished = False
 
         # local variables
-        self.has_called = False
 
         # preconditions
-        self.add_precondition("hasMaterials", False)
+        self.add_precondition("hasProduce", True)
         
         # effects
-        self.add_effect("hasMaterials", True)
+        self.add_effect("supplyProduce", True)
 
     def reset(self):
         super().reset()
         # reset local state
-        self.has_called = False
 
     def requires_in_range(self):
         # does action require agent to be in range
@@ -37,14 +34,8 @@ class CreateFetchJob(GOAPAction):
 
     def perform(self, agent):
         # perform the action
-        pickup_location = agent.owner.get_resource_drop_off_loc()
-        for material, required_amount in agent.required_materials.items():
-            current_amount = agent.raw_materials.count(material)
-            diff = max(required_amount - current_amount, 0)
-
-            for x in range(0, diff):
-                new_job = Job(JobType.Fetch, pickup_location, material, agent.on_fetch)
-                agent.owner.transport_queue.append(new_job)
+        new_job = Job(JobType.Collect, agent.position, agent.produced_material, agent.on_collect)
+        agent.owner.transport_queue.append(new_job)
 
         self.finished = True
 

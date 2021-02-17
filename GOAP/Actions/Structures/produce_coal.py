@@ -6,12 +6,10 @@ class ProduceCoal(GOAPAction):
 
     def __init__(self):
         super().__init__()
-        # overrides
-        self.finished = False
-
         # local variables
+        self.finished = False
+        self.is_producing = False
         self.target_resource = "Coal"
-        self.message_on_finish = "finished producing coal."
         self.progress = 0
         self.duration = 4
 
@@ -27,6 +25,7 @@ class ProduceCoal(GOAPAction):
         super().reset()
         # reset local state
         self.finished = False
+        self.is_producing = False
         self.progress = 0
 
     def requires_in_range(self):
@@ -43,12 +42,22 @@ class ProduceCoal(GOAPAction):
 
     def perform(self, agent):
         # perform the action
-        self.progress += time.clock.delta
+        if self.is_producing:
+            self.progress += time.clock.delta
 
-        # TODO wait until materials arrive / is available
-        # if self.progress >= self.duration:
-        #     print(type(agent).__name__ + " " + self.message_on_finish)
-        #     self.finished = True
-        #     agent.produce.append("Coal")
+            if self.progress >= self.duration:
+                print(type(agent).__name__ + " finished producing coal.")
+                self.finished = True
+                agent.produce.append("Coal")
+
+            return True
+
+        state = agent.create_world_state()
+        if state["hasMaterials"]:
+            for material, amount in agent.required_materials.items():
+                for x in range(amount):
+                    agent.raw_materials.remove(material)
+            
+            self.is_producing = True
 
         return True

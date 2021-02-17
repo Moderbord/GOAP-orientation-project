@@ -55,8 +55,11 @@ class Game:
         player.add_unit(builder)
         player.add_unit(refiner)
 
-        player.add_structure(Refinery())
-        # player.add_unit(Worker())
+        refinery = Refinery()
+        # refinery.raw_materials.append("Logs")
+        # refinery.raw_materials.append("Logs")
+        player.add_structure(refinery)
+        
         # player.add_unit(Worker())
         # player.add_unit(Explorer())
         self.agents.append(player)

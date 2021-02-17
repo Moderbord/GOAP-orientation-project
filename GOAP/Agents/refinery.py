@@ -49,7 +49,7 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
         world_data["isBuilt"] = self.is_built
         world_data["isWorked"] = self.is_worked
         world_data["hasMaterials"] = all([self.raw_materials.count(key) >= self.required_materials.get(key) for key in self.required_materials.keys()]) # <3
-        world_data["hasProduce"] = len(self.produce) > 0
+        world_data["hasProduce"] = len(self.produce) > 100
         #
         return world_data
 

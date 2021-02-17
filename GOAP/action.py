@@ -7,12 +7,14 @@ class GOAPAction:
         self.effects = ActionSet()
 
         self.target = None
+        self.started = False
         self.in_range = False
         self.minimun_range = 0
         self.cost = 1.0
 
     def reset(self):
         self.target = None
+        self.started = False
         self.in_range = False
 
     def requires_in_range(self):
@@ -27,7 +29,13 @@ class GOAPAction:
     def check_precondition(self, agent): # more like setup/initialize
         pass
 
+    def on_start(self, agent):
+        self.started = True
+
     def perform(self, agent):
+        pass
+
+    def on_end(self, agent):
         pass
 
     def is_in_range(self):

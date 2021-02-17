@@ -70,7 +70,11 @@ class GOAPAgent:
     def perform_state(self):
 
         action = self.current_actions[0]
+        if not action.started:
+            action.on_start(self)
+
         if action.completed():
+            action.on_end(self)
             self.current_actions.popleft()
         
         if self.has_action_plan():

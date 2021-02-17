@@ -8,3 +8,13 @@ class GatherLogs(GatherAction):
         self.message_on_finish = "chopped wood."
 
         self.duration = 5
+
+    def get_cost(self, agent):
+        return self.cost + agent.owner.logs_gatherers + agent.owner.resources.count(self.target_resource)
+
+    def on_start(self, agent):
+        super().on_start(agent)
+        agent.owner.logs_gatherers += 1
+
+    def on_end(self, agent):
+        agent.owner.logs_gatherers -= 1

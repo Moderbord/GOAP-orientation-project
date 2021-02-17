@@ -7,6 +7,10 @@ class GatherAction(GOAPAction):
 
     def __init__(self):
         super().__init__()
+        # overrides
+        self.cost = 10
+
+        # local variables
         self.finished = False
         self.gathered = False
         self.target_resource = None
@@ -25,9 +29,6 @@ class GatherAction(GOAPAction):
 
     def requires_in_range(self):
         return True
-
-    def get_cost(self, agent):
-        return 10 + agent.owner.resources.count(self.target_resource)
 
     def completed(self):
         return self.finished

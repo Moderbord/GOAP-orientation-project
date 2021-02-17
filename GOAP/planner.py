@@ -39,13 +39,13 @@ class GOAPPlanner:
             # print("Failed to evaluate plan")
             return None
 
-        #cheapest_node = min(leaves)
-        cheapest_node = None
-        for node in leaves:
-            if not cheapest_node:
-                cheapest_node = node
-            else:
-                cheapest_node = node if node.cost < cheapest_node.cost else cheapest_node
+        # cheapest_node = None
+        # for node in leaves:
+        #     if not cheapest_node:
+        #         cheapest_node = node
+        #     else:
+        #         cheapest_node = node if node.cost < cheapest_node.cost else cheapest_node
+        cheapest_node = min(leaves, key=lambda x: x.cost)
 
         result = queue.deque()
         while cheapest_node:
@@ -84,8 +84,9 @@ class GOAPPlanner:
     def subset(self, action_cost_table, remove_action):
         new_set = {}
         for action, cost in action_cost_table.items():
-            if not action_cost_table.get(action):
-                new_set[action] = cost
+            if action == remove_action:
+                continue
+            new_set[action] = cost
 
         return new_set
 
@@ -94,7 +95,7 @@ class GOAPPlanner:
         for key, req_value in preconditions.items():
             cur_value = state_conditions.get(key)
 
-            if not cur_value: # values must exist..
+            if cur_value is None: # values must exist..
                 return False
 
             if not req_value == cur_value: #..and solve conditions..

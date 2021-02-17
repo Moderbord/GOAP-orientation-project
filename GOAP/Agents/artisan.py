@@ -15,7 +15,8 @@ class Profession(Enum):
         Smelter = auto()
 
 # Actions
-from GOAP.Actions.Artisan.build_structure import BuildStructure
+from GOAP.Actions.Artisan.pickup_builder_job import PickupBuilderJob
+from GOAP.Actions.Artisan.pickup_refiner_job import PickupRefinerJob
 
 class Artisan(GOAPAgent, GameActor, GOAPProvidable):
 
@@ -29,11 +30,11 @@ class Artisan(GOAPAgent, GameActor, GOAPProvidable):
         self.position.y = 2
         
         # local variables
-        self.goal_state = None
-        self.profession = Profession.Builder
+        self.profession = None#Profession.Builder
 
         # actions
-        self.add_action(BuildStructure())
+        self.add_action(PickupBuilderJob())
+        self.add_action(PickupRefinerJob())
 
     def create_world_state(self):
         # Returns an evaluated set of the world state
@@ -46,12 +47,9 @@ class Artisan(GOAPAgent, GameActor, GOAPProvidable):
         #
         return world_data
 
-    def create_goal_state(self):        
-        if self.goal_state:
-            return self.goal_state
-        
+    def create_goal_state(self):       
         goal_state = ActionSet()
-        goal_state.add("isIdle", True)
+        goal_state.add("doJob", True)
 
         return goal_state
 

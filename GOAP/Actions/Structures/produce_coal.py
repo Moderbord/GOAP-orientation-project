@@ -17,10 +17,11 @@ class ProduceCoal(GOAPAction):
 
         # preconditions
         self.add_precondition("isBuilt", True)
-        #self.add_precondition("isWorked", True)
+        self.add_precondition("isWorked", True)
+        self.add_precondition("hasMaterials", True)
         
         # effects
-        self.add_effect("hasCoal", True)
+        self.add_effect("hasProduce", True)
 
     def reset(self):
         super().reset()
@@ -38,16 +39,16 @@ class ProduceCoal(GOAPAction):
 
     def check_precondition(self, agent):
         # check for any required criterias for the action
-        # if has enough materials:
         return True
 
     def perform(self, agent):
         # perform the action
         self.progress += time.clock.delta
 
-        if self.progress >= self.duration:
-            print(type(agent).__name__ + " " + self.message_on_finish)
-            self.finished = True
-            agent.inventory.append("Coal")
+        # TODO wait until materials arrive / is available
+        # if self.progress >= self.duration:
+        #     print(type(agent).__name__ + " " + self.message_on_finish)
+        #     self.finished = True
+        #     agent.produce.append("Coal")
 
         return True

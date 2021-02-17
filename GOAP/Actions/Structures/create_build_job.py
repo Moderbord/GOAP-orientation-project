@@ -1,8 +1,7 @@
 from GOAP.action import GOAPAction
-from GOAP.action_set import ActionSet
-from GOAP.Agents.artisan import Profession
+from GOAP.job_system import Job, JobType
 
-class CallBuilder(GOAPAction):
+class CreateBuildJob(GOAPAction):
 
     def __init__(self):
         super().__init__()
@@ -10,7 +9,7 @@ class CallBuilder(GOAPAction):
         self.finished = False
 
         # local variables
-        self.target_builder = None
+        self.has_called = False
 
         # preconditions
         self.add_precondition("isBuilt", False)
@@ -21,7 +20,7 @@ class CallBuilder(GOAPAction):
     def reset(self):
         super().reset()
         # reset local state
-        self.target_builder = None
+        self.has_called = False
 
     def requires_in_range(self):
         # does action require agent to be in range
@@ -33,22 +32,15 @@ class CallBuilder(GOAPAction):
 
     def check_precondition(self, agent):
         # check for any required criterias for the action
-        builders = agent.owner.get_unit_type_where("Artisan", lambda x: x.profession is Profession.Builder)
-        for builder in builders:
-            if builder.goal_state is None: # builder is idle
-
-                goal_state = ActionSet()
-                goal_state.add("doJob", True)
-                builder.set_goal_state(goal_state)
-
-                self.target_builder = builder
-                print("found")
-                break
-
-        return True if self.target_builder else False
+        return True
 
     def perform(self, agent):
         # perform the action
+        if not self.has_called:
+            new_job = Job(JobType.Build, agent.position, agent.build_time, agent.on_built)
+            agent.owner.build_queue.append(new_job)
+            self.has_called = True
+
         if agent.is_built:
             self.finished = True
 

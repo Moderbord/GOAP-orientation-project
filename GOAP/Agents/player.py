@@ -6,6 +6,7 @@ from GOAP.agent import GOAPAgent
 from GOAP.providable import GOAPProvidable
 from GOAP.transform import Position
 from GOAP.action_set import ActionSet
+from GOAP.job_system import Job, JobType, JobQueue
 
 # Actions
 from GOAP.Actions.Player.produce_worker import ProduceWorker
@@ -36,6 +37,10 @@ class Player(GOAPAgent, GOAPProvidable):
         self.structures = []
         self.game_map = game_map
         self.starting_location = starting_location
+
+        self.transport_queue = JobQueue()
+        self.build_queue = JobQueue()
+        self.work_queue = JobQueue()
 
         # actions
         # self.add_action(ProduceWorker())

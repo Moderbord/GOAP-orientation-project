@@ -13,7 +13,7 @@ from game_settings import g_vars
 
 from GOAP.Agents.worker import Worker
 from GOAP.Agents.explorer import Explorer
-from GOAP.Agents.artisan import Artisan
+from GOAP.Agents.artisan import Artisan, Profession
 from GOAP.Agents.refinery import Refinery
 from GOAP.Agents.player import Player
 
@@ -47,9 +47,14 @@ class Game:
         #agents.append(DragonKeeper(dragon))
         #agents.append(dragon)
         player = Player(self.map, Position(3, 3))
-        player.add_unit(Artisan())
-        player.add_structure(Refinery())
-        player.add_structure(Refinery())
+
+        builder = Artisan()
+        refiner = Artisan()
+        builder.profession = Profession.Builder
+        refiner.profession = Profession.Refiner
+        player.add_unit(builder)
+        player.add_unit(refiner)
+
         player.add_structure(Refinery())
         # player.add_unit(Worker())
         # player.add_unit(Worker())

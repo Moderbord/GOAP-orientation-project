@@ -1,6 +1,7 @@
 import game_time as time
 
 from GOAP.action import GOAPAction
+from GOAP.job_system import Job, JobType
 
 class ProduceCoal(GOAPAction):
 
@@ -20,7 +21,7 @@ class ProduceCoal(GOAPAction):
         self.add_precondition("hasMaterials", True)
         
         # effects
-        self.add_effect("hasProduce", True)
+        self.add_effect("produceCoal", True)
 
     def reset(self):
         super().reset()
@@ -48,8 +49,12 @@ class ProduceCoal(GOAPAction):
 
             if self.progress >= self.production_time:
                 print(type(agent).__name__ + " " + self.message_on_finish)
-                self.finished = True
                 agent.produce.append(self.target_resource)
+                self.finished = True
+
+                # create pickup job
+                new_job = Job(JobType.Collect, agent.position, self.target_resource, agent.on_collected)
+                agent.owner.add_job(new_job)
 
             return True
 
@@ -57,7 +62,8 @@ class ProduceCoal(GOAPAction):
             for material, amount in agent.required_materials.items():
                 for x in range(amount):
                     agent.raw_materials.remove(material)
-            
+
+            agent.on_resource_change()
             self.is_producing = True
 
         return True

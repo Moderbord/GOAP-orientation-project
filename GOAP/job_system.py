@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from queue import Queue
+#from queue import Queue
 
 class JobType(Enum):
     Build = auto()
@@ -15,18 +15,18 @@ class Job():
         self.extra = extra
         self.callback = callback
 
-class JobQueue():
+# class JobQueue():
 
-    def __init__(self) -> None:
-        self.__queue = Queue()
+#     def __init__(self) -> None:
+#         self.__queue = Queue()
 
-    def append(self, job):
-        self.__queue.put(job)
+#     def append(self, job):
+#         self.__queue.put(job)
 
-    def get_job(self):
-        return self.__queue.get()
+#     def get_job(self):
+#         return self.__queue.get()
     
-    def has_job(self):
-        return not self.__queue.empty()
+#     def has_job(self):
+#         return not self.__queue.empty()
 
 

@@ -5,10 +5,8 @@ class CreateWorkJob(GOAPAction):
 
     def __init__(self):
         super().__init__()
-        # overrides
-        self.finished = False
-
         # local variable
+        self.finished = False
         self.has_called = False
 
         # preconditions
@@ -21,6 +19,7 @@ class CreateWorkJob(GOAPAction):
     def reset(self):
         super().reset()
         # reset local state
+        self.finished = False
         self.has_called = False
 
     def requires_in_range(self):
@@ -39,7 +38,7 @@ class CreateWorkJob(GOAPAction):
         # perform the action
         if not self.has_called:
             new_job = Job(JobType.Work, agent.position, agent.required_artisan, agent.on_worked)
-            agent.owner.work_queue.append(new_job)
+            agent.owner.add_job(new_job)
             self.has_called = True
 
         if agent.is_worked:

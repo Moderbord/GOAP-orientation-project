@@ -10,6 +10,8 @@ from GOAP.game_actor import GameActor
 # Actions
 from GOAP.Actions.Worker.gather_logs import GatherLogs
 from GOAP.Actions.Worker.gather_ore import GatherOre
+from GOAP.Actions.Worker.pickup_collect_job import PickupCollectJob
+from GOAP.Actions.Worker.pickup_fetch_job import PickupFetchJob
 
 class Worker(GOAPAgent, GameActor, GOAPProvidable):
 
@@ -26,7 +28,10 @@ class Worker(GOAPAgent, GameActor, GOAPProvidable):
         # actions
         self.add_action(GatherLogs())
         self.add_action(GatherOre())
-        
+        self.add_action(PickupFetchJob())
+        self.add_action(PickupCollectJob())
+        #self.add_action(PickupUpgradeJob())
+
     def create_world_state(self):
         # Returns an evaluated set of the world state
         world_data = {}
@@ -38,7 +43,7 @@ class Worker(GOAPAgent, GameActor, GOAPProvidable):
 
     def create_goal_state(self):        
         goal_state = ActionSet()
-        goal_state.add("doWork", True)
+        goal_state.add("doJob", True)
 
         return goal_state
 

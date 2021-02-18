@@ -48,18 +48,22 @@ class Game:
         #agents.append(dragon)
         player = Player(self.map, Position(3, 3))
 
-        # builder = Artisan()
-        # refiner = Artisan()
-        # builder.profession = Profession.Builder
-        # refiner.profession = Profession.Refiner
-        # player.add_unit(builder)
-        # player.add_unit(refiner)
+        builder = Artisan()
+        refiner = Artisan()
+        builder.profession = Profession.Builder
+        refiner.profession = Profession.Refiner
+        player.add_unit(builder)
+        player.add_unit(refiner)
 
-        # refinery = Refinery()
-        # refinery.raw_materials.append("Logs")
-        # refinery.raw_materials.append("Logs")
-        # player.add_structure(refinery)
+        refinery = Refinery()
+        # refinery.on_fetched("Logs")
+        # refinery.on_fetched("Logs")
+        player.add_structure(refinery)
         
+        player.add_unit(Worker())
+        player.add_unit(Worker())
+        player.add_unit(Worker())
+        player.add_unit(Worker())
         player.add_unit(Worker())
         # player.add_unit(Explorer())
         self.agents.append(player)

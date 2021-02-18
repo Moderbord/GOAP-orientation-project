@@ -14,7 +14,6 @@ from GOAP.Actions.Structures.produce_coal import ProduceCoal
 from GOAP.Actions.Structures.create_build_job import CreateBuildJob
 from GOAP.Actions.Structures.create_work_job import CreateWorkJob
 from GOAP.Actions.Structures.create_fetch_job import CreateFetchJob
-from GOAP.Actions.Structures.create_collect_job import CreateCollectJob
 
 class Refinery(GOAPAgent, GameActor, GOAPProvidable):
 
@@ -33,7 +32,6 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
         self.is_built = False
         self.is_worked = False
         self.has_materials = False
-        self.produced_material = "Coal"
         self.required_materials = {"Logs" : 2}
         self.required_artisan = Profession.Refiner
         self.build_time = 3
@@ -43,7 +41,6 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
         self.add_action(CreateBuildJob())
         self.add_action(CreateWorkJob())
         self.add_action(CreateFetchJob())
-        self.add_action(CreateCollectJob())
 
     def create_world_state(self):
         # Returns an evaluated set of the world state
@@ -58,13 +55,16 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
 
     def create_goal_state(self):        
         goal_state = ActionSet()
-        goal_state.add("supplyProduce", True)
+        goal_state.add("produceCoal", True)
 
         return goal_state
 
     def update(self):
         GOAPAgent.update(self)
         GameActor.update(self)
+
+    def on_resource_change(self):
+        self.has_materials = all([self.raw_materials.count(key) >= self.required_materials.get(key) for key in self.required_materials.keys()]) # <3
 
     def on_built(self):
         self.is_built = True
@@ -76,11 +76,14 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
         self.is_worked = True
         print("Refinery operational!")
 
-    def on_fetch(self):
-        self.has_materials = all([self.raw_materials.count(key) >= self.required_materials.get(key) for key in self.required_materials.keys()]) # <3
+    def on_fetched(self, resource):
+        self.raw_materials.append(resource)
+        self.on_resource_change()        
 
-    def on_collect(self):
-        if self.produce.count(self.produced_material) > 0:
-            self.produce.remove(self.produced_material)
+    def on_collected(self):
+        if len(self.produce) > 0:
+            self.produce.pop()
+            return True
         else:
             print("ERROR NO PRODUCE COLLECTED")
+            return False

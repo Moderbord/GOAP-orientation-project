@@ -6,13 +6,11 @@ class CreateFetchJob(GOAPAction):
 
     def __init__(self):
         super().__init__()
-        # overrides
+        # local variables
         self.finished = False
 
-        # local variables
-        self.has_called = False
-
         # preconditions
+        self.add_precondition("isBuilt", True)
         self.add_precondition("hasMaterials", False)
         
         # effects
@@ -21,7 +19,7 @@ class CreateFetchJob(GOAPAction):
     def reset(self):
         super().reset()
         # reset local state
-        self.has_called = False
+        self.finished = False
 
     def requires_in_range(self):
         # does action require agent to be in range
@@ -37,14 +35,13 @@ class CreateFetchJob(GOAPAction):
 
     def perform(self, agent):
         # perform the action
-        pickup_location = agent.owner.get_resource_drop_off_loc()
         for material, required_amount in agent.required_materials.items():
             current_amount = agent.raw_materials.count(material)
             diff = max(required_amount - current_amount, 0)
 
             for x in range(0, diff):
-                new_job = Job(JobType.Fetch, pickup_location, material, agent.on_fetch)
-                agent.owner.transport_queue.append(new_job)
+                new_job = Job(JobType.Fetch, agent.position, material, agent.on_fetched)
+                agent.owner.add_job(new_job)
 
         self.finished = True
 

@@ -1,3 +1,4 @@
+from collections import deque
 from random import randint
 
 import game_time as time
@@ -6,7 +7,7 @@ from GOAP.agent import GOAPAgent
 from GOAP.providable import GOAPProvidable
 from GOAP.transform import Position
 from GOAP.action_set import ActionSet
-from GOAP.job_system import Job, JobType, JobQueue
+from GOAP.job_system import JobType
 
 # Actions
 from GOAP.Actions.Player.produce_worker import ProduceWorker
@@ -38,9 +39,13 @@ class Player(GOAPAgent, GOAPProvidable):
         self.game_map = game_map
         self.starting_location = starting_location
 
-        self.transport_queue = JobQueue()
-        self.build_queue = JobQueue()
-        self.work_queue = JobQueue()
+        self.collect_jobs = deque()
+        self.build_jobs = deque()
+        self.fetch_jobs = []
+        self.work_jobs = []
+
+        self.ore_gatherers = 0
+        self.logs_gatherers = 0
 
         # actions
         # self.add_action(ProduceWorker())
@@ -121,6 +126,12 @@ class Player(GOAPAgent, GOAPProvidable):
     def add_resource(self, resource):
         self.resources.append(resource)
 
+    def has_resource(self, target_resource):
+        for resources in self.resources:
+            if resources == target_resource:
+                return True
+        return False
+
     def remove_resource(self, resource, amount=1):
         if self.resources.count(resource) >= amount:
             for i in amount:
@@ -141,6 +152,63 @@ class Player(GOAPAgent, GOAPProvidable):
             return Position(randint(8, 10), randint(2, 4))
         elif resource == "Logs":
             return Position(randint(1, 4), randint(6, 9))
+
+    def add_job(self, job):
+        if job.job_type == JobType.Build:
+            self.build_jobs.append(job)
+
+        elif job.job_type == JobType.Collect:
+            self.collect_jobs.append(job)
+
+        elif job.job_type == JobType.Work:
+            self.work_jobs.append(job)
+
+        elif job.job_type == JobType.Fetch:
+            self.fetch_jobs.append(job)
+
+    def has_job(self, job_type, artisan=None):
+
+        if job_type == JobType.Build:
+            return len(self.build_jobs) > 0
+
+        elif job_type == JobType.Collect:
+            return len(self.collect_jobs) > 0
+
+        elif job_type == JobType.Work:
+            return len([job for job in self.work_jobs if job.extra == artisan]) > 0
+
+        elif job_type == JobType.Fetch:
+            return len([job for job in self.fetch_jobs if self.has_resource(job.extra)]) > 0
+
+    def get_job(self, job_type, artisan=None):
+        job = None
+        # early out
+        if not self.has_job(job_type, artisan):
+            return job
+
+        if job_type == JobType.Build:
+            job = self.build_jobs.popleft()
+
+        elif job_type == JobType.Collect:
+            job = self.collect_jobs.popleft()
+
+        elif job_type == JobType.Work:
+            index = 0
+            for i in range(0, len(self.work_jobs)):
+                if self.work_jobs[i].extra == artisan:
+                    index = i
+                    break
+            job = self.work_jobs.pop(i)
+                
+        elif job_type == JobType.Fetch:
+            index = 0
+            for i in range(0, len(self.fetch_jobs)):
+                if self.has_resource(self.fetch_jobs[i].extra) > 0:
+                    index = i
+                    break
+            job = self.fetch_jobs.pop(i)
+
+        return job
 
     def plan_found(self, goal, actions):
         pass

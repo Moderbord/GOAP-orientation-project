@@ -1,6 +1,5 @@
-import game_time as time
-
 from GOAP.action import GOAPAction
+from GOAP.job_system import JobType
 from GOAP.Agents.artisan import Profession
 
 class PickupRefinerJob(GOAPAction):
@@ -33,7 +32,7 @@ class PickupRefinerJob(GOAPAction):
     def check_precondition(self, agent):
         # check for any required criterias for the action
         # stays at first job acquired
-        return self.acquired_job is None
+        return agent.owner.has_job(JobType.Work, Profession.Refiner)
 
     def perform(self, agent):
         # perform the action 
@@ -42,13 +41,8 @@ class PickupRefinerJob(GOAPAction):
             self.acquired_job.callback()
             return True
 
-        if agent.owner.work_queue.has_job():
-            job = agent.owner.work_queue.get_job()
-            # acquired_job.extra -> profession
-            if not job.extra == Profession.Refiner:
-                agent.owner.work_queue.append(job) # suuuuuuuuuuper slim chance of soft-locking should two artisans compete to get respective jobs
-                return True
-            
+        job = agent.owner.get_job(JobType.Work, Profession.Refiner)
+        if job:
             self.target = job.location
             self.acquired_job = job
 

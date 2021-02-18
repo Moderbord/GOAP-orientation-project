@@ -19,7 +19,7 @@ class GatherAction(GOAPAction):
         self.progress = 0
         self.duration = 0
 
-        self.add_effect("doWork", True)
+        self.add_effect("doJob", True)
 
     def reset(self):
         super().reset()
@@ -34,9 +34,12 @@ class GatherAction(GOAPAction):
         return self.finished
 
     def check_precondition(self, agent):
+        return True
+
+    def on_start(self, agent):
+        super().on_start(agent)
         # Search for nearest resource
         self.target = agent.owner.get_resource_location(self.target_resource)
-        return True
 
     def perform(self, agent):
         # drop off resource

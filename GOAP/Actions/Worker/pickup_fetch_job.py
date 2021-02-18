@@ -71,5 +71,6 @@ class PickupFetchJob(GOAPAction):
         if job:
             self.target = agent.owner.get_resource_drop_off_loc()
             self.acquired_job = job
-
-        return True
+            return True
+        
+        return False

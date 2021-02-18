@@ -28,7 +28,7 @@ class Game:
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
         self.map = gamemap.GameMap()
-        self.speed = 100
+        self.speed = 1
         self.paused = False
         self.draw_grid = False
         self.draw_ui = True
@@ -61,12 +61,10 @@ class Game:
         # refinery.on_fetched("Logs")
         player.add_structure(Refinery())
         player.add_structure(Camp())
+
+        for x in range(1000):
+            player.add_unit(Worker())
         
-        player.add_unit(Worker())
-        player.add_unit(Worker())
-        player.add_unit(Worker())
-        player.add_unit(Worker())
-        player.add_unit(Worker())
         # player.add_unit(Explorer())
         self.agents.append(player)
 
@@ -81,7 +79,7 @@ class Game:
 
         while (self.running):
             #time.clock.update(g_vars["Game"]["FPS"], self.speed)
-            time.clock.update(60)    
+            time.clock.update(60, self.speed)    
             self.update()
             self.draw()
             self.events()

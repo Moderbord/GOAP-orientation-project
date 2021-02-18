@@ -44,5 +44,6 @@ class PickupUpgradeJob(GOAPAction):
         if job:
             self.target = job.location
             self.acquired_job = job
-
-        return True
+            return True
+        
+        return False

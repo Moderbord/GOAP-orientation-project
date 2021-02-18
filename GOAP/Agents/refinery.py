@@ -1,4 +1,4 @@
-from random import randint
+from GOAP.transform import Position
 from pygame import Surface
 
 from game_settings import g_vars
@@ -23,10 +23,10 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
         self.tile_color = g_vars["Structure"]["Base"]["TileColor"]
         self.image = Surface((g_vars["Game"]["StructureSize"], g_vars["Game"]["StructureSize"]))
         GameActor.__init__(self)
-        self.position.x = randint(1, 6)
-        self.position.y = randint(1, 6)
+        self.position = Position(4, 5)
         
         # local variables
+        self.structure_name = "Refinery"
         self.raw_materials = []
         self.produce = []
         self.is_built = False
@@ -68,13 +68,13 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
 
     def on_built(self):
         self.is_built = True
-        self.tile_color = g_vars["Structure"]["Refinery"]["TileColor"]
+        self.tile_color = g_vars["Structure"][self.structure_name]["TileColor"]
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
-        print("Refinery built!")
+        print(self.structure_name + " built!")
 
     def on_worked(self):
         self.is_worked = True
-        print("Refinery operational!")
+        print(self.structure_name + " operational!")
 
     def on_fetched(self, resource):
         self.raw_materials.append(resource)

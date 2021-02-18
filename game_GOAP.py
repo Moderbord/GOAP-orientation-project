@@ -15,6 +15,7 @@ from GOAP.Agents.worker import Worker
 from GOAP.Agents.explorer import Explorer
 from GOAP.Agents.artisan import Artisan, Profession
 from GOAP.Agents.refinery import Refinery
+from GOAP.Agents.camp import Camp
 from GOAP.Agents.player import Player
 
 # TODO visible resources / resource piles
@@ -48,17 +49,18 @@ class Game:
         #agents.append(dragon)
         player = Player(self.map, Position(3, 3))
 
-        builder = Artisan()
-        refiner = Artisan()
-        builder.profession = Profession.Builder
-        refiner.profession = Profession.Refiner
-        player.add_unit(builder)
-        player.add_unit(refiner)
+        # builder = Artisan()
+        # refiner = Artisan()
+        # builder.profession = Profession.Builder
+        # refiner.profession = Profession.Refiner
+        # player.add_unit(builder)
+        # player.add_unit(refiner)
 
-        refinery = Refinery()
+        # refinery = Refinery()
         # refinery.on_fetched("Logs")
         # refinery.on_fetched("Logs")
-        player.add_structure(refinery)
+        player.add_structure(Refinery())
+        player.add_structure(Camp())
         
         player.add_unit(Worker())
         player.add_unit(Worker())

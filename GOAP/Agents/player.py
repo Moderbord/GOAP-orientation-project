@@ -7,26 +7,14 @@ from GOAP.agent import GOAPAgent
 from GOAP.providable import GOAPProvidable
 from GOAP.transform import Position
 from GOAP.action_set import ActionSet
-from GOAP.job_system import JobType
+from GOAP.job_system import Job, JobType
+from GOAP.Agents.artisan import Profession
 
 # Actions
 from GOAP.Actions.Player.produce_worker import ProduceWorker
 from GOAP.Actions.Player.assign_worker_logs import AssignWorkerLogs
 from GOAP.Actions.Player.assign_worker_ore import AssignWorkerOre
 from GOAP.Actions.Player.gather_resources import GatherResources
-
-class EntityTable():
-
-    def __init__(self):
-        self.__table = {}
-
-    # def add_entity(self, entity):
-    #     value = self.__table.get(entity, None)
-
-    #     if value:
-    #         value.append(entity)
-    #     else
-
 
 class Player(GOAPAgent, GOAPProvidable):
 
@@ -41,6 +29,7 @@ class Player(GOAPAgent, GOAPProvidable):
 
         self.collect_jobs = deque()
         self.build_jobs = deque()
+        self.upgrade_jobs = deque()
         self.fetch_jobs = []
         self.work_jobs = []
 
@@ -63,13 +52,7 @@ class Player(GOAPAgent, GOAPProvidable):
     def create_world_state(self):
         # Returns an evaluated set of the world state
         world_data = ActionSet()
-        #
-        # workers = self.count_units("Worker")
-        # world_data.add("canCreateWorker", workers < 3)
-        #
-        # free_workers = self.count_unit_type_where("Worker", lambda x: x.goal_state is None)
-        # world_data.add("hasFreeWorker", free_workers > 0)
-        #
+
         return world_data
 
     def create_goal_state(self):
@@ -79,13 +62,6 @@ class Player(GOAPAgent, GOAPProvidable):
 
         return goal_state
 
-    # def resolve_goal(self, action_effects):
-    #     for key, value in action_effects.items():
-    #         if not self.goal_state.get(key) == value:
-    #             continue
-    #         else:
-    #             self.goal_state.pop(key)
-
     def add_unit(self, unit):
         unit.owner = self
         unit.start_agent() # GOAP
@@ -93,6 +69,9 @@ class Player(GOAPAgent, GOAPProvidable):
         unit.start_actor() # Draw
         self.units.append(unit)
     
+    def remove_unit(self, unit):
+        self.units.remove(unit)
+
     def add_structure(self, structure):
         structure.owner = self
         structure.start_agent() # GOAP
@@ -145,7 +124,7 @@ class Player(GOAPAgent, GOAPProvidable):
         return len([x for x in self.resources if type(x).__name__ == resource])
 
     def get_resource_drop_off_loc(self):
-        return Position(1, 1)
+        return Position(2, 4)
     
     def get_resource_location(self, resource):
         if resource == "Ore":
@@ -157,11 +136,25 @@ class Player(GOAPAgent, GOAPProvidable):
         if job.job_type == JobType.Build:
             self.build_jobs.append(job)
 
+            # maximum num of builders?
+            camp = self.get_structure("Camp") 
+            upgrade_job = Job(JobType.Upgrade, camp.position, Profession.Builder, camp.on_upgrade)
+            self.upgrade_jobs.append(upgrade_job)
+
         elif job.job_type == JobType.Collect:
             self.collect_jobs.append(job)
 
+        elif job.job_type == JobType.Upgrade:
+            self.upgrade_jobs.append(job)
+
         elif job.job_type == JobType.Work:
             self.work_jobs.append(job)
+
+            # create upgrade job to cover work demand (should match)
+            # units are upgraded at camp
+            camp = self.get_structure("Camp") 
+            upgrade_job = Job(JobType.Upgrade, camp.position, job.extra, camp.on_upgrade)
+            self.upgrade_jobs.append(upgrade_job)
 
         elif job.job_type == JobType.Fetch:
             self.fetch_jobs.append(job)
@@ -173,6 +166,9 @@ class Player(GOAPAgent, GOAPProvidable):
 
         elif job_type == JobType.Collect:
             return len(self.collect_jobs) > 0
+
+        elif job_type == JobType.Upgrade:
+            return len(self.upgrade_jobs) > 0
 
         elif job_type == JobType.Work:
             return len([job for job in self.work_jobs if job.extra == artisan]) > 0
@@ -191,6 +187,9 @@ class Player(GOAPAgent, GOAPProvidable):
 
         elif job_type == JobType.Collect:
             job = self.collect_jobs.popleft()
+
+        elif job_type == JobType.Upgrade:
+            job = self.upgrade_jobs.popleft()
 
         elif job_type == JobType.Work:
             index = 0

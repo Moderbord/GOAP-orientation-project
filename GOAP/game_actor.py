@@ -48,3 +48,9 @@ class GameActor(Sprite):
     def update(self):
         self.rect.x = self.position.x * self.tile_size + self.tile_size / 3
         self.rect.y = self.position.y * self.tile_size + self.tile_size / 3
+
+    def destroy(self):
+        if self.owner:
+            self.owner.remove_unit(self)
+        Sprite.remove(self, self.groups)
+        print("Removed " + type(self).__name__)

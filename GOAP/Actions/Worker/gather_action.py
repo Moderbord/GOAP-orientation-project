@@ -34,6 +34,7 @@ class GatherAction(GOAPAction):
         return self.finished
 
     def check_precondition(self, agent):
+        # check if player have discovered resource type
         return True
 
     def on_start(self, agent):

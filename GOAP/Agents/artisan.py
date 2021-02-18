@@ -26,11 +26,9 @@ class Artisan(GOAPAgent, GameActor, GOAPProvidable):
         self.tile_color = g_vars["Unit"]["Artisan"]["TileColor"]
         self.image = Surface((g_vars["Game"]["UnitSize"], g_vars["Game"]["UnitSize"]))
         GameActor.__init__(self)
-        self.position.x = 1
-        self.position.y = 2
         
         # local variables
-        self.profession = None#Profession.Builder
+        self.profession = None
 
         # actions
         self.add_action(PickupBuilderJob())

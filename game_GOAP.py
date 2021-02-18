@@ -62,7 +62,7 @@ class Game:
         player.add_structure(Refinery())
         player.add_structure(Camp())
 
-        for x in range(1000):
+        for x in range(5):
             player.add_unit(Worker())
         
         # player.add_unit(Explorer())

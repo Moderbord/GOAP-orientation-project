@@ -32,6 +32,7 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
         self.is_built = False
         self.is_worked = False
         self.has_materials = False
+        self.construction_materials = {"Logs" : 10}
         self.required_materials = {"Logs" : 2}
         self.required_artisan = Profession.Refiner
         self.build_time = 3
@@ -64,10 +65,16 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
         GameActor.update(self)
 
     def on_resource_change(self):
-        self.has_materials = all([self.raw_materials.count(key) >= self.required_materials.get(key) for key in self.required_materials.keys()]) # <3
+        if self.is_built:
+            self.has_materials = all([self.raw_materials.count(key) >= self.required_materials.get(key) for key in self.required_materials.keys()]) # <3
+        else:
+            self.has_materials = all([self.raw_materials.count(key) >= self.construction_materials.get(key) for key in self.construction_materials.keys()]) # <3
 
     def on_built(self):
         self.is_built = True
+        self.raw_materials.clear()
+        self.on_resource_change()
+
         self.tile_color = g_vars["Structure"][self.structure_name]["TileColor"]
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
         print(self.structure_name + " built!")

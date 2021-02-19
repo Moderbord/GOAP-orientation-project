@@ -19,7 +19,6 @@ class PickupRefinerJob(GOAPAction):
         super().reset()
         # reset local state
         self.finished = False
-        # self.acquired_job = None
 
     def requires_in_range(self):
         # does action require agent to be in range
@@ -32,7 +31,12 @@ class PickupRefinerJob(GOAPAction):
     def check_precondition(self, agent):
         # check for any required criterias for the action
         # stays at first job acquired
-        return agent.owner.has_job(JobType.Work, Profession.Refiner)
+        job_found = agent.owner.has_job(JobType.Work, Profession.Refiner)
+
+        if agent.profession is None and job_found:
+            agent.profession = Profession.Refiner
+
+        return job_found
 
     def perform(self, agent):
         # perform the action 

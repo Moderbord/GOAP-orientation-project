@@ -27,15 +27,16 @@ class Player(GOAPAgent, GOAPProvidable):
         self.game_map = game_map
         self.starting_location = starting_location
 
-        self.collect_jobs = deque()
         self.build_jobs = deque()
-        self.upgrade_jobs = deque()
+        self.collect_jobs = deque()
+        self.upgrade_jobs = []
+        self.production_jobs = []
         self.fetch_jobs = []
         self.work_jobs = []
 
         self.ore_gatherers = 0
         self.logs_gatherers = 0
-
+        self.have_builder = False
         # actions
         # self.add_action(ProduceWorker())
         # self.add_action(AssignWorkerLogs())
@@ -133,13 +134,20 @@ class Player(GOAPAgent, GOAPProvidable):
             return Position(randint(1, 4), randint(6, 9))
 
     def add_job(self, job):
-        if job.job_type == JobType.Build:
+        if job.job_type == JobType.Production:
+            self.production_jobs.append(job)
+
+        elif job.job_type == JobType.Build:
             self.build_jobs.append(job)
 
             # maximum num of builders?
-            camp = self.get_structure("Camp") 
-            upgrade_job = Job(JobType.Upgrade, camp.position, Profession.Builder, camp.on_upgrade)
-            self.upgrade_jobs.append(upgrade_job)
+            if not self.have_builder:
+                production_job = Job(JobType.Production, None, "Artisan")
+                self.production_jobs.append(production_job)
+                self.have_builder = True
+
+                production_job = Job(JobType.Production, None, "Soldier") # tmp
+                self.production_jobs.append(production_job)
 
         elif job.job_type == JobType.Collect:
             self.collect_jobs.append(job)
@@ -150,16 +158,14 @@ class Player(GOAPAgent, GOAPProvidable):
         elif job.job_type == JobType.Work:
             self.work_jobs.append(job)
 
-            # create upgrade job to cover work demand (should match)
-            # units are upgraded at camp
-            camp = self.get_structure("Camp") 
-            upgrade_job = Job(JobType.Upgrade, camp.position, job.extra, camp.on_upgrade)
-            self.upgrade_jobs.append(upgrade_job)
+            # create unit to cover job
+            production_job = Job(JobType.Production, None, "Artisan")
+            self.production_jobs.append(production_job)
 
         elif job.job_type == JobType.Fetch:
             self.fetch_jobs.append(job)
 
-    def has_job(self, job_type, artisan=None):
+    def has_job(self, job_type, criteria=None):
 
         if job_type == JobType.Build:
             return len(self.build_jobs) > 0
@@ -168,18 +174,21 @@ class Player(GOAPAgent, GOAPProvidable):
             return len(self.collect_jobs) > 0
 
         elif job_type == JobType.Upgrade:
-            return len(self.upgrade_jobs) > 0
+            return len([job for job in self.upgrade_jobs if job.extra == criteria]) > 0 # unit must match precursor
+
+        elif job_type == JobType.Production:
+            return len([job for job in self.production_jobs if job.extra in criteria]) > 0 # must be able to produce any production target 
 
         elif job_type == JobType.Work:
-            return len([job for job in self.work_jobs if job.extra == artisan]) > 0
+            return len([job for job in self.work_jobs if job.extra == criteria]) > 0 # artisan profession must match any jobs requirement
 
         elif job_type == JobType.Fetch:
-            return len([job for job in self.fetch_jobs if self.has_resource(job.extra)]) > 0
+            return len([job for job in self.fetch_jobs if self.has_resource(job.extra)]) > 0 # one resource of target type must exist in resource pile
 
-    def get_job(self, job_type, artisan=None):
+    def get_job(self, job_type, criteria=None):
         job = None
         # early out
-        if not self.has_job(job_type, artisan):
+        if not self.has_job(job_type, criteria):
             return job
 
         if job_type == JobType.Build:
@@ -189,25 +198,50 @@ class Player(GOAPAgent, GOAPProvidable):
             job = self.collect_jobs.popleft()
 
         elif job_type == JobType.Upgrade:
-            job = self.upgrade_jobs.popleft()
+            job = self.__job_finder(self.upgrade_jobs, lambda x: x == criteria)
+            # index = 0
+            # for i in range(0, len(self.upgrade_jobs)):
+            #     if self.upgrade_jobs[i].extra == criteria:
+            #         index = i
+            #         break
+            # job = self.upgrade_jobs.pop(i)
+
+        elif job_type == JobType.Production:
+            job = self.__job_finder(self.production_jobs, lambda x: x in criteria)
+            # index = 0
+            # for i in range(0, len(self.production_jobs)):
+            #     if self.production_jobs[i].extra in criteria:
+            #         index = i
+            #         break
+            # job = self.production_jobs.pop(i)
 
         elif job_type == JobType.Work:
-            index = 0
-            for i in range(0, len(self.work_jobs)):
-                if self.work_jobs[i].extra == artisan:
-                    index = i
-                    break
-            job = self.work_jobs.pop(i)
+            job = self.__job_finder(self.work_jobs, lambda x: x == criteria)
+            # index = 0
+            # for i in range(0, len(self.work_jobs)):
+            #     if self.work_jobs[i].extra == criteria:
+            #         index = i
+            #         break
+            # job = self.work_jobs.pop(i)
                 
         elif job_type == JobType.Fetch:
-            index = 0
-            for i in range(0, len(self.fetch_jobs)):
-                if self.has_resource(self.fetch_jobs[i].extra) > 0:
-                    index = i
-                    break
-            job = self.fetch_jobs.pop(i)
+            job = self.__job_finder(self.fetch_jobs, lambda x: self.has_resource(x) > 0)
+            # index = 0
+            # for i in range(0, len(self.fetch_jobs)):
+            #     if self.has_resource(self.fetch_jobs[i].extra) > 0:
+            #         index = i
+            #         break
+            # job = self.fetch_jobs.pop(i)
 
         return job
+    
+    def __job_finder(self, job_list, condition):
+        index = 0
+        for i in range(0, len(job_list)):
+            if condition(job_list[i].extra):
+                index = i
+                break
+        return job_list.pop(i)
 
     def plan_found(self, goal, actions):
         pass

@@ -8,31 +8,33 @@ from GOAP.providable import GOAPProvidable
 from GOAP.action_set import ActionSet
 from GOAP.game_actor import GameActor
 
-from GOAP.Agents.artisan import Artisan
+from GOAP.Agents.soldier import Soldier
 
 # Actions
 from GOAP.Actions.Structures.pickup_production_job import PickupProductionJob
-from GOAP.Actions.Structures.produce_artisan import ProduceArtisan
-#from GOAP.Actions.Structures.produce_explorer import ProduceExplorer
-#from GOAP.Actions.Structures.produce_worker import ProduceWorker
+from GOAP.Actions.Structures.produce_soldier import ProduceSoldier
+from GOAP.Actions.Structures.create_build_job import CreateBuildJob
+from GOAP.Actions.Structures.create_fetch_job import CreateFetchJob
 
-class Camp(GOAPAgent, GameActor, GOAPProvidable):
+class Encampment(GOAPAgent, GameActor, GOAPProvidable):
 
     def __init__(self):
         GOAPAgent.__init__(self)
         self.data_provider = self
-        self.tile_color = g_vars["Structure"]["Camp"]["TileColor"]
+        self.tile_color = g_vars["Structure"]["Base"]["TileColor"]
         self.image = Surface((g_vars["Game"]["StructureSize"], g_vars["Game"]["StructureSize"]))
         GameActor.__init__(self)
-        self.position = Position(2, 2)
+        self.position = Position(8, 1)
         
         # local variables
-        self.structure_name = "Camp"
-        self.is_built = True
+        self.structure_name = "Encampment"
+        self.construction_materials = {"Logs" : 10}
+        self.build_time = 3
+        self.is_built = False
 
         # production
         self.raw_materials = []
-        self.production_table = {"Worker" : {}, "Artisan" : {}, "Explorer" : {}}
+        self.production_table = {"Soldier" : {"Sword" : 1} }
 
         # action specific
         self.production_target = ""
@@ -42,9 +44,9 @@ class Camp(GOAPAgent, GameActor, GOAPProvidable):
 
         # actions
         self.add_action(PickupProductionJob())
-        self.add_action(ProduceArtisan())
-        #self.add_action(ProduceExplorer())
-        #self.add_action(ProduceWorker())
+        self.add_action(ProduceSoldier())
+        self.add_action(CreateBuildJob())
+        self.add_action(CreateFetchJob())
 
     def create_world_state(self):
         # Returns an evaluated set of the world state
@@ -56,7 +58,9 @@ class Camp(GOAPAgent, GameActor, GOAPProvidable):
 
     def create_goal_state(self):        
         goal_state = ActionSet()
+        goal_state.add("isBuilt", True)
         goal_state.add("doJob", True)
+
         return goal_state
 
     def update(self):
@@ -64,16 +68,27 @@ class Camp(GOAPAgent, GameActor, GOAPProvidable):
         GameActor.update(self)
 
     def on_resource_change(self):
-        self.production_target_requirements = self.production_table.get(self.production_target, {})
+        # production/building material requirement
+        self.production_target_requirements = self.production_table.get(self.production_target, {}) if self.is_built else self.construction_materials
+        # count materials for given target
         self.has_materials = all([self.raw_materials.count(key) >= self.production_target_requirements.get(key) for key in self.production_target_requirements.keys()])
+
+    def on_built(self):
+        self.is_built = True
+        self.raw_materials.clear()
+        self.has_materials = False
+
+        self.tile_color = g_vars["Structure"][self.structure_name]["TileColor"]
+        self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
+        print(self.structure_name + " built!")
 
     def on_fetched(self, resource):
         self.raw_materials.append(resource)
-        self.on_resource_change() 
-
+        self.on_resource_change()      
+    
     def on_production_begin(self):
         self.production_ready = True
-    
+
         for material, amount in self.production_target_requirements.items():
             for x in range(amount):
                 self.raw_materials.remove(material)
@@ -89,15 +104,8 @@ class Camp(GOAPAgent, GameActor, GOAPProvidable):
         self.production_ready = False
 
         new_unit = None
-        if produced_unit == "Worker":
-            pass
-            #new_unit = Worker()
-        elif produced_unit == "Artisan":
-            new_unit = Artisan()
-        elif produced_unit == "Explorer":
-            pass
-            #new_unit = Explorer()
+        if produced_unit == "Soldier":
+            new_unit = Soldier()
 
         new_unit.position = Position(self.position.x, self.position.y)
         self.owner.add_unit(new_unit)
-

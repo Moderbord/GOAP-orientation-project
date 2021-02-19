@@ -63,7 +63,7 @@ class PickupFetchJob(GOAPAction):
                 return True
 
             # plan fails
-            agent.owner.add_work(self.acquired_job)
+            agent.owner.add_job(self.acquired_job)
             return False
             
         # get job

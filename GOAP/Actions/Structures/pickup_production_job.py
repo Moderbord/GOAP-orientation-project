@@ -1,14 +1,19 @@
-from GOAP.job_system import JobType
+from GOAP.job_system import Job, JobType
 
 from GOAP.action import GOAPAction
 
-class PickupUpgradeJob(GOAPAction):
+class PickupProductionJob(GOAPAction):
 
     def __init__(self):
         super().__init__()
+        # overrides
+        self.cost = 10
+        
         # local variables
         self.finished = False
-        self.acquired_job = None
+
+        # precondition
+        self.add_precondition("isBuilt", True)
 
         # effects
         self.add_effect("doJob", True)
@@ -17,11 +22,10 @@ class PickupUpgradeJob(GOAPAction):
         super().reset()
         # reset local state
         self.finished = False
-        self.acquired_job = None
 
     def requires_in_range(self):
         # does action require agent to be in range
-        return True if self.acquired_job else False
+        return False
 
     def completed(self):
         # is action completed
@@ -29,20 +33,15 @@ class PickupUpgradeJob(GOAPAction):
 
     def check_precondition(self, agent):
         # check for any required criterias for the action
-        return agent.owner.has_job(JobType.Upgrade, type(agent).__name__)
+        return agent.owner.has_job(JobType.Production, agent.production_table.keys())
 
     def perform(self, agent):
         # perform the action
-        if self.acquired_job:
-            self.finished = True
-            self.acquired_job.callback()
-            agent.destroy()
-            return True
-
-        job = agent.owner.get_job(JobType.Upgrade, type(agent).__name__)
+        job = agent.owner.get_job(JobType.Production, agent.production_table.keys())
         if job:
-            self.target = job.location
-            self.acquired_job = job
+            agent.production_target = job.extra
+            agent.on_resource_change()
+            self.finished = True
             return True
         
         return False

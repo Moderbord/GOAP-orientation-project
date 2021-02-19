@@ -2,6 +2,7 @@ from enum import Enum, auto
 
 class JobType(Enum):
     Build = auto()
+    Production = auto()
     Work = auto()
     Fetch = auto()
     Collect = auto()

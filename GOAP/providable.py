@@ -25,10 +25,11 @@ class GOAPProvidable:
         print(string + str(goal))
         
     def actions_finished(self):
-        print(type(self).__name__ + " done actions!")
+        #print(type(self).__name__ + " done actions!")
+        pass
 
     def plan_aborted(self, aborted_action):
-        print("Aborted plan: " + type(aborted_action).__name__)
+        #print("Aborted plan: " + type(aborted_action).__name__)
         pass
 
     def move_agent(self, next_action):

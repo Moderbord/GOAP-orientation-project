@@ -10,12 +10,12 @@ from GOAP.game_actor import GameActor
 from GOAP.Agents.artisan import Profession
 
 # Actions
-from GOAP.Actions.Structures.produce_coal import ProduceCoal
+from GOAP.Actions.Structures.produce_sword import ProduceSword
 from GOAP.Actions.Structures.create_build_job import CreateBuildJob
 from GOAP.Actions.Structures.create_work_job import CreateWorkJob
 from GOAP.Actions.Structures.create_fetch_job import CreateFetchJob
 
-class Refinery(GOAPAgent, GameActor, GOAPProvidable):
+class Smithy(GOAPAgent, GameActor, GOAPProvidable):
 
     def __init__(self):
         GOAPAgent.__init__(self)
@@ -23,22 +23,22 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
         self.tile_color = g_vars["Structure"]["Base"]["TileColor"]
         self.image = Surface((g_vars["Game"]["StructureSize"], g_vars["Game"]["StructureSize"]))
         GameActor.__init__(self)
-        self.position = Position(4, 5)
+        self.position = Position(1, 4)
         
         # local variables
-        self.structure_name = "Refinery"
+        self.structure_name = "Smithy"
         self.raw_materials = []
         self.produce = []
         self.is_built = False
         self.is_worked = False
         self.has_materials = False
-        self.construction_materials = {"Logs" : 10}
-        self.production_target_requirements = {"Logs" : 2}
-        self.required_artisan = Profession.Refiner
+        self.construction_materials = {"Logs" : 10, "IronBar" : 3}
+        self.production_target_requirements = {"Coal" : 2, "IronBar" : 1}
+        self.required_artisan = Profession.Smith
         self.build_time = 3
 
         # actions
-        self.add_action(ProduceCoal())
+        self.add_action(ProduceSword())
         self.add_action(CreateBuildJob())
         self.add_action(CreateWorkJob())
         self.add_action(CreateFetchJob())
@@ -56,7 +56,7 @@ class Refinery(GOAPAgent, GameActor, GOAPProvidable):
 
     def create_goal_state(self):        
         goal_state = ActionSet()
-        goal_state.add("produceCoal", True)
+        goal_state.add("produceSword", True)
 
         return goal_state
 

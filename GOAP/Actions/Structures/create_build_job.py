@@ -1,5 +1,6 @@
 from GOAP.action import GOAPAction
 from GOAP.job_system import Job, JobType
+from GOAP.Agents.artisan import Profession
 
 class CreateBuildJob(GOAPAction):
 

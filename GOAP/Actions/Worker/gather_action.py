@@ -45,7 +45,7 @@ class GatherAction(GOAPAction):
     def perform(self, agent):
         # drop off resource
         if self.gathered:
-            print("Delivered " + self.target_resource + "!")
+            #print("Delivered " + self.target_resource + "!")
             self.finished = True
             agent.backpack.remove(self.target_resource)
             agent.owner.add_resource(self.target_resource)
@@ -62,7 +62,7 @@ class GatherAction(GOAPAction):
         self.progress += time.clock.delta
 
         if self.progress >= self.duration:
-            print(type(agent).__name__ + " " + self.message_on_finish)
+            #print(type(agent).__name__ + " " + self.message_on_finish)
             agent.backpack.append(self.target_resource)
 
         return True

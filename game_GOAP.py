@@ -15,6 +15,9 @@ from GOAP.Agents.worker import Worker
 from GOAP.Agents.explorer import Explorer
 from GOAP.Agents.artisan import Artisan, Profession
 from GOAP.Agents.refinery import Refinery
+from GOAP.Agents.encampment import Encampment
+from GOAP.Agents.smithy import Smithy
+from GOAP.Agents.smelter import Smelter
 from GOAP.Agents.camp import Camp
 from GOAP.Agents.player import Player
 
@@ -28,7 +31,7 @@ class Game:
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
         self.map = gamemap.GameMap()
-        self.speed = 1
+        self.speed = 3
         self.paused = False
         self.draw_grid = False
         self.draw_ui = True
@@ -56,13 +59,15 @@ class Game:
         # player.add_unit(builder)
         # player.add_unit(refiner)
 
-        # refinery = Refinery()
         # refinery.on_fetched("Logs")
         # refinery.on_fetched("Logs")
         player.add_structure(Refinery())
         player.add_structure(Camp())
+        player.add_structure(Encampment())
+        player.add_structure(Smithy())
+        player.add_structure(Smelter())
 
-        for x in range(5):
+        for x in range(10):
             player.add_unit(Worker())
         
         # player.add_unit(Explorer())

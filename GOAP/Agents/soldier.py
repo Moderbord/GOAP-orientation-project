@@ -8,6 +8,7 @@ from GOAP.action_set import ActionSet
 from GOAP.game_actor import GameActor
 
 # Actions
+from GOAP.Actions.Explorer.explore import Explore
 
 class Soldier(GOAPAgent, GameActor, GOAPProvidable):
 
@@ -21,6 +22,7 @@ class Soldier(GOAPAgent, GameActor, GOAPProvidable):
         # local variables
 
         # actions
+        self.add_action(Explore())
 
     def create_world_state(self):
         # Returns an evaluated set of the world state
@@ -30,6 +32,7 @@ class Soldier(GOAPAgent, GameActor, GOAPProvidable):
 
     def create_goal_state(self):        
         goal_state = ActionSet()
+        goal_state.add("isExploring", True)
 
         return goal_state
 

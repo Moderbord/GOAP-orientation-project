@@ -146,8 +146,9 @@ class Player(GOAPAgent, GOAPProvidable):
                 self.production_jobs.append(production_job)
                 self.have_builder = True
 
-                production_job = Job(JobType.Production, None, "Soldier") # tmp
-                self.production_jobs.append(production_job)
+                for x in range(20):
+                    production_job = Job(JobType.Production, None, "Soldier") # tmp
+                    self.production_jobs.append(production_job)
 
         elif job.job_type == JobType.Collect:
             self.collect_jobs.append(job)
@@ -199,39 +200,15 @@ class Player(GOAPAgent, GOAPProvidable):
 
         elif job_type == JobType.Upgrade:
             job = self.__job_finder(self.upgrade_jobs, lambda x: x == criteria)
-            # index = 0
-            # for i in range(0, len(self.upgrade_jobs)):
-            #     if self.upgrade_jobs[i].extra == criteria:
-            #         index = i
-            #         break
-            # job = self.upgrade_jobs.pop(i)
 
         elif job_type == JobType.Production:
             job = self.__job_finder(self.production_jobs, lambda x: x in criteria)
-            # index = 0
-            # for i in range(0, len(self.production_jobs)):
-            #     if self.production_jobs[i].extra in criteria:
-            #         index = i
-            #         break
-            # job = self.production_jobs.pop(i)
 
         elif job_type == JobType.Work:
             job = self.__job_finder(self.work_jobs, lambda x: x == criteria)
-            # index = 0
-            # for i in range(0, len(self.work_jobs)):
-            #     if self.work_jobs[i].extra == criteria:
-            #         index = i
-            #         break
-            # job = self.work_jobs.pop(i)
                 
         elif job_type == JobType.Fetch:
             job = self.__job_finder(self.fetch_jobs, lambda x: self.has_resource(x) > 0)
-            # index = 0
-            # for i in range(0, len(self.fetch_jobs)):
-            #     if self.has_resource(self.fetch_jobs[i].extra) > 0:
-            #         index = i
-            #         break
-            # job = self.fetch_jobs.pop(i)
 
         return job
     

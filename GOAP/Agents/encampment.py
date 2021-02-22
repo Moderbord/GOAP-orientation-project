@@ -80,7 +80,7 @@ class Encampment(GOAPAgent, GameActor, GOAPProvidable):
 
         self.tile_color = g_vars["Structure"][self.structure_name]["TileColor"]
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
-        print(self.structure_name + " built!")
+        #print(self.structure_name + " built!")
 
     def on_fetched(self, resource):
         self.raw_materials.append(resource)

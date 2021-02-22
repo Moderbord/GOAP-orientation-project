@@ -53,4 +53,4 @@ class GameActor(Sprite):
         if self.owner:
             self.owner.remove_unit(self)
         Sprite.remove(self, self.groups)
-        print("Removed " + type(self).__name__)
+        #print("Removed " + type(self).__name__)

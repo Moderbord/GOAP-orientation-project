@@ -37,7 +37,7 @@ class ProduceResource(GOAPAction):
             self.progress += time.clock.delta
 
             if self.progress >= self.production_time:
-                print(type(agent).__name__ + " " + self.message_on_finish)
+                #print(type(agent).__name__ + " " + self.message_on_finish)
                 agent.produce.append(self.target_resource)
                 self.finished = True
 

@@ -39,7 +39,7 @@ class ProduceWorker(GOAPAction):
         self.progress += time.clock.delta
 
         if self.progress >= self.duration:
-            print(self.production_target.__name__ + " " + self.message_on_finish)
+            #print(self.production_target.__name__ + " " + self.message_on_finish)
             self.finished = True
             agent.add_unit(self.production_target())
 

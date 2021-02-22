@@ -77,11 +77,11 @@ class Smelter(GOAPAgent, GameActor, GOAPProvidable):
 
         self.tile_color = g_vars["Structure"][self.structure_name]["TileColor"]
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
-        print(self.structure_name + " built!")
+        #print(self.structure_name + " built!")
 
     def on_worked(self):
         self.is_worked = True
-        print(self.structure_name + " operational!")
+        #print(self.structure_name + " operational!")
 
     def on_fetched(self, resource):
         self.raw_materials.append(resource)

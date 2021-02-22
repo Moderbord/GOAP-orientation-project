@@ -102,11 +102,36 @@ class Game:
 
     def run(self):
         self.running = True
+
+        frames = 0
+        update_time = 0.0
+        draw_time = 0.0
+
+        t_start = time.now()
+
         while (self.running):
-            time.clock.update(g_vars["Game"]["FPS"], self.speed)
-            self.events()
+            time.clock.update(60, self.speed)  
+            frames += 1
+            t1 = time.now()  
             self.update()
+            t2 = time.now()
+            update_time += t2 - t1
             self.draw()
+            t3 = time.now()
+            draw_time += t3 - t2
+            self.events()
+
+            self.running = len(self.ai_player.entities_where(lambda x: type(x).__name__ == "UnitSoldier")) < 20
+
+        t_end = time.now()
+
+        print("--------------------- BARF FORTRESS --------------------")
+        print("Elapsed time: " + str(t_end - t_start) + " ms")
+        print("Frames: " + str(frames))
+        print("Update time: " + str(update_time) + " ms")
+        print("Update efficiency: " + str(update_time / frames) + " ms/frame")
+        print("Draw time: " + str(draw_time) + " ms")
+        print("Draw efficiency: " + str(draw_time / frames) + " ms/frame")
 
     def update(self):
         # send screen to map for blit

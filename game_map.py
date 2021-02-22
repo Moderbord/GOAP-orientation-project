@@ -81,11 +81,11 @@ class GameMap:
         self.camera = Camera(self.width, self.height)
 
     def update(self):
-        self.sprite_group_background.update()
+        #self.sprite_group_background.update()
         self.sprite_group_resources.update()
         self.sprite_group_structures.update()
         self.sprite_group_units.update()
-        self.sprite_group_fog.update()
+        #self.sprite_group_fog.update()
 
     def draw(self, screen):
         # loop through all tiles

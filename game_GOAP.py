@@ -1,7 +1,6 @@
 #import math
 #from random import randint
 
-from os import W_OK
 from GOAP.transform import Position
 import pygame as pg
 
@@ -31,7 +30,7 @@ class Game:
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
         self.map = gamemap.GameMap()
-        self.speed = 3
+        self.speed = 5
         self.paused = False
         self.draw_grid = False
         self.draw_ui = True
@@ -67,7 +66,7 @@ class Game:
         player.add_structure(Smithy())
         player.add_structure(Smelter())
 
-        for x in range(10):
+        for x in range(50):
             player.add_unit(Worker())
         
         # player.add_unit(Explorer())
@@ -82,17 +81,42 @@ class Game:
         for agent in self.agents:
             agent.start_agent()
 
+        frames = 0
+        update_time = 0.0
+        draw_time = 0.0
+
+        t_start = time.now()
+
         while (self.running):
             #time.clock.update(g_vars["Game"]["FPS"], self.speed)
-            time.clock.update(60, self.speed)    
+            time.clock.update(60, self.speed)  
+            frames += 1
+            t1 = time.now()  
             self.update()
+            t2 = time.now()
+            update_time += t2 - t1
             self.draw()
+            t3 = time.now()
+            draw_time += t3 - t2
             self.events()
+
+            self.running = self.agents[0].count_units("Soldier") < 20
+
+        t_end = time.now()
+
+        print("")
+        print("------------------- BARF FORTRESS 2.0 --------------------")
+        print("Elapsed time: " + str(t_end - t_start) + " ms")
+        print("Frames: " + str(frames))
+        print("Update time: " + str(update_time) + " ms")
+        print("Update efficiency: " + str(update_time / frames) + " ms/frame")
+        print("Draw time: " + str(draw_time) + " ms")
+        print("Draw efficiency: " + str(draw_time / frames) + " ms/frame")
 
     def update(self):
         # send screen to map for blit
-        if not self.paused:
-            self.map.update()
+        # if not self.paused:
+        #     self.map.update()
 
         # AI
         for agent in self.agents:

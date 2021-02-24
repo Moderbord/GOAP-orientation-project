@@ -1,5 +1,7 @@
 import queue
 
+import custom_thread as c_thread
+
 from GOAP.FSM.fsm import FSM
 from GOAP.planner import GOAPPlanner
 

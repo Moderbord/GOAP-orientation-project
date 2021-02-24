@@ -30,7 +30,7 @@ class Game:
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
         self.map = gamemap.GameMap()
-        self.speed = 5
+        self.speed = 20
         self.paused = False
         self.draw_grid = False
         self.draw_ui = True
@@ -100,7 +100,7 @@ class Game:
             draw_time += t3 - t2
             self.events()
 
-            self.running = self.agents[0].count_units("Soldier") < 1
+            self.running = self.agents[0].count_units("Soldier") < 20
 
         t_end = time.now()
 

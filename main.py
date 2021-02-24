@@ -13,7 +13,8 @@ from game_GOAP import Game as GOAP_GAME
 gg = GOAP_GAME()
 gg.set_map("default_map.txt")
 gg.set_fog_visibility(False)
-gg.enable_GOAP_ai()
+#gg.enable_GOAP_ai()
+gg.enable_dragon_scenario()
 gg.run()
 
 

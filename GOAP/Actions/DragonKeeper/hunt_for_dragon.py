@@ -37,7 +37,7 @@ class HuntForDragon(GOAPAction):
 
     def check_precondition(self, agent):
         # check for any required criterias for the action
-        self.target = Position(-3, 5)
+        self.target = Position(3, 25)
         return True
 
     def perform(self, agent):

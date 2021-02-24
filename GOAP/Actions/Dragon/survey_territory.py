@@ -16,6 +16,7 @@ class SurveyTerritory(GOAPAction):
 
         # loval variables
         self.finished = False
+        self.area = 25
         self.points_visited = 0
         self.survey_points = 0
 
@@ -49,7 +50,7 @@ class SurveyTerritory(GOAPAction):
     def check_precondition(self, agent):
         # check for any required criterias for the action
         self.survey_points = random.randint(2, 5)
-        self.target = Position(random.randint(-25, 25), random.randint(-25, 25))
+        self.target = Position(random.randint(self.area, self.area * 2), random.randint(self.area, self.area * 2))
         return True
 
     def perform(self, agent):
@@ -66,7 +67,7 @@ class SurveyTerritory(GOAPAction):
             agent.social -= 50
         else:
             # next target
-            self.target = Position(random.randint(-25, 25), random.randint(-25, 25))
+            self.target = Position(random.randint(self.area, self.area * 2), random.randint(self.area, self.area * 2))
             self.in_range = False
 
         return True

@@ -41,7 +41,7 @@ class HuntForMeat(GOAPAction):
     def check_precondition(self, agent):
         # check for any required criterias for the action
         area = 10
-        self.target = Position(random.randint(-area, area), random.randint(-area, area))
+        self.target = Position(random.randint(area, area * 2), random.randint(area, area * 2))
         return True
 
     def perform(self, agent):

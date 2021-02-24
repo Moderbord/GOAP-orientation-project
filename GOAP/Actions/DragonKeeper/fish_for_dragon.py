@@ -32,7 +32,7 @@ class FishForDragon(GOAPAction):
         # does action require agent to be in range
         return True
 
-    def get_cost(self):
+    def get_cost(self, agent):
         return random.randint(25, 75)
 
     def completed(self):
@@ -41,7 +41,7 @@ class FishForDragon(GOAPAction):
 
     def check_precondition(self, agent):
         # check for any required criterias for the action
-        self.target = Position(1, -5)
+        self.target = Position(7, 15)
         return True
 
     def perform(self, agent):

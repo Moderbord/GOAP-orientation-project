@@ -3,6 +3,7 @@ from pygame.sprite import Sprite
 import game_time as time
 import custom_thread as c_thread
 from game_settings import g_vars
+from game_server import g_map
 
 from GOAP.transform import Position
 from GOAP.transform import distance
@@ -12,6 +13,7 @@ class GameActor(Sprite):
     def __init__(self) -> None:
         self.position = Position(1, 1)
         self.move_speed = 1
+        self.move_factor = 1
         self.move_progress = 0.0
         self.move_threshold = 1.0
 
@@ -55,7 +57,7 @@ class GameActor(Sprite):
 
     def move(self, dx=0, dy=0):
         self.position = Position(self.position.x + dx, self.position.y + dy)
-        self.current_tile = self.owner.game_map.get_background_tile((self.position.x, self.position.y))
+        self.current_tile = g_map.get_background_tile((self.position.x, self.position.y))
 
     def move_actor(self, next_action):
         # movement
@@ -74,7 +76,7 @@ class GameActor(Sprite):
                 # get required movement threshold
                 self.move_threshold = self.current_tile.movement_straight if (dx * dy == 0) else self.current_tile.movement_diagonal
                 # take movement factor into account
-                self.move_progress += time.clock.delta #* self.move_factor
+                self.move_progress += time.clock.delta * self.move_factor
                 if self.move_progress >= self.move_threshold:
                     # reset progress
                     self.move_progress = 0
@@ -105,7 +107,7 @@ class GameActor(Sprite):
         position = (self.position.x, self.position.y)
         
         self.current_path = path
-        self.current_tile = self.owner.game_map.get_background_tile(position)
+        self.current_tile = g_map.get_background_tile(position)
         self.next_tile = path[position]
 
     # Method will create a separate thread and calculate a path between two points
@@ -116,7 +118,7 @@ class GameActor(Sprite):
             #     fog_filter_funtion = self.owner.gamemap.location_is_discovered
             position = (self.position.x, self.position.y)
             thread = c_thread.BaseThread(
-                target=self.owner.game_map.get_path,
+                target=g_map.get_path,
                 target_args=(position, goal, fog_filter_funtion),
                 callback=__callback,
                 callback_args=[]

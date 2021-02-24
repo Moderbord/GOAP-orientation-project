@@ -1,28 +1,22 @@
-#import math
-#from random import randint
-
-from GOAP.transform import Position
 import pygame as pg
 
-#import ai_state as states
-import game_entities as entities
 import game_map as gamemap
 import game_time as time
 from game_settings import g_vars
+from game_server import g_map
 
 from GOAP.Agents.worker import Worker
-from GOAP.Agents.explorer import Explorer
-from GOAP.Agents.artisan import Artisan, Profession
 from GOAP.Agents.refinery import Refinery
 from GOAP.Agents.encampment import Encampment
 from GOAP.Agents.smithy import Smithy
 from GOAP.Agents.smelter import Smelter
 from GOAP.Agents.camp import Camp
 from GOAP.Agents.player import Player
+from GOAP.transform import Position
 
-# TODO visible resources / resource piles
-# TODO explorer search bias
-# TODO better production (ex. when queuing artisan it should produce one)
+# Dragon 
+from GOAP.Agents.dragon_keeper import DragonKeeper
+from GOAP.Agents.dragon import Dragon
 
 class Game:
 
@@ -42,13 +36,17 @@ class Game:
     # Specify a gamemap to use
     def set_map(self, map_name):
         # load map
-        self.map.load_map_template(map_name)
+        #self.map.load_map_template(map_name)
+        self.map = g_map
         # Updates screen size to loaded map
         self.screen = pg.display.set_mode((g_vars["Game"]["ScreenWidth"], g_vars["Game"]["ScreenHeight"]))
 
+    def enable_dragon_scenario(self):
+        dragon = Dragon()
+        self.agents.append(DragonKeeper(dragon))
+        self.agents.append(dragon)
+
     def enable_GOAP_ai(self):
-        #agents.append(DragonKeeper(dragon))
-        #agents.append(dragon)
         player = Player(self.map, Position(3, 3))
 
         # builder = Artisan()
@@ -81,6 +79,10 @@ class Game:
         for agent in self.agents:
             agent.start_agent()
 
+            # dragon scenario
+            agent.groups = g_map.sprite_group_units
+            agent.start_actor()
+
         frames = 0
         update_time = 0.0
         draw_time = 0.0
@@ -100,7 +102,7 @@ class Game:
             draw_time += t3 - t2
             self.events()
 
-            self.running = self.agents[0].count_units("Soldier") < 20
+            #self.running = self.agents[0].count_units("Soldier") < 20
 
         t_end = time.now()
 

@@ -1,7 +1,11 @@
+from pygame import Surface
+
+from game_settings import g_vars
 import game_time as time
 
 from GOAP.action_set import ActionSet
 from GOAP.agent import GOAPAgent
+from GOAP.game_actor import GameActor
 from GOAP.providable import GOAPProvidable
 from GOAP.transform import Position
 from GOAP.transform import distance
@@ -14,18 +18,21 @@ from GOAP.Actions.Dragon.return_home import ReturnHome
 from GOAP.Actions.Dragon.wait_for_meat import WaitForMeat
 from GOAP.Actions.Dragon.hunt_for_meat import HuntForMeat
 
-class Dragon(GOAPAgent, GOAPProvidable):
+class Dragon(GOAPAgent, GameActor, GOAPProvidable):
 
     def __init__(self):
-        super().__init__()
+        GOAPAgent.__init__(self)
         self.data_provider = self
+        self.tile_color = g_vars["Unit"]["Soldier"]["TileColor"]
+        self.image = Surface((g_vars["Game"]["UnitSize"], g_vars["Game"]["UnitSize"]))
+        GameActor.__init__(self)
 
         # overrides
-        self.move_threshold = 1.0/4.0
+        self.move_factor = 4
 
         # local variables
-        self.position = Position(3, 0)
-        self.home = Position(3, 0)
+        self.position = Position(3, 1)
+        self.home = Position(3, 1)
         self.backpack = []
         self.health = 100
         self.hunger = 0
@@ -45,7 +52,8 @@ class Dragon(GOAPAgent, GOAPProvidable):
         self.add_action(HuntForMeat())
     
     def update(self):
-        super().update()
+        GOAPAgent.update(self)
+        GameActor.update(self)
         self.hunger += 2.0 * time.clock.delta
         self.social += 1.0 * time.clock.delta
         self.boredom += 3.0 * time.clock.delta

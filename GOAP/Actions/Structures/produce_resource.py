@@ -33,7 +33,7 @@ class ProduceResource(GOAPAction):
 
     def perform(self, agent):
         # perform the action
-        if self.is_producing:
+        if agent.production_ready:
             self.progress += time.clock.delta
 
             if self.progress >= self.production_time:
@@ -48,11 +48,8 @@ class ProduceResource(GOAPAction):
             return True
 
         if agent.has_materials:
-            for material, amount in agent.production_target_requirements.items():
-                for x in range(amount):
-                    agent.raw_materials.remove(material)
-
-            agent.on_resource_change()
+            agent.on_production_begin()
+            agent.inventory_update()
             self.is_producing = True
 
         return True

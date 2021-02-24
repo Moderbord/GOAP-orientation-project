@@ -53,7 +53,7 @@ class ProduceUnit(GOAPAction):
                 #print(type(agent).__name__ + " " + self.message_on_finish)
                 self.on_production_finish()
                 # reset
-                agent.on_resource_change()
+                agent.inventory_update()
                 agent.production_target = "" 
                 agent.production_ready = False
                 

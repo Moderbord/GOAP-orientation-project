@@ -42,7 +42,7 @@ class CreateBuildJob(GOAPAction):
         # need materials
         if not self.requested_materials:
             for material, required_amount in agent.construction_materials.items():
-                current_amount = agent.raw_materials.count(material)
+                current_amount = agent.inventory.count(material)
                 diff = max(required_amount - current_amount, 0)
 
                 for x in range(0, diff):
@@ -53,7 +53,7 @@ class CreateBuildJob(GOAPAction):
 
         # then worker
         if not self.requested_builder and agent.has_materials:
-            new_job = Job(JobType.Build, agent.position, agent.build_time, agent.on_built)
+            new_job = Job(JobType.Build, agent.position, agent.construction_time, agent.on_built)
             agent.owner.add_job(new_job)
             self.requested_builder = True
 

@@ -39,12 +39,6 @@ class GOAPPlanner:
             # print("Failed to evaluate plan")
             return None
 
-        # cheapest_node = None
-        # for node in leaves:
-        #     if not cheapest_node:
-        #         cheapest_node = node
-        #     else:
-        #         cheapest_node = node if node.cost < cheapest_node.cost else cheapest_node
         cheapest_node = min(leaves, key=lambda x: x.cost)
 
         result = queue.deque()
@@ -80,7 +74,6 @@ class GOAPPlanner:
 
         return solution
 
-
     def subset(self, action_cost_table, remove_action):
         new_set = {}
         for action, cost in action_cost_table.items():
@@ -101,39 +94,10 @@ class GOAPPlanner:
             if not req_value == cur_value: #..and solve conditions..
                 return False
 
-            # if current_set.amount - required_set.amount < 0: #..and have the required amount
-            #     return False
-
         return True
-
-    # def solves_state(self, goal, current_state):
-
-    #     match = False
-
-    #     for state_key, state_value in current_state.items():
-    #         goal_value = goal.get(state_key, None)
-
-    #         if goal_value is None: # value doesn't exist in goal -> doesn't effect goal state
-    #             continue
-
-    #         if state_value != goal_value: # value exist and differs from goal state -> stop
-    #             match = False
-    #             break
-    #         else:
-    #             match = True # at least one match must be same as in goal state
-
-    #     return match
 
     def populate_state(self, parent_state, action_effects):
         new_state = ActionSet()
         new_state.update(parent_state)      # update with current base values
         new_state.update(action_effects)    # update with new values
-
-        # for key, new_set in action_effects.items():     # take changes into account
-        #     prev_set = new_state.get(key)
-        #     if not prev_set:                            # value_set doesn't exist -> simply add
-        #         new_state[key] = new_set
-        #     else:                                       # value_set exist -> update to new value and add amount
-        #         new_state.add(key, new_set.value, new_set.amount + prev_set.amount)
-
         return new_state

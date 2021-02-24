@@ -40,7 +40,7 @@ class PickupProductionJob(GOAPAction):
         job = agent.owner.get_job(JobType.Production, agent.production_table.keys())
         if job:
             agent.production_target = job.extra
-            agent.on_resource_change()
+            agent.inventory_update()
             self.finished = True
             return True
         

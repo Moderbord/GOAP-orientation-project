@@ -1,14 +1,8 @@
-from GOAP.transform import Position
-from pygame import Surface
-
 from game_settings import g_vars
 
-from GOAP.agent import GOAPAgent
-from GOAP.providable import GOAPProvidable
+from GOAP.transform import Position
+from GOAP.Agents.structure import Structure
 from GOAP.action_set import ActionSet
-from GOAP.game_actor import GameActor
-
-from GOAP.Agents.soldier import Soldier
 
 # Actions
 from GOAP.Actions.Structures.pickup_production_job import PickupProductionJob
@@ -16,31 +10,19 @@ from GOAP.Actions.Structures.produce_soldier import ProduceSoldier
 from GOAP.Actions.Structures.create_build_job import CreateBuildJob
 from GOAP.Actions.Structures.create_fetch_job import CreateFetchJob
 
-class Encampment(GOAPAgent, GameActor, GOAPProvidable):
+class Encampment(Structure):
 
     def __init__(self):
-        GOAPAgent.__init__(self)
-        self.data_provider = self
-        self.tile_color = g_vars["Structure"]["Base"]["TileColor"]
-        self.image = Surface((g_vars["Game"]["StructureSize"], g_vars["Game"]["StructureSize"]))
-        GameActor.__init__(self)
+        Structure.__init__(self)
         self.position = Position(8, 1)
-        
+
         # local variables
         self.structure_name = "Encampment"
+        self.construction_time = 3
         self.construction_materials = {"Logs" : 10}
-        self.build_time = 3
-        self.is_built = False
 
         # production
-        self.raw_materials = []
-        self.production_table = {"Soldier" : {"Sword" : 1} }
-
-        # action specific
-        self.production_target = ""
-        self.production_target_requirements = {}
-        self.has_materials = False
-        self.production_ready = False
+        self.production_table = {"Soldier" : {"Sword" : 1}}
 
         # actions
         self.add_action(PickupProductionJob())
@@ -62,33 +44,3 @@ class Encampment(GOAPAgent, GameActor, GOAPProvidable):
         goal_state.add("doJob", True)
 
         return goal_state
-
-    def update(self):
-        GOAPAgent.update(self)
-        GameActor.update(self)
-
-    def on_resource_change(self):
-        # production/building material requirement
-        self.production_target_requirements = self.production_table.get(self.production_target, {}) if self.is_built else self.construction_materials
-        # count materials for given target
-        self.has_materials = all([self.raw_materials.count(key) >= self.production_target_requirements.get(key) for key in self.production_target_requirements.keys()])
-
-    def on_built(self):
-        self.is_built = True
-        self.raw_materials.clear()
-        self.has_materials = False
-
-        self.tile_color = g_vars["Structure"][self.structure_name]["TileColor"]
-        self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
-        #print(self.structure_name + " built!")
-
-    def on_fetched(self, resource):
-        self.raw_materials.append(resource)
-        self.on_resource_change()      
-    
-    def on_production_begin(self):
-        self.production_ready = True
-
-        for material, amount in self.production_target_requirements.items():
-            for x in range(amount):
-                self.raw_materials.remove(material)

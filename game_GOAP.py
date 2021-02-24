@@ -100,7 +100,7 @@ class Game:
             draw_time += t3 - t2
             self.events()
 
-            self.running = self.agents[0].count_units("Soldier") < 20
+            self.running = self.agents[0].count_units("Soldier") < 1
 
         t_end = time.now()
 

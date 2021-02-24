@@ -35,8 +35,8 @@ class CreateFetchJob(GOAPAction):
 
     def perform(self, agent):
         # perform the action
-        for material, required_amount in agent.production_target_requirements.items():
-            current_amount = agent.raw_materials.count(material)
+        for material, required_amount in agent.production_table.get(agent.production_target).items():
+            current_amount = agent.inventory.count(material)
             diff = max(required_amount - current_amount, 0)
 
             for x in range(0, diff):

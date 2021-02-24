@@ -92,20 +92,3 @@ class Encampment(GOAPAgent, GameActor, GOAPProvidable):
         for material, amount in self.production_target_requirements.items():
             for x in range(amount):
                 self.raw_materials.remove(material)
-
-    def on_production_finish(self, produced_unit):
-        if self.production_target != produced_unit:
-            print("PRODUCTION ERROR!! WRONG UNIT NOT PRODUCED")
-            return
-
-        # reset
-        self.on_resource_change()
-        self.production_target = "" 
-        self.production_ready = False
-
-        new_unit = None
-        if produced_unit == "Soldier":
-            new_unit = Soldier()
-
-        new_unit.position = Position(self.position.x, self.position.y)
-        self.owner.add_unit(new_unit)

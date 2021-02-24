@@ -3,6 +3,8 @@ import game_time as time
 from GOAP.action import GOAPAction
 from GOAP.Agents.worker import Worker
 
+# TODO update to new standard
+
 class ProduceWorker(GOAPAction):
 
     def __init__(self):

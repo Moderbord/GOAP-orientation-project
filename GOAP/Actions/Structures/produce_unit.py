@@ -13,6 +13,10 @@ class ProduceUnit(GOAPAction):
         self.requested_unit = False
         self.progress = 0
 
+        # refs
+        self.agent_position = None
+        self.add_player_unit = None
+
     def reset(self):
         super().reset()
         # reset local state
@@ -33,14 +37,26 @@ class ProduceUnit(GOAPAction):
         # check for any required criterias for the action
         return True
 
+    def on_start(self, agent):
+        super().on_start(agent)
+        self.agent_position = agent.position
+        self.add_player_unit = agent.owner.add_unit
+
     def perform(self, agent):
         # perform the action
+
+        # produce
         if self.is_producing:
             self.progress += time.clock.delta
 
             if self.progress >= self.production_time:
                 #print(type(agent).__name__ + " " + self.message_on_finish)
-                agent.on_production_finish(self.target_unit)
+                self.on_production_finish()
+                # reset
+                agent.on_resource_change()
+                agent.production_target = "" 
+                agent.production_ready = False
+                
                 self.finished = True
 
             return True

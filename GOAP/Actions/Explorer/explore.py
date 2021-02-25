@@ -1,5 +1,7 @@
 from random import randint
 
+from game_server import g_map
+
 from GOAP.transform import Position
 from GOAP.action import GOAPAction
 
@@ -41,4 +43,7 @@ class Explore(GOAPAction):
         return True
 
     def __get_new_position(self):
-        return Position(randint(1, 50), randint(1, 50))
+        pos = (randint(1, 50), randint(1, 50))
+        while pos in g_map.unpassable_tiles:
+            pos = (randint(1, 50), randint(1, 50))
+        return Position(pos[0], pos[1])

@@ -1,4 +1,6 @@
-import random
+from random import randint
+
+from game_server import g_map
 
 from GOAP.action import GOAPAction
 from GOAP.transform import Position
@@ -49,9 +51,12 @@ class SurveyTerritory(GOAPAction):
 
     def check_precondition(self, agent):
         # check for any required criterias for the action
-        self.survey_points = random.randint(2, 5)
-        self.target = Position(random.randint(self.area, self.area * 2), random.randint(self.area, self.area * 2))
+        self.target = self.__get_new_position()
         return True
+
+    def on_start(self, agent):
+        super().on_start(agent)
+        self.survey_points = randint(2, 5)
 
     def perform(self, agent):
         # perform the action
@@ -67,7 +72,13 @@ class SurveyTerritory(GOAPAction):
             agent.social -= 50
         else:
             # next target
-            self.target = Position(random.randint(self.area, self.area * 2), random.randint(self.area, self.area * 2))
+            self.target = self.__get_new_position()
             self.in_range = False
 
         return True
+
+    def __get_new_position(self):
+        pos = (randint(1, self.area), randint(1, self.area * 2))
+        while pos in g_map.unpassable_tiles:
+            pos = (randint(1, self.area), randint(1, self.area * 2))
+        return Position(pos[0], pos[1])

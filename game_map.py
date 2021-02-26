@@ -7,6 +7,7 @@ import game_tiles as tiles
 import game_entities as entities
 import algorithms as alg
 from game_settings import g_vars
+from camera import camera
 
 class GameMap:
 
@@ -21,7 +22,6 @@ class GameMap:
         self.occupied_tiles = {}
         self.unpassable_tiles = []
         self.weighted_graph = None
-        self.camera = None
         self.width = 0
         self.height = 0
         self.tile_width = 0
@@ -76,9 +76,9 @@ class GameMap:
 
         self.width = self.tile_width * g_vars["Game"]["TileSize"]
         self.height = self.tile_height * g_vars["Game"]["TileSize"]
+        camera.set_resolution(self.width, self.height)
 
         self.weighted_graph = alg.WeightedGraph(self)
-        self.camera = Camera(self.width, self.height)
 
     def update(self):
         #self.sprite_group_background.update()
@@ -97,24 +97,24 @@ class GameMap:
                     tile = self.get_fog_tile((x, y))
                     # draw fog if it exists
                     if tile:
-                        screen.blit(tile.image, self.camera.apply(tile))
+                        screen.blit(tile.image, camera.apply(tile))
                         continue
                 
                 # draw background
                 tile = self.get_background_tile((x, y))
-                screen.blit(tile.image, self.camera.apply(tile))
+                screen.blit(tile.image, camera.apply(tile))
                 # draw resource if any
                 if tile.has_resources_remaining():
                     for resource in tile.resource_list:
-                        screen.blit(resource.image, self.camera.apply(resource))
+                        screen.blit(resource.image, camera.apply(resource))
 
         for sprite in self.sprite_group_structures:
             if sprite.is_visible:
-                screen.blit(sprite.image, self.camera.apply(sprite))
+                screen.blit(sprite.image, camera.apply(sprite))
 
         for sprite in self.sprite_group_units:
             if sprite.is_visible:
-                screen.blit(sprite.image, self.camera.apply(sprite))
+                screen.blit(sprite.image, camera.apply(sprite))
 
     def get_background_tile(self, cords):
         return self.tile_data[cords]
@@ -174,21 +174,5 @@ class GameMap:
 
     def get_path(self, start, goal, filter_function):
         return alg.Astar(self.weighted_graph, goal, start, filter_function)
-
-class Camera:
-    def __init__(self, width, height):
-        self.camera = pg.Rect(0, 0, width, height)
-        self.width = width
-        self.height = height
-        self.x = 0
-        self.y = 0
-
-    def apply(self, entity):
-        return entity.rect.move(self.camera.topleft)
-
-    def move(self, dx=0, dy=0):
-        self.x += dx * int(g_vars["Game"]["TileSize"])
-        self.y += dy * int(g_vars["Game"]["TileSize"])
-        self.camera = pg.Rect(-self.x, -self.y, self.width, self.height)
 
     

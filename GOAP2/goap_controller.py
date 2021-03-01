@@ -25,14 +25,24 @@ class GOAPController():
 
     def setup(self, entity, blackboard):
         self.entity = entity
-        
+        # blackboard
         blackboard.set_position(entity.position)
         self.blackboard = blackboard
-
-        self.navigation_mgr.set_blackboard(self.blackboard)
+        # working memory
+        self.working_memory = WorkingMemory()
+        # navigation
+        if self.navigation_mgr:
+            self.navigation_mgr.set_blackboard(self.blackboard)
+        # targeting
+        if self.target_mgr:
+            self.target_mgr.set_blackboard(self.blackboard)
+            self.target_mgr.set_working_memory(self.working_memory)
 
     def enable_navigation(self):
         self.navigation_mgr = NavigationManager()
+
+    def enable_targeting(self):
+        self.target_mgr = TargetManager()
     
     def update(self):
         # Check if agent has moved
@@ -41,6 +51,7 @@ class GOAPController():
             self.blackboard.new_position_notified()
 
         self.entity.update()
+        self.target_mgr.update()
         self.navigation_mgr.update()
 
     

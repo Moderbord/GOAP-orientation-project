@@ -4,6 +4,7 @@ class Blackboard():
     def __init__(self) -> None:
         self.navigation_target = None
         self.navigation_status = False
+        self.current_target_type = None
         self.position = None
         self.movement_speed = 0
         self.movement_factor = 0
@@ -21,6 +22,12 @@ class Blackboard():
 
     def get_navigation_status(self):
         return self.navigation_status
+
+    def set_current_target_type(self, target):
+        self.current_target_type = target
+
+    def get_current_target_type(self):
+        return self.current_target_type
 
     def set_position(self, value):
         self.position = value

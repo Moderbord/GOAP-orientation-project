@@ -9,6 +9,7 @@ from game_server import g_map
 from camera import camera
 
 from GOAP2.goap_controller import GOAPController, Blackboard
+from GOAP2.working_memory import WorkingMemoryFact, FactType
 from GOAP2.units.worker import Worker
 
 class Game:
@@ -41,7 +42,17 @@ class Game:
         blackboard = Blackboard()
         agent = GOAPController()
         agent.enable_navigation()
+        agent.enable_targeting()
         agent.setup(worker, blackboard)
+        agent.blackboard.set_current_target_type(FactType.Resource)
+
+        fact_x = WorkingMemoryFact()
+        fact_x.set_pos(Position(3, 6), 0.5).set_ftype(FactType.Resource)
+        fact_y = WorkingMemoryFact()
+        fact_y.set_pos(Position(3, 7), 0.6).set_ftype(FactType.Resource)
+
+        agent.working_memory.create_fact(fact_x)
+        agent.working_memory.create_fact(fact_y)
 
         self.agents.append(agent)
         ##

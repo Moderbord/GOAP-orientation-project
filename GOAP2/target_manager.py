@@ -1,4 +1,5 @@
 from GOAP2.__manager import __Manager
+from GOAP2.working_memory import FactType
 
 class TargetManager(__Manager):
 
@@ -6,12 +7,18 @@ class TargetManager(__Manager):
         super().__init__()
         self.update_interval = 1
         self.working_memory = None
+        self.target_type = None
 
     def select_best_target(self):
-        pass
+        fact = self.working_memory.get_fact_with_highest_confidence(self.target_type, lambda attrib: attrib.position.confidence)
+        if fact:
+            self.blackboard.set_navigation_target(fact.position.value)
+        else:
+            print("Didn't find any targeting fact")
 
     def set_working_memory(self, target):
         self.working_memory = target
 
     def _update(self):
-        pass
+        self.target_type = self.blackboard.get_current_target_type()
+        self.select_best_target()

@@ -1,3 +1,6 @@
+from random import randint
+
+from GOAP.transform import Position
 import pygame as pg
 
 import game_time as time
@@ -5,6 +8,7 @@ from game_settings import g_vars
 from game_server import g_map
 from camera import camera
 
+from GOAP2.goap_controller import GOAPController, Blackboard
 from GOAP2.units.worker import Worker
 
 class Game:
@@ -34,7 +38,12 @@ class Game:
 
         ##
         worker = Worker()
-        self.agents.append(worker)
+        blackboard = Blackboard()
+        agent = GOAPController()
+        agent.enable_navigation()
+        agent.setup(worker, blackboard)
+
+        self.agents.append(agent)
         ##
 
         frames = 0
@@ -81,7 +90,10 @@ class Game:
             self.map.draw_fog = not self.map.draw_fog
 
         if keystate[pg.K_SPACE]:
-            self.paused = not self.paused
+            #self.paused = not self.paused
+            target = Position(randint(1, 10), randint(1, 10))
+            agent = self.agents[0]
+            agent.blackboard.set_navigation_target(target)
 
         if keystate[pg.K_KP_PLUS]:
             self.speed += 5
@@ -121,16 +133,13 @@ class Game:
 
         # Agents
         for agent in self.agents:
-            self.draw_agent(agent)
+            agent.entity.render(self.screen, camera)
 
         # Overlay
         if self.draw_grid:
             self.draw_grid_overlay()
         # Flip
         pg.display.flip()
-
-    def draw_agent(self, agent):
-        self.screen.blit(agent.image, camera.apply(agent))
 
     def events(self):
         # catch events here

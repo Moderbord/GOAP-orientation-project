@@ -6,6 +6,6 @@ class SensorManager(__Manager):
         super().__init__()
         self.update_interval = 1
 
-    def __update(self):
+    def _update(self):
         # update sensors
         pass

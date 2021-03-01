@@ -6,17 +6,20 @@ class __Manager():
         self.update_interval = 0
         self.time_since_last_update = 0
         self.last_update = 0
+        self.blackboard = None
 
     def setup(self):
-        self.time_since_last_update = time.now()
+        self.time_since_last_update = 0
+
+    def set_blackboard(self, blackboard):
+        self.blackboard = blackboard
 
     def update(self):
-        current_time = time.now()
-        if current_time - self.time_since_last_update > self.update_interval:
-            self.time_since_last_update = current_time
-            self.__update()
+        self.time_since_last_update += time.clock.delta
+        if self.time_since_last_update > self.update_interval:
+            self.time_since_last_update = 0
+            self._update()
 
     # updated in inheritance
-    def __update(self):
+    def _update(self):
         pass
-

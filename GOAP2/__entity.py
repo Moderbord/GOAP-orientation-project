@@ -13,6 +13,10 @@ class __Entity():
         #
         self.position = Position(2, 2)
 
+        # "XML"
+        self.goals = []
+        self.available_actions = []
+
     def set_position(self, position):
         self.position = position
 

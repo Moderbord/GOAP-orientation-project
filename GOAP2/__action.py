@@ -5,7 +5,7 @@ class __Action():
         self.preconditions = {}
         self.effects = {}
         self.interruptable = False
-        self.cost = 0
+        self.cost = 3
 
     def validate_action(self):
         pass
@@ -23,5 +23,5 @@ class __Action():
         pass
 
     def get_cost(self):
-        pass
+        return self.cost
 

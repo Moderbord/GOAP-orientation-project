@@ -23,12 +23,3 @@ owo = Game()
 owo.set_map("default_map.txt")
 owo.set_fog_visibility(False)
 owo.run()
-
-
-    
-    
-
-
-
-
-

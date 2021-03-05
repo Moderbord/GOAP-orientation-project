@@ -7,21 +7,21 @@ class __Action():
         self.interruptable = False
         self.cost = 3
 
-    def validate_action(self):
+    def is_valid(self, blackboard):
+        return True
+
+    def apply_context_effects(self): # already in planner?
         pass
 
-    def apply_context_effects(self):
+    def is_applicable(self, blackboard):
         pass
 
-    def validate_context_preconditions(self):
+    def activate(self, blackboard):
         pass
 
-    def activate_action(self):
+    def is_complete(self, blackboard):
         pass
 
-    def is_action_complete(self):
-        pass
-
-    def get_cost(self):
+    def get_cost(self): # currently redundant
         return self.cost
 

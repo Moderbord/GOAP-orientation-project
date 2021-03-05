@@ -18,9 +18,10 @@ class ResourceSensor(__Sensor):
     def scan_resources(self):
         for x in range(4, 8):
             for y in range (1, 4):
-                if g_map.tile_data[(x, y)].has_resources_remaining():
+                tile = g_map.tile_data.get((x, y))
+                if tile and tile.has_resources_remaining():
                     fact = WorkingMemoryFact()
-                    fact.set_pos(Position(x, y), float(x) / float(8)).set_ftype(FactType.Resource)
+                    fact.set_pos(Position(x, y), float(x) / float(8)).set_ftype(FactType.Resource) # need to store type of resource
                     self.working_memory.create_fact(fact)
                     print("Created fact")
 

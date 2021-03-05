@@ -14,6 +14,11 @@ class FactType(Enum):
     Produce = auto()
     Resource = auto()
     Material = auto()
+    Delivery = auto()
+
+class Object(Enum):
+    pass
+    # TODO use this instead of strings?
 
 class WorkingMemoryFact():
 
@@ -54,20 +59,21 @@ class WorkingMemoryFact():
 class WorkingMemory():
 
     def __init__(self) -> None:
-        self.data = []
+        self.data = {}
 
     def read_fact(self):
         pass
 
     def create_fact(self, fact):
-        self.data.append(fact)
+        if self.data.get(fact.fact_type) is None:
+            self.data[fact.fact_type] = [fact]
+        else:
+            self.data.get(fact.fact_type).append(fact)
 
     def query_fact(self):
         pass
 
     def get_fact_with_highest_confidence(self, fact_type, attribute):
-        facts = [f for f in self.data if f.fact_type == fact_type]
-        fact = None
-        if len(facts) > 0:
-            fact = max(facts, key=attribute, default=None)
+        facts = self.data.get(fact_type, [])
+        fact = max(facts, key=attribute, default=None)
         return fact

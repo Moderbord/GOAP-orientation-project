@@ -62,12 +62,25 @@ class GOAPPlanner():
                     new_goal_state = self.apply_action_context(current.goal_state, action.preconditions)
                     new_world_state = self.apply_action_context(current.world_state, action.effects)
                     action_subset = self.create_action_subset(current.action_set, action) # make a copy of current actions and remove self to stop recurrency
+
                     node = GOAPNode(current, new_cost, action, new_goal_state, new_world_state, action_subset)
                     queue.put(node, new_cost)
 
+        # plan failed                    
         if end is None:
-            return False
+            return
+        # create sequence
+        action_sequence = []
+        s = ""
+        while True:
+            if end.action is None:
+                print(s + str(end.goal_state))
+                break
+            s += type(end.action).__name__ +" -> "
+            action_sequence.append(end.action)
+            end = end.parent
 
+        return action_sequence
 
     def available_actions(self, goal_state, actions):
         _actions = [action for action in actions if self.solves_conditions(goal_state, action.effects)]

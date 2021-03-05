@@ -7,7 +7,6 @@ from GOAP2.goal_manager import GoalManager
 from GOAP2.__entity import __Entity
 
 from GOAP2.goal_action_library import g_galibrary
-from GOAP2.goap_planner import g_planner
 
 
 class GOAPController():
@@ -22,9 +21,6 @@ class GOAPController():
         self.working_memory = None
         # GOAP
         self.goal_mgr = None
-        self.action_set = []
-        self.current_world_states = None
-        self.plan = None
 
     def setup(self, entity, blackboard):
         self.entity = entity
@@ -47,12 +43,11 @@ class GOAPController():
 
         # GOAP
         self.goal_mgr = GoalManager()
-        self.goal_mgr.goal_set = g_galibrary.load_goals(entity.goals)
-        self.action_set = g_galibrary.load_actions(entity.available_actions)
-
-        ws = {"HasResources" : False, "HasTools" : False}
-        g_planner.build_plan(self.goal_mgr.goal_set[0].goal_state, ws, self.action_set)
-
+        self.goal_mgr.set_blackboard(self.blackboard)
+        self.goal_mgr.set_goals(g_galibrary.load_goals(entity.goals))
+        self.goal_mgr.set_actions(g_galibrary.load_actions(entity.available_actions))
+        self.goal_mgr.set_world_state(entity.world_state)
+       
     def enable_navigation(self):
         self.navigation_mgr = NavigationManager()
 
@@ -71,6 +66,7 @@ class GOAPController():
         self.sensor_mgr.update()
         self.target_mgr.update()
         self.navigation_mgr.update()
+        self.goal_mgr.update()
         self.entity.update()
 
     

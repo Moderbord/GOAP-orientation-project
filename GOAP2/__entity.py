@@ -16,6 +16,7 @@ class __Entity():
         # "XML"
         self.goals = []
         self.available_actions = []
+        self.world_state = {}
 
     def set_position(self, position):
         self.position = position

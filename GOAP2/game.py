@@ -19,7 +19,7 @@ class Game:
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
         self.map = None
-        self.speed = 1
+        self.speed = 2
         self.paused = False
         self.draw_grid = False
         self.agents = []
@@ -48,15 +48,11 @@ class Game:
         agent.setup(worker, blackboard)
         agent.sensor_mgr.add_sensor(ResourceSensor())
 
-        agent.blackboard.set_current_target_type(FactType.Resource)
+        agent.blackboard.set_request_replan(True)
 
-        # fact_x = WorkingMemoryFact()
-        # fact_x.set_pos(Position(3, 6), 0.5).set_ftype(FactType.Resource)
-        # fact_y = WorkingMemoryFact()
-        # fact_y.set_pos(Position(3, 7), 0.6).set_ftype(FactType.Resource)
-
-        # agent.working_memory.create_fact(fact_x)
-        # agent.working_memory.create_fact(fact_y)
+        fact_x = WorkingMemoryFact()
+        fact_x.set_pos(Position(2, 2), 0.5).set_ftype(FactType.Delivery)
+        agent.working_memory.create_fact(fact_x)
 
         self.agents.append(agent)
         ##

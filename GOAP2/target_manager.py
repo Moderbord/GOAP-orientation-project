@@ -14,11 +14,12 @@ class TargetManager(__Manager):
         if fact:
             self.blackboard.set_navigation_target(fact.position.value)
         else:
+            self.blackboard.set_navigation_target(None)
             print("Didn't find any targeting fact")
 
     def set_working_memory(self, target):
         self.working_memory = target
 
     def _update(self):
-        self.target_type = self.blackboard.get_current_target_type()
+        self.target_type = self.blackboard.get_target_fact_type()
         self.select_best_target()

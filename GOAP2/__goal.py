@@ -6,13 +6,13 @@ class __Goal():
         self.relevancy = 0.0
         self.goal_state = {}
 
-    def update_relevance(self):
+    def get_relevancy(self):
         pass
 
     def clear_relevance(self):
         pass
 
-    def apply_goal_state(self, state):
+    def apply_goal_state(self, state): # already in planner?
         state.update(self.goal_state)
 
     

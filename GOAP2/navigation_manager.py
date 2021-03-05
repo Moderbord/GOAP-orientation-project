@@ -1,9 +1,17 @@
+from enum import Enum, auto
+
 import custom_thread as c_thread
 import game_time as time
 from game_server import g_map
 
 from GOAP.transform import Position
 from GOAP2.__manager import __Manager
+
+class NavStatus(Enum):
+    Invalid = auto()
+    Pending = auto()
+    Traversing = auto()
+    Arrived = auto()
 
 class NavigationManager(__Manager):
 
@@ -17,9 +25,6 @@ class NavigationManager(__Manager):
         self.move_threshold = 2
         self.move_progress = 0
         #
-
-    def set_destination(self, target):
-        self.current_destination = target
 
     def set_path(self, path):
         self.current_path = path
@@ -35,25 +40,28 @@ class NavigationManager(__Manager):
 
     def _update(self):
         target = self.blackboard.get_navigation_target()
+        # early out
+        if target is None:
+            self.blackboard.set_navigation_status(NavStatus.Invalid)
+            return
+            
         # check if target has updated
         if self.current_destination != target:
+            self.current_destination = target
             self.current_path = None
-            print("Destination changed..")
 
-        if target and self.current_path is None:
-            #self.finding_path = True
             position = self.blackboard.get_position()
             self.__find_path(position.tuple(), target.tuple(), self.__get_path_callback)
-            self.set_destination(target)
-            print("Looking for path to " + str(target.x) + "," + str(target.y))
+            self.blackboard.set_navigation_status(NavStatus.Pending)
+            print("Destination changed! Looking for path to " + str(target.x) + "," + str(target.y))
 
         if self.current_path:
             if self.next_tile is None:
-                self.current_path = None
                 # Arrived
+                self.current_path = None
                 self.current_destination = None
                 self.blackboard.set_navigation_target(None)
-                self.blackboard.set_navigation_status(True)
+                self.blackboard.set_navigation_status(NavStatus.Arrived)
                 print("Arrived at destination")
                 return True
             
@@ -64,6 +72,7 @@ class NavigationManager(__Manager):
                     self.move_progress = 0
                     # move
                     self.move_to_next_position()
+                self.blackboard.set_navigation_status(NavStatus.Traversing)
 
     # Method will create a separate thread and calculate a path between two points
     def __find_path(self, start, goal, __callback, fog=True):

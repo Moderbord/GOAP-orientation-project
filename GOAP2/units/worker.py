@@ -2,7 +2,6 @@ from pygame import Surface
 
 from game_settings import g_vars
 
-from GOAP2.goal_action_library import g_CollectResource, a_GatherBerries, a_GatherLogs, a_GetTools, a_DeliverResources
 from GOAP2.__entity import __Entity
 
 class Worker(__Entity):
@@ -13,5 +12,7 @@ class Worker(__Entity):
         self.image = Surface((g_vars["Game"]["UnitSize"], g_vars["Game"]["UnitSize"]))
         super().__init__()
 
+        # self.goals = ["CollectOre", "CollectLogs"]
         self.goals = ["CollectResources"]
-        self.available_actions = ["GatherBerries", "GatherLogs", "GetTools", "DeliverResources"]
+        self.available_actions = ["GatherOre", "GatherLogs", "DeliverResources"]
+        self.world_state = {"HasResources" : False}

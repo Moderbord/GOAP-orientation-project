@@ -2,15 +2,28 @@
 class Blackboard():
 
     def __init__(self) -> None:
+        self.inventory = []
         self.navigation_target = None
         self.navigation_status = False
-        self.current_target_type = None
+        self.target_fact_type = None
+        self.target_object = None
         self.position = None
         self.movement_speed = 0
         self.movement_factor = 0
         self.new_position = False
         self.replan_requested = False
 
+    # inventory
+    def add_object(self, object):
+        self.inventory.append(object)
+
+    def remove_object(self, object):
+        self.inventory.remove(object) # TODO check first
+
+    def has_object(self, object):
+        return object in self.inventory
+
+    # navigation
     def set_navigation_target(self, target):
         self.navigation_target = target
 
@@ -23,12 +36,10 @@ class Blackboard():
     def get_navigation_status(self):
         return self.navigation_status
 
-    def set_current_target_type(self, target):
-        self.current_target_type = target
+    def has_navigation_status(self, value):
+        return self.navigation_status == value
 
-    def get_current_target_type(self):
-        return self.current_target_type
-
+    # position
     def set_position(self, value):
         self.position = value
         self.new_position = True
@@ -36,6 +47,13 @@ class Blackboard():
     def get_position(self):
         return self.position
 
+    def new_position_notified(self):
+        self.new_position = False
+
+    def has_new_position(self):
+        return self.new_position
+
+    # movement
     def set_movement_speed(self, value):
         self.movement_speed = value
 
@@ -47,15 +65,23 @@ class Blackboard():
 
     def get_movement_factor(self):
         return self.movement_factor
+    
+    # memory
+    def set_target_fact_type(self, target):
+        self.target_fact_type = target
 
-    def new_position_notified(self):
-        self.new_position = False
+    def get_target_fact_type(self):
+        return self.target_fact_type
 
-    def has_new_position(self):
-        return self.new_position
+    def set_target_object_type(self, target):
+        self.target_object = target
 
-    def request_replan(self):
-        self.replan_requested = True
+    def get_target_object_type(self):
+        return self.target_object
+
+    # planning
+    def set_request_replan(self, value):
+        self.replan_requested = value
 
     def is_replan_requested(self):
         return self.replan_requested

@@ -48,7 +48,7 @@ class Player():
         return False
 
     def count_resource(self, resource):
-        return len([x for x in self.resources if type(x).__name__ == resource])
+        return len([x for x in self.resources if x == resource])
 
     def get_resource_drop_off_loc(self):
         return Position(2, 4)

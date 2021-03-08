@@ -7,7 +7,7 @@ class Blackboard():
         self.navigation_status = False
         self.manual_navigation = False
         self.target_fact_type = None
-        self.target_object = None
+        self.targeting_function = None
         self.position = None
         self.movement_speed = 0
         self.movement_factor = 0
@@ -82,15 +82,16 @@ class Blackboard():
     # memory
     def set_target_fact_type(self, target):
         self.target_fact_type = target
+        self.targeting_function = None
 
     def get_target_fact_type(self):
         return self.target_fact_type
 
-    def set_target_object_type(self, target):
-        self.target_object = target
+    def set_targeting_function(self, function):
+        self.targeting_function = function
 
-    def get_target_object_type(self):
-        return self.target_object
+    def get_targeting_function(self):
+        return self.targeting_function
 
     # planning
     def set_request_replan(self, value):

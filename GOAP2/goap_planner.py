@@ -31,7 +31,7 @@ class GOAPNode:
 
 class GOAPPlanner():
 
-    def build_plan(self, goal_state, world_state, action_set):
+    def build_plan(self, agent_id, goal_state, world_state, action_set):
         
         start = GOAPNode(None, 0, None, goal_state, world_state, action_set)
         end = None
@@ -54,7 +54,7 @@ class GOAPPlanner():
             # Check cost of each available action that solves preconditions
             for action in self.available_actions(unsatisfied_conditions, current.action_set):
                 # new cost is equal to current planning cost + targeted actions cost
-                new_cost = current.cost + action.cost
+                new_cost = current.cost + action.get_cost(agent_id)
                 # If planning cost to action hasn't already been evaluated, or is lower than previous evaluated planning cost, update
                 if action not in action_cost_table or new_cost < action_cost_table[action]:
                     action_cost_table[action] = new_cost

@@ -8,9 +8,15 @@ class TargetManager(__Manager):
         super().__init__(agent_id)
         self.update_interval = 1.2
         self.target_fact_type = None
+        self.targeting_function = None
 
     def select_best_target(self):
-        fact = g_wmm.get_working_memory(self.agent_id).get_fact_with_highest_confidence(self.target_fact_type, lambda attrib: attrib.position.confidence)
+        fact = None
+        if self.targeting_function:
+            fact = g_wmm.get_working_memory(self.agent_id).read_fact_type_where(self.target_fact_type, self.targeting_function)
+        else:
+            fact = g_wmm.get_working_memory(self.agent_id).get_fact_with_highest_confidence(self.target_fact_type, lambda x: x.position.confidence)
+
         blackboard = g_bbm.get_blackboard(self.agent_id)
         if fact:
             blackboard.set_navigation_target(fact.position.value)
@@ -25,5 +31,6 @@ class TargetManager(__Manager):
             return
 
         self.target_fact_type = blackboard.get_target_fact_type()
-        if self.target_fact_type is not None:
+        self.targeting_function = blackboard.get_targeting_function()
+        if self.target_fact_type:
             self.select_best_target()

@@ -30,7 +30,7 @@ class GoalManager(__Manager):
                 # get only actions that currently can be executed
                 available_actions = [a for a in self.actions if a.is_valid_in_context(self.agent_id)]
                 # build plan
-                action_sequence = g_planner.build_plan(best_goal.goal_state, self.world_state, available_actions)
+                action_sequence = g_planner.build_plan(self.agent_id, best_goal.goal_state, self.world_state, available_actions)
                 if action_sequence:
                     self.plan.set_action_plan(action_sequence)
                     self.plan.activate(self.agent_id)

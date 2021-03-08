@@ -61,7 +61,7 @@ class ResourceSensor(__Sensor):
                             #     print("Updated fact")
                         else:
                             g_wmm.get_working_memory(agent_id).create_fact(fact)
-                            print("Created " + resource + " fact")
+                            #print("Created " + resource + " fact")
 
     def perform_task(self, agent_id: int):
         #print("Scanning for resources..")

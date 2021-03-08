@@ -14,6 +14,7 @@ class Blackboard():
         self.new_position = False
         self.replan_requested = False
         self.timed_action_progress = 0.0
+        self.doing_timed_action = False
 
     # inventory
     def add_object(self, object):
@@ -105,8 +106,18 @@ class Blackboard():
     def get_progress_time(self):
         return self.timed_action_progress
 
-    def reset_progress_time(self):
+    def began_timed_action(self):
+        return self.doing_timed_action
+
+    def begin_timed_action(self):
+        self.doing_timed_action = True
+
+    def reset_timed_progress(self):
+        self.doing_timed_action = False
         self.timed_action_progress = 0.0
+
+
+#####
     
 class BlackboardManager():
 

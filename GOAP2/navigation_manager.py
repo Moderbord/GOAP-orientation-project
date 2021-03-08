@@ -30,7 +30,7 @@ class NavigationManager(__Manager):
         self.current_path = path
         position = g_bbm.get_blackboard(self.agent_id).get_position()
         self.next_tile = self.current_path[position.tuple()]
-        print("Found path")
+        #print("Found path")
 
     def move_to_next_position(self):
         new_position = Position(self.next_tile[0], self.next_tile[1])
@@ -53,7 +53,7 @@ class NavigationManager(__Manager):
 
             position = blackboard.get_position()
             blackboard.set_navigation_status(NavStatus.Pending)
-            print("Destination changed! Looking for path to " + str(target.x) + "," + str(target.y))
+            #print("Destination changed! Looking for path to " + str(target.x) + "," + str(target.y))
             self.__find_path(position.tuple(), target.tuple(), self.__get_path_callback)
 
         if self.current_path:
@@ -63,7 +63,7 @@ class NavigationManager(__Manager):
                 #self.current_destination = None
                 blackboard.set_navigation_target(None)
                 blackboard.set_navigation_status(NavStatus.Arrived)
-                print("Arrived at destination")
+                #print("Arrived at destination")
                 return True
             
             else:
@@ -95,4 +95,5 @@ class NavigationManager(__Manager):
         if result:
             self.set_path(result)
         else:
-            print("path callback result failed")
+            pass
+            #print("path callback result failed")

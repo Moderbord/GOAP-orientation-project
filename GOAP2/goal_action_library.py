@@ -53,10 +53,17 @@ class a_Explore(__Action):
         self.effects = {"FindResources": True}
     
     def activate(self, agent_id: int):
-        pass
+        bb = g_bbm.get_blackboard(agent_id)
+        bb.set_manual_navigation_target(Position(randint(1, 20), randint(1, 20)))
 
     def is_complete(self, agent_id: int):
-        return True # TODO need to check working memory if agent has found resources
+        bb = g_bbm.get_blackboard(agent_id)
+        if bb.has_navigation_status(NavStatus.Arrived):
+            #bb.set_manual_navigation_target(Position(randint(1, 20), randint(1, 20)))
+            bb.set_manual_navigation(False)
+            return True
+            
+        return False # TODO need to check working memory if agent has found resources
         
 
 
@@ -67,7 +74,7 @@ class __a_GatherAction(__Action):
     def __init__(self) -> None:
         super().__init__()
         self.target_resource = None
-        self.started_gathering = False
+        #self.started_gathering = False
         self.gather_time = 5
 
     def is_valid_in_context(self, agent_id: int):
@@ -82,17 +89,15 @@ class __a_GatherAction(__Action):
 
     def is_complete(self, agent_id: int):
         blackboard = g_bbm.get_blackboard(agent_id)
-        if self.started_gathering:
+        if blackboard.began_timed_action():
             blackboard.add_progress_time(time.clock.delta)
             if blackboard.get_progress_time() > self.gather_time:
-                g_player.add_resource(self.target_resource)
+                blackboard.reset_timed_progress()
                 print("Gathered " + self.target_resource + "!")
-                blackboard.reset_progress_time()
-                self.started_gathering = False
                 return True
 
         if blackboard.has_navigation_status(NavStatus.Arrived):
-            self.started_gathering = True
+            blackboard.begin_timed_action()
             # remove memory fact?
         return False
 
@@ -121,6 +126,7 @@ class __a_DeliverResourceAction(__Action):
 
     def __init__(self) -> None:
         super().__init__()
+        self.target_resource = None
         self.preconditions = {}
         self.effects = {}
 
@@ -129,6 +135,7 @@ class __a_DeliverResourceAction(__Action):
 
     def is_complete(self, agent_id: int):
         if g_bbm.get_blackboard(agent_id).has_navigation_status(NavStatus.Arrived):
+            g_player.add_resource(self.target_resource)
             print("Deliver complete!")
             return True
         return False
@@ -138,6 +145,7 @@ class a_DeliverLogs(__a_DeliverResourceAction):
 
     def __init__(self) -> None:
         super().__init__()
+        self.target_resource = "Logs"
         self.preconditions = {"HasLogs": True}
         self.effects = {"CollectLogs": True}
 
@@ -148,6 +156,7 @@ class a_DeliverOre(__a_DeliverResourceAction):
 
     def __init__(self) -> None:
         super().__init__()
+        self.target_resource = "Ore"
         self.preconditions = {"HasOre": True}
         self.effects = {"CollectOre": True}
 

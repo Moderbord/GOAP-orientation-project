@@ -40,21 +40,23 @@ class Game:
         self.running = True
 
         ##
-        worker = Worker()
-        agent = GOAPController()
-        agent.setup(worker)
-        agent.enable_navigation()
-        agent.enable_targeting()
-        agent.enable_sensors()
-        agent.attach_sensor(ResourceSensor())
+        for x in range(0, 1):
+                
+            worker = Worker()
+            agent = GOAPController()
+            agent.setup(worker)
+            agent.enable_navigation()
+            agent.enable_targeting()
+            agent.enable_sensors()
+            agent.attach_sensor(ResourceSensor())
 
-        agent.blackboard.set_request_replan(True)
+            agent.blackboard.set_request_replan(True)
 
-        fact_x = WorkingMemoryFact()
-        fact_x.set_pos(Position(2, 2), 0.5).set_ftype(FactType.Delivery)
-        agent.working_memory.create_fact(fact_x)
+            fact_x = WorkingMemoryFact()
+            fact_x.set_pos(Position(2, 2), 0.5).set_ftype(FactType.Delivery)
+            agent.working_memory.create_fact(fact_x)
 
-        self.agents.append(agent)
+            self.agents.append(agent)
         ##
 
         frames = 0
@@ -104,7 +106,7 @@ class Game:
             #self.paused = not self.paused
             target = Position(randint(1, 10), randint(1, 10))
             agent = self.agents[0]
-            agent.blackboard.set_navigation_target(target)
+            agent.blackboard.set_navigation_target(target) # will get overriden, use manual instead (need to be able to revert later)
 
         if keystate[pg.K_KP_PLUS]:
             self.speed += 5

@@ -1,11 +1,13 @@
+from random import randint
+
 import game_time as time
 from GOAP.transform import Position
 
-from GOAP2.blackboard import Blackboard
-from GOAP2.working_memory import WorkingMemory, FactType
-from GOAP2.navigation_manager import NavStatus
 from GOAP2.__goal import __Goal
 from GOAP2.__action import __Action
+from GOAP2.navigation_manager import NavStatus
+from GOAP2.working_memory import WorkingMemory, FactType, g_wmm
+from GOAP2.blackboard import g_bbm
 from GOAP2.player import g_player
 
 # region --- GOALS ---
@@ -16,7 +18,7 @@ class g_FindResources(__Goal):
         super().__init__()
         self.goal_state = {"FindResources": True}
 
-    def get_relevancy(self):
+    def get_relevancy(self, agent_id: int):
         return 0.1
 
 
@@ -26,7 +28,7 @@ class g_CollectOre(__Goal):
         super().__init__()
         self.goal_state = {"CollectOre": True}
 
-    def get_relevancy(self):
+    def get_relevancy(self, agent_id: int):
         return 0.5
 
 
@@ -36,7 +38,7 @@ class g_CollectLogs(__Goal):
         super().__init__()
         self.goal_state = {"CollectLogs": True}
 
-    def get_relevancy(self):
+    def get_relevancy(self, agent_id: int):
         return 0.7
 # endregion
 
@@ -50,11 +52,13 @@ class a_Explore(__Action):
         self.preconditions = {}
         self.effects = {"FindResources": True}
     
-    def activate(self, blackboard: Blackboard):
+    def activate(self, agent_id: int):
         pass
 
-    def is_complete(self, blackboard):
+    def is_complete(self, agent_id: int):
         return True # TODO need to check working memory if agent has found resources
+        
+
 
 # region Gathering
 
@@ -66,16 +70,18 @@ class __a_GatherAction(__Action):
         self.started_gathering = False
         self.gather_time = 5
 
-    def is_valid_in_context(self, working_memory: WorkingMemory):
+    def is_valid_in_context(self, agent_id: int):
         # agent must have a memory fact with the correct resource object
-        return working_memory.read_fact_type_where(FactType.Resource, lambda x: any([f.object.value == self.target_resource for f in x]))
+        return g_wmm.get_working_memory(agent_id).read_fact_type_where(FactType.Resource, lambda x: any([f.object.value == self.target_resource for f in x]))
         #return True
 
-    def activate(self, blackboard: Blackboard):
+    def activate(self, agent_id: int):
+        blackboard = g_bbm.get_blackboard(agent_id)
         blackboard.set_target_fact_type(FactType.Resource)
         blackboard.set_target_object_type(self.target_resource)
 
-    def is_complete(self, blackboard: Blackboard):
+    def is_complete(self, agent_id: int):
+        blackboard = g_bbm.get_blackboard(agent_id)
         if self.started_gathering:
             blackboard.add_progress_time(time.clock.delta)
             if blackboard.get_progress_time() > self.gather_time:
@@ -118,11 +124,11 @@ class __a_DeliverResourceAction(__Action):
         self.preconditions = {}
         self.effects = {}
 
-    # def activate(self, blackboard: Blackboard):
+    # def activate(self):
     #     blackboard.set_target_fact_type(FactType.Delivery)
 
-    def is_complete(self, blackboard: Blackboard):
-        if blackboard.has_navigation_status(NavStatus.Arrived):
+    def is_complete(self, agent_id: int):
+        if g_bbm.get_blackboard(agent_id).has_navigation_status(NavStatus.Arrived):
             print("Deliver complete!")
             return True
         return False
@@ -135,9 +141,8 @@ class a_DeliverLogs(__a_DeliverResourceAction):
         self.preconditions = {"HasLogs": True}
         self.effects = {"CollectLogs": True}
 
-    def activate(self, blackboard: Blackboard):
-        blackboard.set_target_fact_type(FactType.Delivery)
-
+    def activate(self, agent_id: int):
+        g_bbm.get_blackboard(agent_id).set_target_fact_type(FactType.Delivery)
 
 class a_DeliverOre(__a_DeliverResourceAction):
 
@@ -146,8 +151,8 @@ class a_DeliverOre(__a_DeliverResourceAction):
         self.preconditions = {"HasOre": True}
         self.effects = {"CollectOre": True}
 
-    def activate(self, blackboard: Blackboard):
-        blackboard.set_target_fact_type(FactType.Delivery)
+    def activate(self, agent_id: int):
+        g_bbm.get_blackboard(agent_id).set_target_fact_type(FactType.Delivery)
 
 # endregion
 

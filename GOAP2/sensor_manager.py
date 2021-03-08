@@ -2,15 +2,12 @@ from GOAP2.__manager import __Manager
 
 class SensorManager(__Manager):
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.working_memory = None
+    def __init__(self, agent_id) -> None:
+        super().__init__(agent_id)
         self.sensors = []
         #self.update_interval = 1
 
     def add_sensor(self, sensor):
-        sensor.set_blackboard(self.blackboard)
-        sensor.set_working_memory(self.working_memory)
         self.sensors.append(sensor)
 
     def has_sensor(self, target):
@@ -22,4 +19,4 @@ class SensorManager(__Manager):
     def _update(self):
         # update sensors
         for sensor in self.sensors:
-            sensor.update()
+            sensor.update(self.agent_id)

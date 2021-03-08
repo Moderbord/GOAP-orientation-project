@@ -98,3 +98,18 @@ class WorkingMemory():
         facts = self.data.get(fact_type, [])
         fact = max(facts, key=attribute, default=None)
         return fact
+
+class WorkingMemoryManager():
+
+    def __init__(self) -> None:
+        self.agent_table = {}
+
+    def create_working_memory(self, agent_id: int) -> WorkingMemory:
+        working_memory = WorkingMemory()
+        self.agent_table[agent_id] = working_memory
+        return working_memory
+
+    def get_working_memory(self, agent_id: int) -> WorkingMemory:
+        return self.agent_table.get(agent_id)
+
+g_wmm = WorkingMemoryManager()

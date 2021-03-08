@@ -1,4 +1,3 @@
-
 class __Action():
 
     def __init__(self) -> None:
@@ -7,21 +6,21 @@ class __Action():
         self.interruptable = False
         self.cost = 3
 
-    def is_valid(self, blackboard):
+    def is_valid(self, agent_id: int):
         return True
 
     def apply_context_effects(self): # already in planner?
         pass
 
-    def is_valid_in_context(self, working_memory):
+    def is_valid_in_context(self, agent_id: int):
         return True
 
-    def activate(self, blackboard):
+    def activate(self, agent_id: int):
         pass
 
-    def is_complete(self, blackboard):
+    def is_complete(self, agent_id: int):
         pass
 
-    def get_cost(self): # currently redundant
+    def get_cost(self, agent_id: int): # currently redundant
         return self.cost
 

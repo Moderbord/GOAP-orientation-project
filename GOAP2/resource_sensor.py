@@ -3,8 +3,9 @@ from game_server import g_map
 
 from GOAP.transform import Position, distance
 
-from GOAP2.working_memory import WorkingMemoryFact, FactType
 from GOAP2.__sensor import __Sensor
+from GOAP2.working_memory import WorkingMemoryFact, FactType, g_wmm
+from GOAP2.blackboard import g_bbm
 
 class ResourceSensor(__Sensor):
 
@@ -14,11 +15,11 @@ class ResourceSensor(__Sensor):
         self.scanning_location = Position(0, 0)
         self.scanning_radius = 5
 
-    def _update(self):
-        self.scanning_location = self.blackboard.get_position()
-        self.perform_task()
+    def _update(self, agent_id: int):
+        self.scanning_location = g_bbm.get_blackboard(agent_id).get_position()
+        self.perform_task(agent_id)
 
-    def scan_resources(self):
+    def scan_resources(self, agent_id: int):
         # get scanning area
         (x_min, x_max) = max(0, self.scanning_location.x - self.scanning_radius), self.scanning_location.x + self.scanning_radius
         (y_min, y_max) = max(0, self.scanning_location.y - self.scanning_radius), self.scanning_location.y + self.scanning_radius
@@ -44,32 +45,28 @@ class ResourceSensor(__Sensor):
                         fact.set_ftype(FactType.Resource)
 
                         if resource == "WildTree":
-                            # TODO obj_confidence = blackboard get target object type == Logs ? 1.0 else 0.0
+                            # TODO? obj_confidence = blackboard get target object type == Logs ? 1.0 else 0.0
                             #fact.set_obj("Logs", obj_confidence)
                             fact.set_obj("Logs")
                         elif resource == "WildIronOre":
                             fact.set_obj("Ore")
 
                         # TODO always update fact (every confidence value must be updated)
-                        if self.working_memory.query_fact(fact): # fact exists
-                            _fact = self.working_memory.read_fact(fact) # retrieve it
-                            _fact = fact # just update it
+                        if g_wmm.get_working_memory(agent_id).query_fact(fact): # fact exists
+                            continue
+                            # _fact = self.working_memory.read_fact(fact) # retrieve it
+                            # _fact = fact # just update it
                             # if _fact.position.confidence < confidence: # if fact has less confidence than current -> update it
                             #     _fact.position.confidence = confidence
                             #     print("Updated fact")
                         else:
-                            self.working_memory.create_fact(fact)
+                            g_wmm.get_working_memory(agent_id).create_fact(fact)
                             print("Created " + resource + " fact")
 
-    def scan_result(self, result):
-        pass
-
-    def perform_task(self):
+    def perform_task(self, agent_id: int):
         #print("Scanning for resources..")
         thread = c_thread.BaseThread(
             target=self.scan_resources,
-            target_args=(),
-            callback=self.scan_result,
-            callback_args=[]
+            target_args=[agent_id]
         )
         thread.start()

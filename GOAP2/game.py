@@ -9,7 +9,7 @@ from game_server import g_map
 from camera import camera
 
 from GOAP2.resource_sensor import ResourceSensor
-from GOAP2.goap_controller import GOAPController, Blackboard
+from GOAP2.goap_controller import GOAPController
 from GOAP2.working_memory import WorkingMemoryFact, FactType
 from GOAP2.units.worker import Worker
 from GOAP2.player import g_player
@@ -41,13 +41,12 @@ class Game:
 
         ##
         worker = Worker()
-        blackboard = Blackboard()
         agent = GOAPController()
+        agent.setup(worker)
         agent.enable_navigation()
         agent.enable_targeting()
         agent.enable_sensors()
-        agent.setup(worker, blackboard)
-        agent.sensor_mgr.add_sensor(ResourceSensor())
+        agent.attach_sensor(ResourceSensor())
 
         agent.blackboard.set_request_replan(True)
 

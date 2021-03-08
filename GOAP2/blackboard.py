@@ -5,6 +5,7 @@ class Blackboard():
         self.inventory = []
         self.navigation_target = None
         self.navigation_status = False
+        self.manual_navigation = False
         self.target_fact_type = None
         self.target_object = None
         self.position = None
@@ -39,6 +40,16 @@ class Blackboard():
 
     def has_navigation_status(self, value):
         return self.navigation_status == value
+
+    def set_manual_navigation_target(self, target):
+        self.manual_navigation = True
+        self.navigation_target = target
+
+    def set_manual_navigation(self, value):
+        self.manual_navigation = value
+
+    def has_manual_navigation(self):
+        return self.manual_navigation
 
     # position
     def set_position(self, value):
@@ -97,4 +108,17 @@ class Blackboard():
     def reset_progress_time(self):
         self.timed_action_progress = 0.0
     
-    
+class BlackboardManager():
+
+    def __init__(self) -> None:
+        self.agent_table = {}
+
+    def create_blackboard(self, agent_id: int) -> Blackboard:
+        blackboard = Blackboard()
+        self.agent_table[agent_id] = blackboard
+        return blackboard
+
+    def get_blackboard(self, agent_id: int) -> Blackboard:
+        return self.agent_table.get(agent_id)
+
+g_bbm = BlackboardManager()

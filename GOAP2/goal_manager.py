@@ -1,11 +1,12 @@
-from GOAP2.plan import Plan
 from GOAP2.__manager import __Manager
+from GOAP2.plan import Plan
 from GOAP2.goap_planner import g_planner
+from GOAP2.blackboard import g_bbm
 
 class GoalManager(__Manager):
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, agent_id) -> None:
+        super().__init__(agent_id)
         self.update_interval = 0 # currently depens on delta time every frame (if action does)
         self.plan = Plan()
         self.current_goal = None
@@ -14,9 +15,10 @@ class GoalManager(__Manager):
         self.actions = []
 
     def _update(self):
+        blackboard = g_bbm.get_blackboard(self.agent_id)
         # update current goal
-        if self.blackboard.is_replan_requested():
-            self.blackboard.set_request_replan(False)
+        if blackboard.is_replan_requested():
+            blackboard.set_request_replan(False)
 
             self.update_goal_revelancies()
             # try every goal with a relevance greater than cero
@@ -26,22 +28,22 @@ class GoalManager(__Manager):
                 # reset relevance
                 self.goal_map[best_goal] = 0.0 
                 # get only actions that currently can be executed
-                available_actions = [a for a in self.actions if a.is_valid_in_context(self.working_memory)]
+                available_actions = [a for a in self.actions if a.is_valid_in_context(self.agent_id)]
                 # build plan
                 action_sequence = g_planner.build_plan(best_goal.goal_state, self.world_state, available_actions)
                 if action_sequence:
                     self.plan.set_action_plan(action_sequence)
-                    self.plan.activate(self.blackboard)
+                    self.plan.activate(self.agent_id)
                     self.current_goal = best_goal
                     break
 
-        if self.plan.is_valid(self.blackboard):
-            if self.plan.is_step_complete(self.blackboard):
-                success = self.plan.advance(self.blackboard)
+        if self.plan.is_valid(self.agent_id):
+            if self.plan.is_step_complete(self.agent_id):
+                success = self.plan.advance(self.agent_id)
                 if not success:
                     # all actions has been completed
                     print("Plan completed!!")
-                    self.blackboard.set_request_replan(True)
+                    blackboard.set_request_replan(True)
         
         else:
             pass
@@ -49,7 +51,7 @@ class GoalManager(__Manager):
 
     def update_goal_revelancies(self):
         for goal in self.goal_map.keys():
-            self.goal_map[goal] = goal.get_relevancy()
+            self.goal_map[goal] = goal.get_relevancy(self.agent_id)
 
     def set_goals(self, goals):
         self.goal_map = {goal : 0.0 for goal in goals}

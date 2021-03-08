@@ -8,34 +8,41 @@ from GOAP2.__action import __Action
 from GOAP2.player import g_player
 
 ########## GOALS ##########
-class g_CollectResource(__Goal):
 
-    def __init__(self) -> None:
-        super().__init__()
-        self.goal_state = {"CollectResources" : True}
 
-    def get_relevancy(self):
-        return 0.5
+# class g_CollectResource(__Goal):
+
+#     def __init__(self) -> None:
+#         super().__init__()
+#         self.goal_state = {"CollectResources": True}
+
+#     def get_relevancy(self):
+#         return 0.5
+
 
 class g_CollectOre(__Goal):
 
     def __init__(self) -> None:
         super().__init__()
-        self.goal_state = {"CollectOre" : True}
+        self.goal_state = {"CollectOre": True}
 
     def get_relevancy(self):
         return 0.5
+
 
 class g_CollectLogs(__Goal):
 
     def __init__(self) -> None:
         super().__init__()
-        self.goal_state = {"CollectLogs" : True}
+        self.goal_state = {"CollectLogs": True}
 
     def get_relevancy(self):
         return 0.7
 
 ########## ACTIONS ##########
+
+# region GATHERING
+
 class __a_GatherAction(__Action):
     def __init__(self) -> None:
         super().__init__()
@@ -68,7 +75,7 @@ class a_GatherOre(__a_GatherAction):
         super().__init__()
         self.target_resource = "Ore"
         self.preconditions = {}
-        self.effects = {"HasOre" : True, "HasResources" : True}
+        self.effects = {"HasOre": True}
         self.cost = 10
 
 class a_GatherLogs(__a_GatherAction):
@@ -77,18 +84,18 @@ class a_GatherLogs(__a_GatherAction):
         super().__init__()
         self.target_resource = "Logs"
         self.preconditions = {}
-        self.effects = {"HasLogs" : True, "HasResources" : True}
+        self.effects = {"HasLogs": True}
         self.cost = 5
 
-class a_DeliverResources(__Action):
+class __a_DeliverResourceAction(__Action):
 
     def __init__(self) -> None:
         super().__init__()
-        self.preconditions = {"HasResources" : True}
-        self.effects = {"CollectResources" : True, "CollectOre" : True, "CollectLogs" : True}
+        self.preconditions = {}
+        self.effects = {}
 
-    def activate(self, blackboard):
-        blackboard.set_target_fact_type(FactType.Delivery)
+    # def activate(self, blackboard):
+    #     blackboard.set_target_fact_type(FactType.Delivery)
 
     def is_complete(self, blackboard):
         if blackboard.has_navigation_status(NavStatus.Arrived):
@@ -96,21 +103,45 @@ class a_DeliverResources(__Action):
             return True
         return False
 
+class a_DeliverLogs(__a_DeliverResourceAction):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.preconditions = {"HasLogs": True}
+        self.effects = {"CollectLogs": True}
+
+    def activate(self, blackboard):
+        blackboard.set_target_fact_type(FactType.Delivery)
+
+class a_DeliverOre(__a_DeliverResourceAction):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.preconditions = {"HasOre": True}
+        self.effects = {"CollectOre": True}
+
+    def activate(self, blackboard):
+        blackboard.set_target_fact_type(FactType.Delivery)
+
+# endregion
+
+
 class GoalActionLbrary():
 
     def __init__(self) -> None:
         goals = {}
         actions = {}
-        
-        #Goals
-        goals["CollectResources"] = g_CollectResource()
+
+        # Goals
+        # goals["CollectResources"] = g_CollectResource()
         goals["CollectLogs"] = g_CollectLogs()
         goals["CollectOre"] = g_CollectOre()
 
-        #Actions
+        # Actions
         actions["GatherOre"] = a_GatherOre()
         actions["GatherLogs"] = a_GatherLogs()
-        actions["DeliverResources"] = a_DeliverResources()
+        actions["DeliverLogs"] = a_DeliverLogs()
+        actions["DeliverOre"] = a_DeliverOre()
 
         # assign
         self.goals = goals
@@ -121,5 +152,6 @@ class GoalActionLbrary():
 
     def load_actions(self, actions):
         return [self.actions.get(a) for a in actions]
+
 
 g_galibrary = GoalActionLbrary()

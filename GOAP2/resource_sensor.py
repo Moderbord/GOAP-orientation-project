@@ -22,6 +22,9 @@ class ResourceSensor(__Sensor):
         # get scanning area
         (x_min, x_max) = max(0, self.scanning_location.x - self.scanning_radius), self.scanning_location.x + self.scanning_radius
         (y_min, y_max) = max(0, self.scanning_location.y - self.scanning_radius), self.scanning_location.y + self.scanning_radius
+        #
+        drop_loc = Position(2, 2) # TODO query value
+        max_distance = distance(drop_loc, Position(g_map.tile_width, g_map.tile_height))
         # start scan
         for x in range(x_min, x_max):
             for y in range (y_min, y_max):
@@ -36,7 +39,7 @@ class ResourceSensor(__Sensor):
                         fact = WorkingMemoryFact()
                         # confidence = distance to resource compared to max radius
                         resource_position = Position(x, y)
-                        confidence = (float(self.scanning_radius) - float(distance(resource_position, self.scanning_location))) / float(self.scanning_radius) 
+                        confidence = (float(max_distance) - float(distance(resource_position, drop_loc))) / float(max_distance) 
                         fact.set_pos(resource_position, confidence) # TODO use fact creation time as best memory instead?
                         fact.set_ftype(FactType.Resource)
 

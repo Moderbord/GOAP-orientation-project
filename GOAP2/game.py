@@ -20,7 +20,7 @@ class Game:
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
         self.map = None
-        self.speed = 1
+        self.speed = 5
         self.paused = False
         self.draw_grid = False
         self.agents = []

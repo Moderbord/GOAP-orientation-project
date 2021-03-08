@@ -13,6 +13,6 @@ class Worker(__Entity):
         super().__init__()
 
         # self.goals = ["CollectOre", "CollectLogs"]
-        self.goals = ["CollectResources"]
-        self.available_actions = ["GatherOre", "GatherLogs", "DeliverResources"]
+        self.goals = ["CollectLogs", "CollectOre"]
+        self.available_actions = ["GatherOre", "GatherLogs", "DeliverOre", "DeliverLogs"]
         self.world_state = {"HasResources" : False}

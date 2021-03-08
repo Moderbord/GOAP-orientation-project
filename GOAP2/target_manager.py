@@ -18,9 +18,6 @@ class TargetManager(__Manager):
             self.blackboard.set_navigation_target(None)
             #print("Didn't find any targeting fact")
 
-    def set_working_memory(self, target):
-        self.working_memory = target
-
     def _update(self):
         self.target_fact_type = self.blackboard.get_target_fact_type()
         if self.target_fact_type is not None:

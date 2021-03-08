@@ -75,6 +75,12 @@ class WorkingMemory():
         for f in self.data.get(fact.fact_type):
             if f == fact:
                 return f
+    
+    def read_fact_where(self, function):
+        return function(self.data)
+
+    def read_fact_type_where(self, fact_type, function):
+        return function(self.data.get(fact_type, []))
 
     def create_fact(self, fact):
         if self.data.get(fact.fact_type) is None:
@@ -84,6 +90,9 @@ class WorkingMemory():
 
     def query_fact(self, fact):
         return fact in self.data.get(fact.fact_type, [])
+
+    def query_fact_type(self, fact_type) -> bool: # needed for implicit casting
+        return self.data.get(fact_type)
 
     def get_fact_with_highest_confidence(self, fact_type, attribute):
         facts = self.data.get(fact_type, [])

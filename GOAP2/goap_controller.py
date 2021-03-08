@@ -22,7 +22,7 @@ class GOAPController():
         # GOAP
         self.goal_mgr = None
 
-    def setup(self, entity, blackboard):
+    def setup(self, entity, blackboard: Blackboard):
         self.entity = entity
         # blackboard
         blackboard.set_position(entity.position)
@@ -44,6 +44,7 @@ class GOAPController():
         # GOAP
         self.goal_mgr = GoalManager()
         self.goal_mgr.set_blackboard(self.blackboard)
+        self.goal_mgr.set_working_memory(self.working_memory)
         self.goal_mgr.set_goals(g_galibrary.load_goals(entity.goals))
         self.goal_mgr.set_actions(g_galibrary.load_actions(entity.available_actions))
         self.goal_mgr.set_world_state(entity.world_state)

@@ -13,8 +13,8 @@ class __Action():
     def apply_context_effects(self): # already in planner?
         pass
 
-    def is_applicable(self, blackboard):
-        pass
+    def is_valid_in_context(self, working_memory):
+        return True
 
     def activate(self, blackboard):
         pass

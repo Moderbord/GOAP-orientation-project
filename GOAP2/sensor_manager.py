@@ -8,9 +8,6 @@ class SensorManager(__Manager):
         self.sensors = []
         #self.update_interval = 1
 
-    def set_working_memory(self, target):
-        self.working_memory = target
-
     def add_sensor(self, sensor):
         sensor.set_blackboard(self.blackboard)
         sensor.set_working_memory(self.working_memory)

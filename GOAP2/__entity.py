@@ -20,7 +20,7 @@ class __Entity():
 
     def set_position(self, position):
         self.position = position
-
+        
     def update(self):
         # Sprite position
         self.rect.x = self.position.x * self.tile_size + self.tile_size / 3

@@ -1,23 +1,23 @@
 import game_time as time
 from GOAP.transform import Position
 
-from GOAP2.working_memory import FactType
+from GOAP2.blackboard import Blackboard
+from GOAP2.working_memory import WorkingMemory, FactType
 from GOAP2.navigation_manager import NavStatus
 from GOAP2.__goal import __Goal
 from GOAP2.__action import __Action
 from GOAP2.player import g_player
 
-########## GOALS ##########
+# region --- GOALS ---
 
 
-# class g_CollectResource(__Goal):
+class g_FindResources(__Goal):
+    def __init__(self) -> None:
+        super().__init__()
+        self.goal_state = {"FindResources": True}
 
-#     def __init__(self) -> None:
-#         super().__init__()
-#         self.goal_state = {"CollectResources": True}
-
-#     def get_relevancy(self):
-#         return 0.5
+    def get_relevancy(self):
+        return 0.1
 
 
 class g_CollectOre(__Goal):
@@ -38,23 +38,44 @@ class g_CollectLogs(__Goal):
 
     def get_relevancy(self):
         return 0.7
+# endregion
 
-########## ACTIONS ##########
 
-# region GATHERING
+# region --- ACTIONS ---
+
+class a_Explore(__Action):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.preconditions = {}
+        self.effects = {"FindResources": True}
+    
+    def activate(self, blackboard: Blackboard):
+        pass
+
+    def is_complete(self, blackboard):
+        return True # TODO need to check working memory if agent has found resources
+
+# region Gathering
 
 class __a_GatherAction(__Action):
+
     def __init__(self) -> None:
         super().__init__()
         self.target_resource = None
         self.started_gathering = False
         self.gather_time = 5
 
-    def activate(self, blackboard):
+    def is_valid_in_context(self, working_memory: WorkingMemory):
+        # agent must have a memory fact with the correct resource object
+        return working_memory.read_fact_type_where(FactType.Resource, lambda x: any([f.object.value == self.target_resource for f in x]))
+        #return True
+
+    def activate(self, blackboard: Blackboard):
         blackboard.set_target_fact_type(FactType.Resource)
         blackboard.set_target_object_type(self.target_resource)
 
-    def is_complete(self, blackboard):
+    def is_complete(self, blackboard: Blackboard):
         if self.started_gathering:
             blackboard.add_progress_time(time.clock.delta)
             if blackboard.get_progress_time() > self.gather_time:
@@ -69,6 +90,7 @@ class __a_GatherAction(__Action):
             # remove memory fact?
         return False
 
+
 class a_GatherOre(__a_GatherAction):
 
     def __init__(self) -> None:
@@ -77,6 +99,7 @@ class a_GatherOre(__a_GatherAction):
         self.preconditions = {}
         self.effects = {"HasOre": True}
         self.cost = 10
+
 
 class a_GatherLogs(__a_GatherAction):
 
@@ -87,6 +110,7 @@ class a_GatherLogs(__a_GatherAction):
         self.effects = {"HasLogs": True}
         self.cost = 5
 
+
 class __a_DeliverResourceAction(__Action):
 
     def __init__(self) -> None:
@@ -94,14 +118,15 @@ class __a_DeliverResourceAction(__Action):
         self.preconditions = {}
         self.effects = {}
 
-    # def activate(self, blackboard):
+    # def activate(self, blackboard: Blackboard):
     #     blackboard.set_target_fact_type(FactType.Delivery)
 
-    def is_complete(self, blackboard):
+    def is_complete(self, blackboard: Blackboard):
         if blackboard.has_navigation_status(NavStatus.Arrived):
             print("Deliver complete!")
             return True
         return False
+
 
 class a_DeliverLogs(__a_DeliverResourceAction):
 
@@ -110,8 +135,9 @@ class a_DeliverLogs(__a_DeliverResourceAction):
         self.preconditions = {"HasLogs": True}
         self.effects = {"CollectLogs": True}
 
-    def activate(self, blackboard):
+    def activate(self, blackboard: Blackboard):
         blackboard.set_target_fact_type(FactType.Delivery)
+
 
 class a_DeliverOre(__a_DeliverResourceAction):
 
@@ -120,8 +146,10 @@ class a_DeliverOre(__a_DeliverResourceAction):
         self.preconditions = {"HasOre": True}
         self.effects = {"CollectOre": True}
 
-    def activate(self, blackboard):
+    def activate(self, blackboard: Blackboard):
         blackboard.set_target_fact_type(FactType.Delivery)
+
+# endregion
 
 # endregion
 
@@ -133,7 +161,7 @@ class GoalActionLbrary():
         actions = {}
 
         # Goals
-        # goals["CollectResources"] = g_CollectResource()
+        goals["FindResources"] = g_FindResources()
         goals["CollectLogs"] = g_CollectLogs()
         goals["CollectOre"] = g_CollectOre()
 
@@ -142,6 +170,7 @@ class GoalActionLbrary():
         actions["GatherLogs"] = a_GatherLogs()
         actions["DeliverLogs"] = a_DeliverLogs()
         actions["DeliverOre"] = a_DeliverOre()
+        actions["Explore"] = a_Explore()
 
         # assign
         self.goals = goals

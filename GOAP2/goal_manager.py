@@ -25,12 +25,15 @@ class GoalManager(__Manager):
                 best_goal = self.find_most_relevant_goal()
                 # reset relevance
                 self.goal_map[best_goal] = 0.0 
-
-                action_sequence = g_planner.build_plan(best_goal.goal_state, self.world_state, self.actions)
+                # get only actions that currently can be executed
+                available_actions = [a for a in self.actions if a.is_valid_in_context(self.working_memory)]
+                # build plan
+                action_sequence = g_planner.build_plan(best_goal.goal_state, self.world_state, available_actions)
                 if action_sequence:
                     self.plan.set_action_plan(action_sequence)
                     self.plan.activate(self.blackboard)
                     self.current_goal = best_goal
+                    break
 
         if self.plan.is_valid(self.blackboard):
             if self.plan.is_step_complete(self.blackboard):
@@ -43,8 +46,6 @@ class GoalManager(__Manager):
         else:
             pass
             # TODO replan?
-
-
 
     def update_goal_revelancies(self):
         for goal in self.goal_map.keys():

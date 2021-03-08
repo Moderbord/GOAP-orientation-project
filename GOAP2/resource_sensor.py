@@ -40,7 +40,7 @@ class ResourceSensor(__Sensor):
                         # confidence = distance to resource compared to max radius
                         resource_position = Position(x, y)
                         confidence = (float(max_distance) - float(distance(resource_position, drop_loc))) / float(max_distance) 
-                        fact.set_pos(resource_position, confidence) # TODO use fact creation time as best memory instead?
+                        fact.set_pos(resource_position, confidence)
                         fact.set_ftype(FactType.Resource)
 
                         if resource == "WildTree":

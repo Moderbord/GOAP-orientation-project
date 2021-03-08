@@ -1,3 +1,4 @@
+from GOAP2.blackboard import Blackboard
 from enum import Enum, auto
 
 import custom_thread as c_thread
@@ -17,12 +18,12 @@ class NavigationManager(__Manager):
 
     def __init__(self) -> None:
         super().__init__()
-        self.update_interval = 0
+        self.update_interval = 0 # currently depens on delta time every frame
         self.current_destination = None
         self.current_path = None
         # 
         self.next_tile = None
-        self.move_threshold = 2
+        self.move_threshold = 1
         self.move_progress = 0
         #
 
@@ -45,21 +46,21 @@ class NavigationManager(__Manager):
             self.blackboard.set_navigation_status(NavStatus.Invalid)
             return
             
-        # check if target has updated
-        if self.current_destination != target:
+        # check if target has updated and not currently has a pending find_path request
+        if self.current_destination != target and not self.blackboard.has_navigation_status(NavStatus.Pending):
             self.current_destination = target
             self.current_path = None
 
             position = self.blackboard.get_position()
-            self.__find_path(position.tuple(), target.tuple(), self.__get_path_callback)
             self.blackboard.set_navigation_status(NavStatus.Pending)
             print("Destination changed! Looking for path to " + str(target.x) + "," + str(target.y))
+            self.__find_path(position.tuple(), target.tuple(), self.__get_path_callback)
 
         if self.current_path:
             if self.next_tile is None:
                 # Arrived
                 self.current_path = None
-                self.current_destination = None
+                #self.current_destination = None
                 self.blackboard.set_navigation_target(None)
                 self.blackboard.set_navigation_status(NavStatus.Arrived)
                 print("Arrived at destination")

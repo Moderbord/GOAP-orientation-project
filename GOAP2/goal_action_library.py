@@ -1,9 +1,11 @@
+import game_time as time
 from GOAP.transform import Position
 
 from GOAP2.working_memory import FactType
 from GOAP2.navigation_manager import NavStatus
 from GOAP2.__goal import __Goal
 from GOAP2.__action import __Action
+from GOAP2.player import g_player
 
 ########## GOALS ##########
 class g_CollectResource(__Goal):
@@ -34,40 +36,49 @@ class g_CollectLogs(__Goal):
         return 0.7
 
 ########## ACTIONS ##########
-class a_GatherOre(__Action):
+class __a_GatherAction(__Action):
+    def __init__(self) -> None:
+        super().__init__()
+        self.target_resource = None
+        self.started_gathering = False
+        self.gather_time = 5
+
+    def activate(self, blackboard):
+        blackboard.set_target_fact_type(FactType.Resource)
+        blackboard.set_target_object_type(self.target_resource)
+
+    def is_complete(self, blackboard):
+        if self.started_gathering:
+            blackboard.add_progress_time(time.clock.delta)
+            if blackboard.get_progress_time() > self.gather_time:
+                g_player.add_resource(self.target_resource)
+                print("Gathered " + self.target_resource + "!")
+                blackboard.reset_progress_time()
+                self.started_gathering = False
+                return True
+
+        if blackboard.has_navigation_status(NavStatus.Arrived):
+            self.started_gathering = True
+            # remove memory fact?
+        return False
+
+class a_GatherOre(__a_GatherAction):
 
     def __init__(self) -> None:
         super().__init__()
+        self.target_resource = "Ore"
         self.preconditions = {}
         self.effects = {"HasOre" : True, "HasResources" : True}
         self.cost = 10
 
-    def activate(self, blackboard):
-        blackboard.set_target_fact_type(FactType.Resource)
-        blackboard.set_target_object_type("Ore")
-
-    def is_complete(self, blackboard):
-        return blackboard.has_object("Ore")
-
-
-class a_GatherLogs(__Action):
+class a_GatherLogs(__a_GatherAction):
 
     def __init__(self) -> None:
         super().__init__()
+        self.target_resource = "Logs"
         self.preconditions = {}
         self.effects = {"HasLogs" : True, "HasResources" : True}
         self.cost = 5
-
-    def activate(self, blackboard):
-        blackboard.set_target_fact_type(FactType.Resource)
-        blackboard.set_target_object_type("Logs")
-
-    def is_complete(self, blackboard):
-        # return blackboard.has_object("Logs")
-        if blackboard.has_navigation_status(NavStatus.Arrived):
-            print("Gather logs complete!")
-            return True
-        return False
 
 class a_DeliverResources(__Action):
 

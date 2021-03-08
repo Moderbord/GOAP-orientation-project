@@ -12,6 +12,7 @@ class SensorManager(__Manager):
         self.working_memory = target
 
     def add_sensor(self, sensor):
+        sensor.set_blackboard(self.blackboard)
         sensor.set_working_memory(self.working_memory)
         self.sensors.append(sensor)
 

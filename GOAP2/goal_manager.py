@@ -6,7 +6,7 @@ class GoalManager(__Manager):
 
     def __init__(self) -> None:
         super().__init__()
-        self.update_interval = 0
+        self.update_interval = 0 # currently depens on delta time every frame (if action does)
         self.plan = Plan()
         self.current_goal = None
         self.goal_map = {}

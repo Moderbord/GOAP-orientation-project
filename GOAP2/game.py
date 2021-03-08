@@ -12,6 +12,7 @@ from GOAP2.resource_sensor import ResourceSensor
 from GOAP2.goap_controller import GOAPController, Blackboard
 from GOAP2.working_memory import WorkingMemoryFact, FactType
 from GOAP2.units.worker import Worker
+from GOAP2.player import g_player
 
 class Game:
 
@@ -19,7 +20,7 @@ class Game:
         pg.init()
         pg.display.set_caption(g_vars["Game"]["Title"])
         self.map = None
-        self.speed = 2
+        self.speed = 1
         self.paused = False
         self.draw_grid = False
         self.agents = []

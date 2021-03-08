@@ -15,7 +15,7 @@ class __Manager():
 
     def update(self):
         self.time_since_last_update += time.clock.delta
-        if self.time_since_last_update > self.update_interval:
+        if self.time_since_last_update >= self.update_interval:
             self.time_since_last_update = 0
             self._update()
 

@@ -40,7 +40,7 @@ class Game:
         self.running = True
 
         ##
-        for x in range(0, 1):
+        for x in range(0, 25):
                 
             worker = Worker()
             agent = GOAPController()

@@ -1,6 +1,8 @@
+from math import gamma
 from random import randint
 
 import game_time as time
+from game_server import g_map
 from GOAP.transform import Position
 
 from GOAP2.__goal import __Goal
@@ -47,7 +49,11 @@ class a_Explore(__Action):
     
     def activate(self, agent_id: int):
         bb = g_bbm.get_blackboard(agent_id)
-        bb.set_manual_navigation_target(Position(randint(1, 20), randint(1, 20)))
+        radius = 50
+        pos = (0, 0)
+        while pos in g_map.unpassable_tiles:
+            pos = (randint(1, radius), randint(1, radius))
+        bb.set_manual_navigation_target(Position(pos[0], pos[1]))
 
     def is_complete(self, agent_id: int):
         bb = g_bbm.get_blackboard(agent_id)
@@ -114,8 +120,16 @@ class __a_GatherAction(__Action):
                 return True
 
         if blackboard.has_navigation_status(NavStatus.Arrived):
+            pos = blackboard.get_position()
+            tile = g_map.tile_data.get((pos.x, pos.y))
+            if tile.deduct_resource_str(self.target_resource):
+                pass #TODO currently causes bug when workes freezes
+                # successfully gonna gather resource
             blackboard.begin_timed_action()
-
+            # else:
+            #     g_wmm.get_working_memory(agent_id).delete_fact_where(FactType.Resource, lambda f: f.position.value == pos)
+            #     blackboard.set_request_replan(True)
+        
         return False
 
 

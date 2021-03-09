@@ -42,7 +42,7 @@ class GoalManager(__Manager):
                 success = self.plan.advance(self.agent_id)
                 if not success:
                     # all actions has been completed
-                    print("Plan completed!!")
+                    #print("Plan completed!!")
                     blackboard.set_request_replan(True)
         
         else:

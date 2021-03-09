@@ -55,6 +55,19 @@ class BasicTile(sprite.Sprite):
             if isinstance(resource, target):
                 self.resource_list.remove(resource)
                 return resource.gathered_type
+    
+    def deduct_resource_str(self, target):
+        real = ""
+        if target == "Ore":
+            real = "WildIronOre"
+        elif target == "Logs":
+            real = "WildTree"
+
+        for resource in self.resource_list:
+            if type(resource).__name__ == real:
+                self.resource_list.remove(resource)
+                return True
+        return False
 
 class Fog(BasicTile):
     def __init__(self, gamemap, location):

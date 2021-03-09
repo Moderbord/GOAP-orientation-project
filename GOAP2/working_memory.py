@@ -82,6 +82,12 @@ class WorkingMemory():
     def read_fact_type_where(self, fact_type, function):
         return function(self.data.get(fact_type, []))
 
+    def delete_fact_where(self, fact_type, function):
+        facts = self.data.get(fact_type, [])
+        for fact in facts:
+            if function(fact):
+                facts.remove(fact)
+
     def create_fact(self, fact):
         if self.data.get(fact.fact_type) is None:
             self.data[fact.fact_type] = [fact]

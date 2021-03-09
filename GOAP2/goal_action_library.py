@@ -95,6 +95,9 @@ class __a_GatherAction(__Action):
         super().__init__()
         self.target_resource = None
         self.gather_time = 5
+    
+    def is_valid(self, agent_id: int):
+        return super().is_valid(agent_id) # can be used to check if target tile still has required resource. Not ? -> remove fact and replan
 
     def is_valid_in_context(self, agent_id: int):
         # agent must have a memory fact with the correct resource object

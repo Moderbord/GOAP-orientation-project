@@ -40,7 +40,7 @@ class Game:
         self.running = True
 
         ##
-        for x in range(0, 25):
+        for x in range(0, 1):
                 
             worker = Worker()
             agent = GOAPController()
@@ -56,7 +56,7 @@ class Game:
             fact_x.set_pos(Position(2, 2), 0.5).set_ftype(FactType.Delivery)
             agent.working_memory.create_fact(fact_x)
 
-            self.agents.append(agent)
+            g_player.add_unit(agent)
         ##
 
         frames = 0
@@ -91,8 +91,7 @@ class Game:
         print("Draw efficiency: " + str(draw_time / frames) + " ms/frame")
 
     def update(self):
-        for agent in self.agents:
-            agent.update()
+        g_player.update()
             
         # catch inputs
         keystate = pg.key.get_pressed()
@@ -103,10 +102,7 @@ class Game:
             self.map.draw_fog = not self.map.draw_fog
 
         if keystate[pg.K_SPACE]:
-            #self.paused = not self.paused
-            target = Position(randint(1, 10), randint(1, 10))
-            agent = self.agents[0]
-            agent.blackboard.set_navigation_target(target) # will get overriden, use manual instead (need to be able to revert later)
+            self.paused = not self.paused
 
         if keystate[pg.K_KP_PLUS]:
             self.speed += 5
@@ -145,8 +141,7 @@ class Game:
         self.map.draw(self.screen)
 
         # Agents
-        for agent in self.agents:
-            agent.entity.render(self.screen, camera)
+        g_player.render(self.screen, camera)
 
         # Overlay
         if self.draw_grid:

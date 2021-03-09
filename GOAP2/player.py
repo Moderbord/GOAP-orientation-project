@@ -25,12 +25,36 @@ class Player():
     def __init__(self) -> None:
         self.resources = []
 
+        self.units = []
+        self.structures = []
+
         self.build_jobs = deque()
         self.collect_jobs = deque()
         self.upgrade_jobs = []
         self.production_jobs = []
         self.fetch_jobs = []
         self.work_jobs = []
+
+    def update(self):
+        for unit in self.units:
+            unit.update()
+        for structure in self.structures:
+            structure.update()
+
+    def render(self, screen, camera):
+        for structure in self.structures:
+            structure.entity.render(screen, camera)
+        for unit in self.units:
+            unit.entity.render(screen, camera)
+
+    def add_unit(self, unit):
+        self.units.append(unit)
+    
+    def remove_unit(self, unit):
+        self.units.remove(unit)
+
+    def add_structure(self, structure):
+        self.structures.append(structure)
 
     def add_resource(self, resource):
         self.resources.append(resource)

@@ -19,27 +19,10 @@ class g_FindResources(__Goal):
         self.goal_state = {"FindResources": True}
 
     def get_relevancy(self, agent_id: int):
-        return 0.1
-
-
-# class g_CollectOre(__Goal):
-
-#     def __init__(self) -> None:
-#         super().__init__()
-#         self.goal_state = {"CollectOre": True}
-
-#     def get_relevancy(self, agent_id: int):
-#         return 0.5
-
-
-# class g_CollectLogs(__Goal):
-
-#     def __init__(self) -> None:
-#         super().__init__()
-#         self.goal_state = {"CollectLogs": True}
-
-#     def get_relevancy(self, agent_id: int):
-#         return 0.7
+        res = ["Logs", "Ore"]
+        # knows atleast one of each resouce
+        result = g_wmm.get_working_memory(agent_id).read_fact_type_where(FactType.Resource, lambda x: all([f in [v.object.value for v in x] for f in res]))
+        return 0.1 if result else 0.6
 
 class g_CollectResources(__Goal):
 
@@ -85,11 +68,17 @@ class a_FindLogs(a_Explore):
         #self.effects = {"FindLogs": True}
         self.target_resource = "Logs"
 
+    def get_cost(self, agent_id: int):
+        return g_wmm.get_working_memory(agent_id).read_fact_type_where(FactType.Resource, lambda x: len([f for f in x if f.object.value == self.target_resource]))
+
 class a_FindOre(a_Explore):
     def __init__(self) -> None:
         super().__init__()
         #self.effects = {"FindOre": True}
-        self.target_resource = "Ore"   
+        self.target_resource = "Ore"
+
+    def get_cost(self, agent_id: int):
+        return g_wmm.get_working_memory(agent_id).read_fact_type_where(FactType.Resource, lambda x: len([f for f in x if f.object.value == self.target_resource]))
 
 
 # region Gathering
@@ -121,7 +110,7 @@ class __a_GatherAction(__Action):
             if blackboard.get_progress_time() > self.gather_time:
                 blackboard.reset_timed_progress()
                 print("Gathered " + self.target_resource + "!")
-                # TODO remove memory fact?
+                # TODO remove memory fact? <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                 return True
 
         if blackboard.has_navigation_status(NavStatus.Arrived):
@@ -164,7 +153,7 @@ class __a_DeliverResourceAction(__Action):
     def is_complete(self, agent_id: int):
         if g_bbm.get_blackboard(agent_id).has_navigation_status(NavStatus.Arrived):
             g_player.add_resource(self.target_resource)
-            print("Deliver complete!")
+            #print("Deliver complete!")
             return True
         return False
 

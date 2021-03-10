@@ -12,6 +12,7 @@ from GOAP2.resource_sensor import ResourceSensor
 from GOAP2.goap_controller import GOAPController
 from GOAP2.working_memory import WorkingMemoryFact, FactType
 from GOAP2.units.worker import Worker
+from GOAP2.structures.refinery import Refinery
 from GOAP2.player import g_player
 
 class Game:
@@ -41,7 +42,6 @@ class Game:
 
         ##
         for x in range(0, 1):
-                
             worker = Worker()
             agent = GOAPController()
             agent.setup(worker)
@@ -50,14 +50,18 @@ class Game:
             agent.enable_sensors()
             agent.attach_sensor(ResourceSensor())
 
-            agent.blackboard.set_request_replan(True)
-
             fact_x = WorkingMemoryFact()
             fact_x.set_pos(Position(2, 2), 0.5).set_ftype(FactType.Delivery)
             agent.working_memory.create_fact(fact_x)
 
             g_player.add_unit(agent)
         ##
+
+        refinery = Refinery()
+        agent = GOAPController()
+        agent.setup(refinery)
+        agent.enable_sensors()
+        g_player.add_structure(agent)
 
         frames = 0
         update_time = 0.0

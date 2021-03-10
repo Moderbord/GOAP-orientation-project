@@ -1,7 +1,5 @@
 from game_settings import g_vars
 
-from GOAP.transform import Position
-
 class __Entity():
 
     def __init__(self) -> None:
@@ -9,9 +7,6 @@ class __Entity():
         self.tile_size = g_vars["Game"]["TileSize"]
         self.image.fill(g_vars["Game"]["Colors"][self.tile_color])
         self.rect = self.image.get_rect()
-
-        #
-        self.position = Position(2, 2)
 
         # "XML"
         self.goals = []

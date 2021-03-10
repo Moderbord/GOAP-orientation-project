@@ -15,3 +15,11 @@ class Job():
         self.location = location
         self.extra = extra
         self.callback = callback
+
+class Job2():
+
+    def __init__(self, job_type, agent_id, location, extra=None) -> None:
+        self.job_type = job_type
+        self.sender_id = agent_id
+        self.location = location
+        self.extra = extra

@@ -32,6 +32,8 @@ class GOAPController():
         # blackboard
         self.blackboard = g_bbm.create_blackboard(self.id)
         self.blackboard.set_position(entity.position)
+        self.blackboard.set_entity_str(type(entity).__name__)
+        self.blackboard.set_request_replan(True)
         # working memory
         self.working_memory = g_wmm.create_working_memory(self.id)
         # GOAP
@@ -67,7 +69,5 @@ class GOAPController():
         if self.navigation_mgr:
             self.navigation_mgr.update()
         self.goal_mgr.update()
-        self.entity.update()
-
-    
+        self.entity.update()   
 

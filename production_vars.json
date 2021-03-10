@@ -1,0 +1,105 @@
+{ 
+
+"Worker": {
+	"CostTable": {},
+	"ProductionTime": 0
+},
+
+"Explorer": {
+	"CostTable": {
+		"Worker" : 1
+	},
+	"ProductionTime": 5 
+},
+
+"Artisan": {
+	"CostTable": {
+		"Worker" : 1
+	},
+	"ProductionTime": 5
+},
+
+"Soldier": {
+	"CostTable": {
+		"Worker" : 1,
+		"Sword" : 1
+	},
+	"ProductionTime": 5
+},
+
+"Camp": {
+	"CostTable": {},
+	"OutputTable": {
+		"Worker" : 1,
+		"Artisan" : 1
+	},
+	"ProductionTime": 10 
+},
+
+"Refinery": {
+	"CostTable": {
+		"Logs" : 10
+	},
+	"OutputTable": {
+		"Coal" : 1
+	},
+	"ProductionTime": 10
+},
+
+"Smithy": {
+	"CostTable": {
+		"Logs" : 10,
+		"IronBar" : 3
+	},
+	"OutputTable": {
+		"Sword" : 1
+	},
+	"ProductionTime": 10
+},
+
+"Smelter": {
+	"CostTable": {
+		"Logs" : 10
+	},
+	"OutputTable": {
+		"IronBar" : 1
+	},
+	"ProductionTime": 10
+},
+
+"Encampment": {
+	"CostTable": {
+		"Logs" : 10
+	},
+	"OutputTable": {
+		"Soldier" : 1
+	},
+	"ProductionTime": 10
+},
+
+
+"Coal": {
+	"CostTable": {
+		"Logs" : 2
+	},
+	"ProductionTime": 5
+},
+
+"IronBar": {
+	"CostTable": {
+		"Coal" : 3,
+		"IronOre" : 2
+	},
+	"ProductionTime": 7
+},
+
+"Sword": {
+	"CostTable": {
+		"Coal" : 3,
+		"IronBar" : 1
+	},
+	"ProductionTime": 10
+}
+	
+
+}

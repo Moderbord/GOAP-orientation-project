@@ -1,20 +1,47 @@
+from GOAP.job_system import Job2
 
 class Blackboard():
 
     def __init__(self) -> None:
+        # entity
+        self.entity_str = None
+        # inventory
         self.inventory = []
+        # navigation
         self.navigation_target = None
         self.navigation_status = False
         self.manual_navigation = False
-        self.target_fact_type = None
-        self.targeting_function = None
+        # position
         self.position = None
+        self.new_position = False
+        # movement
         self.movement_speed = 0
         self.movement_factor = 0
-        self.new_position = False
+        # memory
+        self.target_fact_type = None
+        self.targeting_function = None
+        # planning
         self.replan_requested = False
+        # timed action
         self.timed_action_progress = 0.0
         self.doing_timed_action = False
+        # structure
+        self.produce = []
+        self.built = False
+        self.worked = False
+        self.have_materials = False
+        self.production_ready = False
+        # production
+        self.current_job = None
+        self.production_target = None
+        self.required_artisan = None
+
+    # entity
+    def set_entity_str(self, value):
+        self.entity_str = value
+
+    def get_entity_str(self):
+        return self.entity_str
 
     # inventory
     def add_object(self, object):
@@ -116,6 +143,53 @@ class Blackboard():
     def reset_timed_progress(self):
         self.doing_timed_action = False
         self.timed_action_progress = 0.0
+
+    # structure
+    def set_is_built(self, value):
+        self.built = value
+
+    def is_built(self):
+        return self.built
+
+    def set_is_worked(self, value):
+        self.worked = value
+
+    def is_worked(self):
+        return self.worked
+
+    def set_has_materials(self, value):
+        self.has_materials = value
+    
+    def has_materials(self):
+        return self.have_materials
+
+    def set_production_ready(self, value):
+        self.production_ready = value
+
+    def is_production_ready(self):
+        return self.production_ready
+
+    # production
+    def set_current_job(self, job):
+        self.current_job = job
+
+    def get_current_job(self) -> Job2:
+        return self.current_job
+
+    def set_production_target(self, value):
+        self.production_target = value
+
+    def get_production_target(self):
+        return self.production_target
+
+    def has_production_target(self) -> bool:
+        return self.production_target
+
+    def set_required_artisan(self, value):
+        self.required_artisan = value
+    
+    def get_required_artisan(self):
+        return self.required_artisan
 
 
 #####

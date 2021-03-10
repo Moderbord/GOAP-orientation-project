@@ -1,24 +1,7 @@
 from collections import deque
-from enum import Enum, auto
-from random import randint
 
 from GOAP.transform import Position
-
-class JobType(Enum):
-    Build = auto()
-    Production = auto()
-    Work = auto()
-    Fetch = auto()
-    Collect = auto()
-    Upgrade = auto()
-
-class Job():
-
-    def __init__(self, job_type, location, extra=None, callback=None) -> None:
-        self.job_type = job_type
-        self.location = location
-        self.extra = extra
-        self.callback = callback
+from GOAP.job_system import Job2, JobType
 
 class Player():
 
@@ -34,6 +17,9 @@ class Player():
         self.production_jobs = []
         self.fetch_jobs = []
         self.work_jobs = []
+
+        # tmp
+        self.have_builder = False
 
     def update(self):
         for unit in self.units:
@@ -77,11 +63,11 @@ class Player():
     def get_resource_drop_off_loc(self):
         return Position(2, 4)
     
-    def get_resource_location(self, resource):
-        if resource == "Ore":
-            return Position(randint(8, 10), randint(2, 4))
-        elif resource == "Logs":
-            return Position(randint(1, 4), randint(6, 9))
+    # def get_resource_location(self, resource):
+    #     if resource == "Ore":
+    #         return Position(randint(8, 10), randint(2, 4))
+    #     elif resource == "Logs":
+    #         return Position(randint(1, 4), randint(6, 9))
 
     def add_job(self, job):
         if job.job_type == JobType.Production:
@@ -92,13 +78,13 @@ class Player():
 
             # maximum num of builders?
             if not self.have_builder:
-                production_job = Job(JobType.Production, None, "Artisan")
+                production_job = Job2(JobType.Production, None, None, "Artisan")
                 self.production_jobs.append(production_job)
                 self.have_builder = True
 
-                for x in range(20):
-                    production_job = Job(JobType.Production, None, "Soldier") # tmp
-                    self.production_jobs.append(production_job)
+                # for x in range(20):
+                #     production_job = Job(JobType.Production, None, "Soldier") # tmp
+                #     self.production_jobs.append(production_job)
 
         elif job.job_type == JobType.Collect:
             self.collect_jobs.append(job)
@@ -110,7 +96,7 @@ class Player():
             self.work_jobs.append(job)
 
             # create unit to cover job
-            production_job = Job(JobType.Production, None, "Artisan")
+            production_job = Job2(JobType.Production, None, None, "Artisan")
             self.production_jobs.append(production_job)
 
         elif job.job_type == JobType.Fetch:
@@ -136,7 +122,7 @@ class Player():
         elif job_type == JobType.Fetch:
             return len([job for job in self.fetch_jobs if self.has_resource(job.extra)]) > 0 # one resource of target type must exist in resource pile
 
-    def get_job(self, job_type, criteria=None):
+    def get_job(self, job_type, criteria=None) -> Job2:
         job = None
         # early out
         if not self.has_job(job_type, criteria):

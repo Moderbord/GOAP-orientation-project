@@ -317,6 +317,7 @@ class a_DeliverResource(__Action):
 
         return False
 
+
 class a_PickupFetchJob(__Action):
 
     def __init__(self) -> None:
@@ -336,7 +337,15 @@ class a_PickupFetchJob(__Action):
             bb.set_request_replan(True)
 
     def is_complete(self, agent_id: int):
-        return g_bbm.get_blackboard(agent_id).has_navigation_status(NavStatus.Arrived)
+        if g_bbm.get_blackboard(agent_id).has_navigation_status(NavStatus.Arrived):
+            bb = g_bbm.get_blackboard(agent_id)
+            job = bb.get_current_job()
+            if g_player.remove_resource(job.extra):
+                return True
+            # failed to retrieve resource -> re-add job and replan
+            g_player.add_job(job)
+            bb.set_request_replan(True)
+        return False
 
 
 class a_PickupUpgradeJob(__Action):

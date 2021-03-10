@@ -50,7 +50,7 @@ class Player():
 
     def remove_resource(self, resource, amount=1):
         if self.resources.count(resource) >= amount:
-            for i in amount:
+            for i in range(0, amount):
                 self.resources.remove(resource)
             return True
         

@@ -43,7 +43,13 @@ class NavigationManager(__Manager):
         target = blackboard.get_navigation_target()
         # early out
         if target is None:
-            blackboard.set_navigation_status(NavStatus.Invalid)
+            #blackboard.set_navigation_status(NavStatus.Invalid)
+            return
+        
+        if blackboard.get_position() == target:
+            self.current_path = None
+            blackboard.set_navigation_target(None)
+            blackboard.set_navigation_status(NavStatus.Arrived)
             return
             
         # check if target has updated and not currently has a pending find_path request

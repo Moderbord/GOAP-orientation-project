@@ -34,6 +34,7 @@ class Blackboard():
         # production
         self.current_job = None
         self.production_target = None
+        self.cost_table = None
         self.required_artisan = None
 
     # entity
@@ -72,6 +73,7 @@ class Blackboard():
     def set_manual_navigation_target(self, target):
         self.manual_navigation = True
         self.navigation_target = target
+        self.navigation_status = None
 
     def set_manual_navigation(self, value):
         self.manual_navigation = value
@@ -110,6 +112,7 @@ class Blackboard():
     def set_target_fact_type(self, target):
         self.target_fact_type = target
         self.targeting_function = None
+        self.navigation_status = None # has recieved a new target -> no longer arrived
 
     def get_target_fact_type(self):
         return self.target_fact_type
@@ -184,6 +187,12 @@ class Blackboard():
 
     def has_production_target(self) -> bool:
         return self.production_target
+    
+    def set_cost_table(self, value):
+        self.cost_table = value
+    
+    def get_cost_table(self):
+        return self.cost_table
 
     def set_required_artisan(self, value):
         self.required_artisan = value

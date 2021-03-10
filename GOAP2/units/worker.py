@@ -14,6 +14,7 @@ class Worker(__Entity):
         super().__init__()
 
         self.position = Position(2, 2)
-
-        self.goals = ["CollectResources", "FindResources", "UpgradeToArtisan", "TransferResources"]
-        self.available_actions = ["GatherOre", "GatherLogs", "DeliverOre", "DeliverLogs", "FindLogs", "FindOre", "PickupUpgradeJob"]
+        # TODO UpgradeToArtisan should just be Upgrade or smt, action should rather be UpgradeToArtisan
+        # self.goals = ["CollectResources", "FindResources"] 
+        self.goals = ["CollectResources", "FindResources", "UpgradeToArtisan", "TransferResources"] 
+        self.available_actions = ["GatherOre", "GatherLogs", "DeliverOre", "DeliverLogs", "FindLogs", "FindOre", "PickupFetchJob", "DeliverResource"]

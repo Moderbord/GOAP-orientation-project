@@ -51,7 +51,8 @@ class Game:
             agent.attach_sensor(ResourceSensor())
 
             fact_x = WorkingMemoryFact()
-            fact_x.set_pos(Position(2, 2), 0.5).set_ftype(FactType.Delivery)
+            res_pos = g_player.get_resource_drop_off_loc()
+            fact_x.set_pos(res_pos, 0.5).set_ftype(FactType.Delivery)
             agent.working_memory.create_fact(fact_x)
 
             g_player.add_unit(agent)

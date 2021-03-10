@@ -12,7 +12,9 @@ from GOAP2.resource_sensor import ResourceSensor
 from GOAP2.goap_controller import GOAPController
 from GOAP2.working_memory import WorkingMemoryFact, FactType
 from GOAP2.units.worker import Worker
+from GOAP2.units.artisan import Artisan
 from GOAP2.structures.refinery import Refinery
+from GOAP2.structures.camp import Camp
 from GOAP2.player import g_player
 
 class Game:
@@ -55,13 +57,21 @@ class Game:
             fact_x.set_pos(res_pos, 0.5).set_ftype(FactType.Delivery)
             agent.working_memory.create_fact(fact_x)
 
+            agent.blackboard.set_position(Position(2, 2))
             g_player.add_unit(agent)
         ##
 
         refinery = Refinery()
         agent = GOAPController()
         agent.setup(refinery)
-        agent.enable_sensors()
+        agent.blackboard.set_position(Position(4, 5))
+        g_player.add_structure(agent)
+
+        camp = Camp()
+        agent = GOAPController()
+        agent.setup(camp)
+        agent.blackboard.set_is_built(True)
+        agent.blackboard.set_position(Position(2, 2))
         g_player.add_structure(agent)
 
         frames = 0
@@ -96,6 +106,36 @@ class Game:
         print("Draw efficiency: " + str(draw_time / frames) + " ms/frame")
 
     def update(self):
+        # remove
+        if len(g_player.pending_deletes) > 0:
+            for id in g_player.pending_deletes:
+                for unit in g_player.units:
+                    if unit.id == id:
+                        g_player.units.remove(unit)
+                        break
+            g_player.pending_deletes.clear()
+        # create
+        if len(g_player.pending_creates) > 0:
+            for new_unit in g_player.pending_creates:
+                (entity, position) = new_unit
+                unit = None
+                if entity == "Artisan":
+                    unit = Artisan()
+                elif entity == "Explorer":
+                    pass
+                elif entity == "Soldier":
+                    pass
+                elif entity == "Worker":
+                    pass
+                agent = GOAPController()
+                agent.setup(unit)
+                agent.blackboard.set_position(position)
+                agent.enable_navigation()
+                agent.enable_targeting()
+                g_player.add_unit(agent)
+
+            g_player.pending_creates.clear()
+
         g_player.update()
             
         # catch inputs

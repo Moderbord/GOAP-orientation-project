@@ -2,7 +2,6 @@ from pygame import Surface
 
 from game_settings import g_vars
 
-from GOAP.transform import Position
 from GOAP2.__entity import __Entity
 
 class Camp(__Entity):
@@ -13,7 +12,5 @@ class Camp(__Entity):
         self.image = Surface((g_vars["Game"]["StructureSize"], g_vars["Game"]["StructureSize"]))
         super().__init__()
 
-        self.position = Position(2, 2)
-
-        self.goals = ["ProduceUnits"]
-        self.available_actions = ["ProduceArtisan"]
+        self.goals = ["ProduceUnits", "CompleteProductionJobs"]
+        self.available_actions = ["ProduceArtisan", "PickupProductionJob", "CreateFetchJob"]

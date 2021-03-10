@@ -31,7 +31,6 @@ class GOAPController():
         self.entity = entity
         # blackboard
         self.blackboard = g_bbm.create_blackboard(self.id)
-        self.blackboard.set_position(entity.position)
         self.blackboard.set_entity_str(type(entity).__name__)
         self.blackboard.set_request_replan(True)
         # working memory

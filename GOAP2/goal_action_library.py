@@ -1,10 +1,12 @@
+from game_entities import Tree
 from random import randint
 
 import game_time as time
 from game_server import g_map
-from game_settings import g_prod
+from game_settings import g_prod, g_vars
 from GOAP.transform import Position
 from GOAP.job_system import Job2, JobType
+from GOAP.Agents.artisan import Profession
 
 from GOAP2.__goal import __Goal
 from GOAP2.__action import __Action
@@ -17,13 +19,25 @@ from GOAP2.player import g_player
 
 # region Units
 
-class g_PerformJob(__Goal):
+class g_HaveProfession(__Goal):
     def __init__(self) -> None:
         super().__init__()
-        self.goal_state = {"DoJob": True}
+        self.goal_state = {"HasProfession" : True}
+    
+    def get_relevancy(self, agent_id: int):
+        return 0.0 if g_bbm.get_blackboard(agent_id).has_profession() else 1.0
 
 
-class g_UpgradeToArtisan(__Goal):
+class g_PerformArtisanWork(__Goal):
+    def __init__(self) -> None:
+        super().__init__()
+        self.goal_state = {"DoWork": True}
+
+    def get_relevancy(self, agent_id: int):
+        return 0.5
+
+
+class g_BeUpgraded(__Goal):
     def __init__(self) -> None:
         super().__init__()
         self.goal_state = {"BecomeUpgraded": True}
@@ -91,13 +105,22 @@ class g_ProduceSword(__g_ProductionGoal):
         self.goal_state = {"HasSword": True}
 
 
+class g_CompleteProductionJobs(__Goal):
+    def __init__(self) -> None:
+        super().__init__()
+        self.goal_state = {"HasJob": True}
+
+    def get_relevancy(self, agent_id: int):
+        return 0.3
+
+
 class g_ProduceUnits(__Goal):
     def __init__(self) -> None:
         super().__init__()
         self.goal_state = {"HasUnit": True}
     
     def get_relevancy(self, agent_id: int):
-        return 0.3
+        return 0.6
 
 
 class g_GetBuilt(__Goal):
@@ -291,7 +314,7 @@ class a_DeliverOre(__a_DeliverResourceAction):
 
 # region Jobs
 
-class a_DeliverResource(__Action):
+class a_FetchResource(__Action):
     def __init__(self) -> None:
         super().__init__()
         self.preconditions = {"HasResource" : True}
@@ -359,8 +382,7 @@ class a_PickupUpgradeJob(__Action):
         return g_player.has_job(JobType.Upgrade, g_bbm.get_blackboard(agent_id).get_entity_str())
 
     def activate(self, agent_id: int):
-        job = g_player.get_job(
-            JobType.Upgrade, g_bbm.get_blackboard(agent_id).get_entity_str())
+        job = g_player.get_job(JobType.Upgrade, g_bbm.get_blackboard(agent_id).get_entity_str())
         bb = g_bbm.get_blackboard(agent_id)
         if job:
             bb.set_manual_navigation_target(job.location)
@@ -369,8 +391,39 @@ class a_PickupUpgradeJob(__Action):
             bb.set_request_replan(True)
 
     def is_complete(self, agent_id: int):
-        # TODO destroy unit here?
-        return g_bbm.get_blackboard(agent_id).has_navigation_status(NavStatus.Arrived)
+        if g_bbm.get_blackboard(agent_id).has_navigation_status(NavStatus.Arrived):
+            bb = g_bbm.get_blackboard(agent_id)
+            job = bb.get_current_job()
+            target_bb = g_bbm.get_blackboard(job.sender_id)
+            target_bb.inventory.append(bb.get_entity_str())
+            # add pending unit deletion
+            g_player.pending_deletes.append(agent_id)
+            return True
+        return False
+
+
+class a_PickProfession(__Action):
+    def __init__(self) -> None:
+        super().__init__()
+        self.effects = {"HasProfession": True}
+
+    def is_complete(self, agent_id: int):
+        bb = g_bbm.get_blackboard(agent_id)
+
+        if g_player.has_job(JobType.Work, Profession.Smith):
+            bb.set_profession(Profession.Smith)
+            return True
+        if g_player.has_job(JobType.Work, Profession.Metallurgist):
+            bb.set_profession(Profession.Metallurgist)
+            return True
+        if g_player.has_job(JobType.Work, Profession.Refiner):
+            bb.set_profession(Profession.Refiner)
+            return True
+        if g_player.has_job(JobType.Build):
+            bb.set_profession(Profession.Builder)
+            return True
+        
+        return False
 
 
 class a_PickupBuildJob(__Action):
@@ -380,7 +433,7 @@ class a_PickupBuildJob(__Action):
 
     def is_valid_in_context(self, agent_id: int):
         # TODO and self.artisan == builder
-        return g_player.has_job(JobType.Build)
+        return g_player.has_job(JobType.Build) and g_bbm.get_blackboard(agent_id).get_profession() == Profession.Builder
 
     def activate(self, agent_id: int):
         job = g_player.get_job(JobType.Build)
@@ -399,7 +452,7 @@ class a_BuildStructure(__Action):
     def __init__(self) -> None:
         super().__init__()
         self.preconditions = {"HasJob": True}
-        self.effects = {"DoJob": True}
+        self.effects = {"DoWork": True}
         self.construction_time = 10  # TODO lookup
 
     def activate(self, agent_id: int):
@@ -416,6 +469,7 @@ class a_BuildStructure(__Action):
 
             target_id = blackboard.get_current_job().sender_id
             g_bbm.get_blackboard(target_id).set_is_built(True)
+            print("Builder complete")
             return True
 
         return False
@@ -448,7 +502,17 @@ class a_CreateBuildJob(__Action):
         g_player.add_job(job)
 
     def is_complete(self, agent_id: int):
-        return g_bbm.get_blackboard(agent_id).is_built()
+        bb = g_bbm.get_blackboard(agent_id)
+        if bb.is_built():
+            print("Structure built!")
+
+            for structure in g_player.structures:
+                if type(structure.entity).__name__ == bb.get_entity_str():
+                    structure.entity.tile_color = g_vars["Structure"][bb.get_entity_str()]["TileColor"]
+                    structure.entity.image.fill(g_vars["Game"]["Colors"][structure.entity.tile_color])
+                    return True
+                
+        return False
 
 
 class a_CreateFetchJob(__Action):
@@ -458,7 +522,7 @@ class a_CreateFetchJob(__Action):
 
     def activate(self, agent_id: int):
         bb = g_bbm.get_blackboard(agent_id)
-        target = target = bb.get_production_target() if bb.is_built() else bb.get_entity_str()
+        target = bb.get_production_target() if bb.is_built() else bb.get_entity_str()
         cost_table = g_prod[target]["CostTable"]
         bb.set_cost_table(cost_table)
 
@@ -468,7 +532,12 @@ class a_CreateFetchJob(__Action):
             # diff = max(required_amount - current_amount, 0)
 
             for x in range(0, required_amount):
-                new_job = Job2(JobType.Fetch, agent_id, drop_off_loc, material)
+                new_job = None
+                if material == "Worker":
+                    structure_pos = bb.get_position()
+                    new_job = Job2(JobType.Upgrade, agent_id, structure_pos, material)
+                else:
+                    new_job = Job2(JobType.Fetch, agent_id, drop_off_loc, material)
                 g_player.add_job(new_job)
 
     def is_complete(self, agent_id: int):
@@ -526,7 +595,9 @@ class a_ProduceArtisan(__Action):
 
         if blackboard.get_progress_time() > self.construction_time:
             blackboard.reset_timed_progress()
+            blackboard.set_production_target(None)
             print("Created artisan") # TODO add unit
+            g_player.pending_creates.append(("Artisan", blackboard.get_position()))
             return True
 
         return False
@@ -544,8 +615,9 @@ class GoalActionLbrary():
         actions = {}
 
         # Goals
-        goals["PerformJob"] = g_PerformJob()
-        goals["UpgradeToArtisan"] = g_UpgradeToArtisan()
+        goals["HaveProfession"] = g_HaveProfession()
+        goals["PerformArtisanWork"] = g_PerformArtisanWork()
+        goals["BeUpgraded"] = g_BeUpgraded()
         goals["TransferResources"] = g_TransferResources()
         goals["CollectResources"] = g_CollectResources()
         goals["FindResources"] = g_FindResources()
@@ -553,6 +625,7 @@ class GoalActionLbrary():
         goals["ProduceCoal"] = g_ProduceCoal()
         goals["ProduceIronBar"] = g_ProduceIronBar()
         goals["ProduceSword"] = g_ProduceSword()
+        goals["CompleteProductionJobs"] = g_CompleteProductionJobs()
         goals["ProduceUnits"] = g_ProduceUnits()
         goals["GetBuilt"] = g_GetBuilt()
         goals["GetWorked"] = g_GetWorked()
@@ -567,9 +640,10 @@ class GoalActionLbrary():
         actions["DeliverLogs"] = a_DeliverLogs()
         actions["DeliverOre"] = a_DeliverOre()
         #
-        actions["DeliverResource"] = a_DeliverResource()
+        actions["FetchResource"] = a_FetchResource()
         actions["PickupFetchJob"] = a_PickupFetchJob()
         actions["PickupUpgradeJob"] = a_PickupUpgradeJob()
+        actions["PickProfession"] = a_PickProfession()
         actions["PickupBuildJob"] = a_PickupBuildJob()
         actions["BuildStructure"] = a_BuildStructure()
         #

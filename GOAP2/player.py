@@ -20,6 +20,8 @@ class Player():
 
         # tmp
         self.have_builder = False
+        self.pending_creates = []
+        self.pending_deletes = []
 
     def update(self):
         for unit in self.units:

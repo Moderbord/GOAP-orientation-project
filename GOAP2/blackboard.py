@@ -36,6 +36,8 @@ class Blackboard():
         self.production_target = None
         self.cost_table = None
         self.required_artisan = None
+        # artisan
+        self.profession = None
 
     # entity
     def set_entity_str(self, value):
@@ -199,6 +201,16 @@ class Blackboard():
     
     def get_required_artisan(self):
         return self.required_artisan
+
+    # artisan
+    def set_profession(self, value):
+        self.profession = value
+
+    def get_profession(self):
+        return self.profession
+    
+    def has_profession(self) -> bool:
+        return self.profession
 
 
 #####

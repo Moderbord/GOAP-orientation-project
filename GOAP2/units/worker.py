@@ -2,7 +2,6 @@ from pygame import Surface
 
 from game_settings import g_vars
 
-from GOAP.transform import Position
 from GOAP2.__entity import __Entity
 
 class Worker(__Entity):
@@ -13,8 +12,5 @@ class Worker(__Entity):
         self.image = Surface((g_vars["Game"]["UnitSize"], g_vars["Game"]["UnitSize"]))
         super().__init__()
 
-        self.position = Position(2, 2)
-        # TODO UpgradeToArtisan should just be Upgrade or smt, action should rather be UpgradeToArtisan
-        # self.goals = ["CollectResources", "FindResources"] 
-        self.goals = ["CollectResources", "FindResources", "UpgradeToArtisan", "TransferResources"] 
-        self.available_actions = ["GatherOre", "GatherLogs", "DeliverOre", "DeliverLogs", "FindLogs", "FindOre", "PickupFetchJob", "DeliverResource"]
+        self.goals = ["CollectResources", "FindResources", "BeUpgraded", "TransferResources"] 
+        self.available_actions = ["GatherOre", "GatherLogs", "DeliverOre", "DeliverLogs", "FindLogs", "FindOre", "PickupFetchJob", "FetchResource", "PickupUpgradeJob"]

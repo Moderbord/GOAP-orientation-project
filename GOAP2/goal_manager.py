@@ -1,3 +1,5 @@
+import game_time as time
+
 from GOAP2.__manager import __Manager
 from GOAP2.plan import Plan
 from GOAP2.goap_planner import g_planner
@@ -13,6 +15,9 @@ class GoalManager(__Manager):
         self.goal_map = {}
         self.world_state = {}
         self.actions = []
+
+        self.replan_threshold = 5.0
+        self.idle_time = 0.0
 
     def _update(self):
         blackboard = g_bbm.get_blackboard(self.agent_id)
@@ -46,6 +51,10 @@ class GoalManager(__Manager):
                     blackboard.set_request_replan(True)
         
         else:
+            self.idle_time += time.clock.delta
+            if self.idle_time > self.replan_threshold:
+                blackboard.set_request_replan(True)
+                self.idle_time = 0
             pass
             # TODO replan?
 

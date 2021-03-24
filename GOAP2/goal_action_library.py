@@ -46,13 +46,22 @@ class g_BeUpgraded(__Goal):
         return 1.0 if g_player.has_job(JobType.Upgrade, "Worker") else 0.0
 
 
-class g_TransferResources(__Goal):
+class g_FetchResources(__Goal):
     def __init__(self) -> None:
         super().__init__()
         self.goal_state = {"FetchedResource": True}
 
     def get_relevancy(self, agent_id: int):
         return 0.8 if g_player.has_job(JobType.Fetch) else 0.0
+
+
+class g_CollectResources(__Goal):
+    def __init__(self) -> None:
+        super().__init__()
+        self.goal_state = {"CollectResource": True}
+
+    def get_relevancy(self, agent_id: int):
+        return 0.9 if g_player.has_job(JobType.Collect) else 0.0
 
 
 class g_FindResources(__Goal):
@@ -68,11 +77,11 @@ class g_FindResources(__Goal):
         return 0.1 if result else 0.6
 
 
-class g_CollectResources(__Goal):
+class g_GatherResources(__Goal):
 
     def __init__(self) -> None:
         super().__init__()
-        self.goal_state = {"CollectResource": True}
+        self.goal_state = {"GatherResource": True}
 
     def get_relevancy(self, agent_id: int):
         return 0.5
@@ -235,7 +244,7 @@ class __a_GatherAction(__Action):
             blackboard.add_progress_time(time.clock.delta)
             if blackboard.get_progress_time() > self.gather_time:
                 blackboard.reset_timed_progress()
-                print("Gathered " + self.target_resource + "!")
+                #print("Gathered " + self.target_resource + "!")
                 # TODO remove memory fact? <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                 return True
             return False
@@ -299,7 +308,7 @@ class a_DeliverLogs(__a_DeliverResourceAction):
         super().__init__()
         self.target_resource = "Logs"
         self.preconditions = {"HasLogs": True}
-        self.effects = {"CollectLogs": True, "CollectResource": True}
+        self.effects = {"GatherLogs": True, "GatherResource": True}
 
 
 class a_DeliverOre(__a_DeliverResourceAction):
@@ -308,16 +317,65 @@ class a_DeliverOre(__a_DeliverResourceAction):
         super().__init__()
         self.target_resource = "Ore"
         self.preconditions = {"HasOre": True}
-        self.effects = {"CollectOre": True, "CollectResource": True}
+        self.effects = {"GatherOre": True, "GatherResource": True}
 
 # endregion
 
 # region Jobs
 
+class a_CollectResource(__Action):
+    def __init__(self) -> None:
+        super().__init__()
+        self.preconditions = {"HasCollectedResource" : True}
+        self.effects = {"CollectResource" : True}
+    
+    def is_complete(self, agent_id: int):
+        bb = g_bbm.get_blackboard(agent_id)
+        if bb.has_navigation_status(NavStatus.Arrived):
+            job = bb.get_current_job()
+            material = job.extra
+            g_player.resources.append(material)
+            return True
+
+        return False
+
+
+class a_PickupCollectJob(__Action):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.effects = {"HasCollectedResource": True}
+
+    def is_valid_in_context(self, agent_id: int):
+        return g_player.has_job(JobType.Collect)
+
+    def activate(self, agent_id: int):
+        job = g_player.get_job(JobType.Collect)
+        bb = g_bbm.get_blackboard(agent_id)
+        if job:
+            # structures blackboard
+            target_bb = g_bbm.get_blackboard(job.sender_id)
+            bb.set_manual_navigation_target(target_bb.get_position())
+            bb.set_current_job(job)
+
+    def is_complete(self, agent_id: int):
+        bb = g_bbm.get_blackboard(agent_id)
+        if bb.has_navigation_status(NavStatus.Arrived):
+            job = bb.get_current_job()
+            material = job.extra
+            target_bb = g_bbm.get_blackboard(job.sender_id)
+            target_bb.produce.remove(material)
+            
+            bb.set_target_fact_type(FactType.Delivery)
+            bb.set_manual_navigation(False)
+            return True
+        return False
+
+
 class a_FetchResource(__Action):
     def __init__(self) -> None:
         super().__init__()
-        self.preconditions = {"HasResource" : True}
+        self.preconditions = {"HasFetchedResource" : True}
         self.effects = {"FetchedResource" : True}
 
     def activate(self, agent_id: int):
@@ -334,7 +392,7 @@ class a_FetchResource(__Action):
             target_bb = g_bbm.get_blackboard(job.sender_id)
             material = job.extra
             target_bb.inventory.append(material)
-            print("Delivered " + material) # TODO append to target inventory
+            #print("Delivered " + material)
             bb.set_manual_navigation(False)
             return True
 
@@ -345,7 +403,7 @@ class a_PickupFetchJob(__Action):
 
     def __init__(self) -> None:
         super().__init__()
-        self.effects = {"HasResource": True}
+        self.effects = {"HasFetchedResource": True}
 
     def is_valid_in_context(self, agent_id: int):
         return g_player.has_job(JobType.Fetch)
@@ -425,6 +483,55 @@ class a_PickProfession(__Action):
         
         return False
 
+class __a_PickupWorkJob(__Action):
+    def __init__(self) -> None:
+        super().__init__()
+        self.effects = {"DoWork": True}
+        self.target_profession = None
+        self.target_produce = None
+
+    def is_valid_in_context(self, agent_id: int):
+        return g_player.has_job(JobType.Work, self.target_profession) and g_bbm.get_blackboard(agent_id).get_profession() == self.target_profession
+
+    def activate(self, agent_id: int):
+        job = g_player.get_job(JobType.Work, self.target_profession)
+        bb = g_bbm.get_blackboard(agent_id)
+        if job:
+            bb.set_manual_navigation_target(job.location)
+            bb.set_current_job(job)
+        else:
+            bb.set_request_replan(True)
+
+    def is_complete(self, agent_id: int):
+        bb = g_bbm.get_blackboard(agent_id)
+        if bb.has_navigation_status(NavStatus.Arrived):
+            target_id = bb.get_current_job().sender_id
+            g_bbm.get_blackboard(target_id).set_is_worked(True)
+            g_bbm.get_blackboard(target_id).set_production_target(self.target_produce)
+            return True
+        return False
+
+
+class a_PickupSmithJob(__a_PickupWorkJob):
+    def __init__(self) -> None:
+        super().__init__()
+        self.target_profession = Profession.Smith
+        self.target_produce = "Sword"
+
+
+class a_PickupMetallurgistJob(__a_PickupWorkJob):
+    def __init__(self) -> None:
+        super().__init__()
+        self.target_profession = Profession.Metallurgist
+        self.target_produce = "IronBar"
+
+
+class a_PickupRefinerJob(__a_PickupWorkJob):
+    def __init__(self) -> None:
+        super().__init__()
+        self.target_profession = Profession.Refiner
+        self.target_produce = "Coal"
+
 
 class a_PickupBuildJob(__Action):
     def __init__(self) -> None:
@@ -432,7 +539,6 @@ class a_PickupBuildJob(__Action):
         self.effects = {"HasJob": True}
 
     def is_valid_in_context(self, agent_id: int):
-        # TODO and self.artisan == builder
         return g_player.has_job(JobType.Build) and g_bbm.get_blackboard(agent_id).get_profession() == Profession.Builder
 
     def activate(self, agent_id: int):
@@ -469,7 +575,7 @@ class a_BuildStructure(__Action):
 
             target_id = blackboard.get_current_job().sender_id
             g_bbm.get_blackboard(target_id).set_is_built(True)
-            print("Builder complete")
+            #print("Builder complete")
             return True
 
         return False
@@ -504,7 +610,7 @@ class a_CreateBuildJob(__Action):
     def is_complete(self, agent_id: int):
         bb = g_bbm.get_blackboard(agent_id)
         if bb.is_built():
-            print("Structure built!")
+            #print("Structure built!")
 
             for structure in g_player.structures:
                 if type(structure.entity).__name__ == bb.get_entity_str():
@@ -545,7 +651,7 @@ class a_CreateFetchJob(__Action):
         cost_table = bb.get_cost_table()
 
         if all([bb.inventory.count(key) >= cost_table.get(key) for key in cost_table.keys()]):
-            print("materials received")
+            #print("materials received")
             return True
         return False
 
@@ -575,19 +681,15 @@ class a_PickupProductionJob(__Action):
         return True
 
 
-class a_ProduceArtisan(__Action):
+class __a_ProduceUnit(__Action):
     def __init__(self) -> None:
         super().__init__()
         self.preconditions = {"HasMaterials" : True}
-        self.effects = {"HasUnit" : True, "HasArtisan" : True}
-        self.construction_time = g_prod["Artisan"]["ProductionTime"]
+        self.produced_unit = None
+        self.construction_time = None
     
     def is_valid_in_context(self, agent_id: int):
-        return g_bbm.get_blackboard(agent_id).get_production_target() == "Artisan"
-
-    def activate(self, agent_id: int):
-        # g_bbm.get_blackboard(agent_id).begin_timed_action()
-        pass
+        return g_bbm.get_blackboard(agent_id).get_production_target() == self.produced_unit
 
     def is_complete(self, agent_id: int):
         blackboard = g_bbm.get_blackboard(agent_id)
@@ -596,11 +698,80 @@ class a_ProduceArtisan(__Action):
         if blackboard.get_progress_time() > self.construction_time:
             blackboard.reset_timed_progress()
             blackboard.set_production_target(None)
-            print("Created artisan") # TODO add unit
-            g_player.pending_creates.append(("Artisan", blackboard.get_position()))
+            blackboard.inventory.clear()
+            #print("Created artisan")
+            g_player.pending_creates.append((self.produced_unit, blackboard.get_position()))
             return True
 
         return False
+
+class a_ProduceArtisan(__a_ProduceUnit):
+    def __init__(self) -> None:
+        super().__init__()
+        self.effects = {"HasUnit" : True, "HasArtisan" : True}
+        self.produced_unit = "Artisan"
+        self.construction_time = g_prod["Artisan"]["ProductionTime"]
+
+
+class a_ProduceSoldier(__a_ProduceUnit):
+    def __init__(self) -> None:
+        super().__init__()
+        self.effects = {"HasUnit" : True, "HasSoldier" : True}
+        self.produced_unit = "Soldier"
+        self.construction_time = g_prod["Soldier"]["ProductionTime"]
+
+
+class __a_ProduceResource(__Action):
+    def __init__(self) -> None:
+        super().__init__()
+        self.preconditions = {"HasMaterials" : True}
+        self.target_produce = None
+        self.construction_time = None
+
+    def activate(self, agent_id: int):
+        pass
+        #print("Producing " + self.target_produce + "!")
+
+    def is_complete(self, agent_id: int):
+        bb = g_bbm.get_blackboard(agent_id)
+        bb.add_progress_time(time.clock.delta)
+
+        if bb.get_progress_time() > self.construction_time:
+            #print("Produced " + self.target_produce + "!")
+            bb.reset_timed_progress()
+            bb.inventory.clear()
+            bb.produce.append(self.target_produce)
+
+            job = Job2(JobType.Collect, agent_id, bb.get_position(), self.target_produce)
+            g_player.add_job(job)
+            return True
+
+        return False
+
+
+class a_ProduceCoal(__a_ProduceResource):
+    def __init__(self) -> None:
+        super().__init__()
+        self.effects = {"HasCoal" : True}
+        self.target_produce = "Coal"
+        self.construction_time = g_prod["Coal"]["ProductionTime"]
+
+
+class a_ProduceSword(__a_ProduceResource):
+    def __init__(self) -> None:
+        super().__init__()
+        self.effects = {"HasSword" : True}
+        self.target_produce = "Sword"
+        self.construction_time = g_prod["Sword"]["ProductionTime"]
+
+
+class a_ProduceIronBar(__a_ProduceResource):
+    def __init__(self) -> None:
+        super().__init__()
+        self.effects = {"HasIronBar" : True}
+        self.target_produce = "IronBar"
+        self.construction_time = g_prod["IronBar"]["ProductionTime"]
+
 
 # endregion
 
@@ -618,9 +789,10 @@ class GoalActionLbrary():
         goals["HaveProfession"] = g_HaveProfession()
         goals["PerformArtisanWork"] = g_PerformArtisanWork()
         goals["BeUpgraded"] = g_BeUpgraded()
-        goals["TransferResources"] = g_TransferResources()
+        goals["FetchResources"] = g_FetchResources()
         goals["CollectResources"] = g_CollectResources()
         goals["FindResources"] = g_FindResources()
+        goals["GatherResources"] = g_GatherResources()
         #
         goals["ProduceCoal"] = g_ProduceCoal()
         goals["ProduceIronBar"] = g_ProduceIronBar()
@@ -640,10 +812,15 @@ class GoalActionLbrary():
         actions["DeliverLogs"] = a_DeliverLogs()
         actions["DeliverOre"] = a_DeliverOre()
         #
+        actions["CollectResource"] = a_CollectResource()
+        actions["PickupCollectJob"] = a_PickupCollectJob()
         actions["FetchResource"] = a_FetchResource()
         actions["PickupFetchJob"] = a_PickupFetchJob()
         actions["PickupUpgradeJob"] = a_PickupUpgradeJob()
         actions["PickProfession"] = a_PickProfession()
+        actions["PickupSmithJob"] = a_PickupSmithJob()
+        actions["PickupMetallurgistJob"] = a_PickupMetallurgistJob()
+        actions["PickupRefinerJob"] = a_PickupRefinerJob()
         actions["PickupBuildJob"] = a_PickupBuildJob()
         actions["BuildStructure"] = a_BuildStructure()
         #
@@ -652,6 +829,10 @@ class GoalActionLbrary():
         actions["CreateFetchJob"] = a_CreateFetchJob()
         actions["PickupProductionJob"] = a_PickupProductionJob()
         actions["ProduceArtisan"] = a_ProduceArtisan()
+        actions["ProduceSoldier"] = a_ProduceSoldier()
+        actions["ProduceCoal"] = a_ProduceCoal()
+        actions["ProduceSword"] = a_ProduceSword()
+        actions["ProduceIronBar"] = a_ProduceIronBar()
 
         # assign
         self.goals = goals

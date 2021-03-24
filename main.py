@@ -1,4 +1,4 @@
-from game_main import Game
+# from game_main import Game
 
 # game = Game()
 # game.set_map("default_map.txt")
@@ -13,13 +13,13 @@ from game_main import Game
 # gg = GOAP_GAME()
 # gg.set_map("default_map.txt")
 # gg.set_fog_visibility(False)
-# #gg.enable_GOAP_ai()
-# gg.enable_dragon_scenario()
+# gg.enable_GOAP_ai()
+# #gg.enable_dragon_scenario()
 # gg.run()
 
-from GOAP2.game import Game
+from GOAP2.game import Game as MegaOwo
 
-owo = Game()
+owo = MegaOwo()
 owo.set_map("default_map.txt")
 owo.set_fog_visibility(False)
 owo.run()

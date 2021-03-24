@@ -68,7 +68,7 @@ class GameMap:
                     
                     self.tile_data[(x, y)] = new_tile
 
-        for i in range(0, 360):
+        for i in range(0, 1000):
             tile = self.get_random_background_tile()
             while not tile.passable:
                 tile = self.get_random_background_tile()

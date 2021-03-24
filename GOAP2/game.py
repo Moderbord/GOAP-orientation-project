@@ -8,13 +8,18 @@ from game_settings import g_vars
 from game_server import g_map
 from camera import camera
 
+from GOAP.Agents.artisan import Profession
 from GOAP2.resource_sensor import ResourceSensor
 from GOAP2.goap_controller import GOAPController
 from GOAP2.working_memory import WorkingMemoryFact, FactType
 from GOAP2.units.worker import Worker
 from GOAP2.units.artisan import Artisan
+from GOAP2.units.soldier import Soldier
 from GOAP2.structures.refinery import Refinery
 from GOAP2.structures.camp import Camp
+from GOAP2.structures.encampment import Encampment
+from GOAP2.structures.smithy import Smithy
+from GOAP2.structures.smelter import Smelter
 from GOAP2.player import g_player
 
 class Game:
@@ -43,7 +48,7 @@ class Game:
         self.running = True
 
         ##
-        for x in range(0, 1):
+        for x in range(0, 50):
             worker = Worker()
             agent = GOAPController()
             agent.setup(worker)
@@ -65,6 +70,7 @@ class Game:
         agent = GOAPController()
         agent.setup(refinery)
         agent.blackboard.set_position(Position(4, 5))
+        agent.blackboard.set_required_artisan(Profession.Refiner)
         g_player.add_structure(agent)
 
         camp = Camp()
@@ -72,6 +78,26 @@ class Game:
         agent.setup(camp)
         agent.blackboard.set_is_built(True)
         agent.blackboard.set_position(Position(2, 2))
+        g_player.add_structure(agent)
+
+        smelter = Smelter()
+        agent = GOAPController()
+        agent.setup(smelter)
+        agent.blackboard.set_position(Position(4, 1))
+        agent.blackboard.set_required_artisan(Profession.Metallurgist)
+        g_player.add_structure(agent)
+
+        smithy = Smithy()
+        agent = GOAPController()
+        agent.setup(smithy)
+        agent.blackboard.set_position(Position(1, 4))
+        agent.blackboard.set_required_artisan(Profession.Smith)
+        g_player.add_structure(agent)
+
+        encampment = Encampment()
+        agent = GOAPController()
+        agent.setup(encampment)
+        agent.blackboard.set_position(Position(8, 1))
         g_player.add_structure(agent)
 
         frames = 0
@@ -92,7 +118,7 @@ class Game:
             draw_time += t3 - t2
             self.events()
 
-            #self.running = self.agents[0].count_units("Soldier") < 20
+            self.running = len([u for u in g_player.units if type(u.entity).__name__ == "Soldier"]) < 20
 
         t_end = time.now()
 
@@ -124,7 +150,7 @@ class Game:
                 elif entity == "Explorer":
                     pass
                 elif entity == "Soldier":
-                    pass
+                    unit = Soldier()
                 elif entity == "Worker":
                     pass
                 agent = GOAPController()

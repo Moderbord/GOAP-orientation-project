@@ -38,7 +38,7 @@
 
 "Refinery": {
 	"CostTable": {
-		"Logs" : 10
+		"Logs" : 1
 	},
 	"OutputTable": {
 		"Coal" : 1
@@ -48,7 +48,7 @@
 
 "Smithy": {
 	"CostTable": {
-		"Logs" : 10,
+		"Logs" : 1,
 		"IronBar" : 3
 	},
 	"OutputTable": {
@@ -59,7 +59,7 @@
 
 "Smelter": {
 	"CostTable": {
-		"Logs" : 10
+		"Logs" : 1
 	},
 	"OutputTable": {
 		"IronBar" : 1
@@ -69,7 +69,7 @@
 
 "Encampment": {
 	"CostTable": {
-		"Logs" : 10
+		"Logs" : 1
 	},
 	"OutputTable": {
 		"Soldier" : 1
@@ -88,7 +88,7 @@
 "IronBar": {
 	"CostTable": {
 		"Coal" : 3,
-		"IronOre" : 2
+		"Ore" : 2
 	},
 	"ProductionTime": 7
 },

@@ -13,4 +13,4 @@ class Artisan(__Entity):
         super().__init__()
 
         self.goals = ["HaveProfession", "PerformArtisanWork"] 
-        self.available_actions = ["PickProfession", "PickupBuildJob", "BuildStructure"]
+        self.available_actions = ["PickProfession", "PickupBuildJob", "BuildStructure", "PickupSmithJob", "PickupMetallurgistJob", "PickupRefinerJob"]

@@ -17,13 +17,13 @@ class GOAPProvidable:
 
     def plan_found(self, goal, actions):
         pass
-        string = "(" + type(self).__name__ + ") Plan found: "
-        tmp = actions.copy()
-        while len(tmp) > 0:
-            a = tmp.popleft()
-            string += type(a).__name__
-            string += " -> "
-        print(string + str(goal))
+        # string = "(" + type(self).__name__ + ") Plan found: "
+        # tmp = actions.copy()
+        # while len(tmp) > 0:
+        #     a = tmp.popleft()
+        #     string += type(a).__name__
+        #     string += " -> "
+        # print(string + str(goal))
         
     def actions_finished(self):
         #print(type(self).__name__ + " done actions!")

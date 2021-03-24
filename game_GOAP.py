@@ -80,8 +80,8 @@ class Game:
             agent.start_agent()
 
             # dragon scenario
-            agent.groups = g_map.sprite_group_units
-            agent.start_actor()
+            #agent.groups = g_map.sprite_group_units
+            #agent.start_actor()
 
         frames = 0
         update_time = 0.0
@@ -102,7 +102,7 @@ class Game:
             draw_time += t3 - t2
             self.events()
 
-            #self.running = self.agents[0].count_units("Soldier") < 20
+            self.running = self.agents[0].count_units("Soldier") < 20
 
         t_end = time.now()
 

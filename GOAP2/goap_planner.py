@@ -49,12 +49,14 @@ class GOAPPlanner():
             if self.solves_conditions(current.goal_state, current.world_state):
                 end = current
                 break
-
+            
+            # heuristic isn't applied correctly, -> need to compare each actions supposed world state to current state, 
             unsatisfied_conditions = {key : value for key, value in current.goal_state.items() if current.goal_state[key] != current.world_state.get(key)}
+            heuristic = len(unsatisfied_conditions.keys())
             # Check cost of each available action that solves preconditions
             for action in self.available_actions(unsatisfied_conditions, current.action_set):
-                # new cost is equal to current planning cost + targeted actions cost
-                new_cost = current.cost + action.get_cost(agent_id)
+                # new cost is equal to current planning cost + targeted actions cost + heuristic
+                new_cost = current.cost + action.get_cost(agent_id) + heuristic
                 # If planning cost to action hasn't already been evaluated, or is lower than previous evaluated planning cost, update
                 if action not in action_cost_table or new_cost < action_cost_table[action]:
                     action_cost_table[action] = new_cost
@@ -71,12 +73,12 @@ class GOAPPlanner():
             return
         # create sequence
         action_sequence = []
-        s = ""
+        #s = ""
         while True:
             if end.action is None:
-                print(s + str(end.goal_state))
+                #print(s + str(end.goal_state))
                 break
-            s += type(end.action).__name__ +" -> "
+            #s += type(end.action).__name__ +" -> "
             action_sequence.append(end.action)
             end = end.parent
 

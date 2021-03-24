@@ -12,5 +12,5 @@ class Worker(__Entity):
         self.image = Surface((g_vars["Game"]["UnitSize"], g_vars["Game"]["UnitSize"]))
         super().__init__()
 
-        self.goals = ["CollectResources", "FindResources", "BeUpgraded", "TransferResources"] 
-        self.available_actions = ["GatherOre", "GatherLogs", "DeliverOre", "DeliverLogs", "FindLogs", "FindOre", "PickupFetchJob", "FetchResource", "PickupUpgradeJob"]
+        self.goals = ["GatherResources", "FindResources", "BeUpgraded", "FetchResources", "CollectResources"] 
+        self.available_actions = ["GatherOre", "GatherLogs", "DeliverOre", "DeliverLogs", "FindLogs", "FindOre", "PickupFetchJob", "FetchResource", "PickupUpgradeJob", "CollectResource", "PickupCollectJob"]

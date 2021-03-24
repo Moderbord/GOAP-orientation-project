@@ -56,7 +56,7 @@ class Player():
                 self.resources.remove(resource)
             return True
         
-        print("Not enough resources to deduct!")
+        #print("Not enough resources to deduct!")
         return False
 
     def count_resource(self, resource):
@@ -84,9 +84,9 @@ class Player():
                 self.production_jobs.append(production_job)
                 self.have_builder = True
 
-                # for x in range(20):
-                #     production_job = Job(JobType.Production, None, "Soldier") # tmp
-                #     self.production_jobs.append(production_job)
+                for x in range(20):
+                    production_job = Job2(JobType.Production, None, None, "Soldier") # tmp
+                    self.production_jobs.append(production_job)
 
         elif job.job_type == JobType.Collect:
             self.collect_jobs.append(job)

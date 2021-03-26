@@ -6,12 +6,12 @@ The project was developed with python python 3.8.2 and pygame 1.9.6.
 Pygame recommends using at least python 3.7.7
 
 ### Recomended
-**Python 3.8.2**
-**Pygame 1.9.6**
+**Python 3.8.2**.
+**Pygame 1.9.6**.
 
 ### Minimum
-**Python 3.7.0**
-**Pygame 1.9.4**
+**Python 3.7.0**.
+**Pygame 1.9.4**.
 
 
 

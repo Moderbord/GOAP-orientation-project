@@ -13,4 +13,6 @@ Pygame recommends using at least python 3.7.7
 **Python 3.7.0**  
 **Pygame 1.9.4**  
 
+## How to run
+Run main.py after installing package requirements. 
 
